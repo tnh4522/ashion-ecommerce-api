@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/5.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
-
+import os
 from pathlib import Path
 from datetime import timedelta
 
@@ -147,7 +147,9 @@ SIMPLE_JWT = {
 
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:5173',
+    'http://localhost:5174',
     'http://127.0.0.1:5173',
+    'http://127.0.0.1:5174',
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True
@@ -160,3 +162,6 @@ CORS_ALLOW_METHODS = [
     'POST',
     'PUT',
 ]
+
+MEDIA_URL = 'media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

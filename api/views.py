@@ -1,7 +1,7 @@
-from rest_framework import generics, status
+from rest_framework import generics, status, permissions
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
-from .serializers import UserRegistrationSerializer, CustomTokenObtainPairSerializer
+from .serializers import UserRegistrationSerializer, CustomTokenObtainPairSerializer, UserSerializer
 from .models import User
 from rest_framework_simplejwt.views import TokenObtainPairView
 
@@ -34,3 +34,11 @@ class UserRegistrationView(generics.CreateAPIView):
 class UserLoginView(TokenObtainPairView):
     permission_classes = (AllowAny,)
     serializer_class = CustomTokenObtainPairSerializer
+
+
+class UserDetailView(generics.RetrieveUpdateAPIView):
+    serializer_class = UserSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_object(self):
+        return self.request.user

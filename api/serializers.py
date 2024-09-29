@@ -70,3 +70,25 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         data.update({'username': self.user.username})
         data.update({'email': self.user.email})
         return data
+
+
+class UserSerializer(serializers.ModelSerializer):
+    profile_picture = serializers.ImageField(required=False)
+    social_links = serializers.JSONField(required=False)
+    preferences = serializers.JSONField(required=False)
+
+    class Meta:
+        model = User
+        fields = (
+            'id',
+            'username',
+            'email',
+            'phone_number',
+            'date_of_birth',
+            'gender',
+            'profile_picture',
+            'bio',
+            'social_links',
+            'preferences',
+        )
+        read_only_fields = ('id',)
