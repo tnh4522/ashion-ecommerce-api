@@ -4,6 +4,13 @@ from rest_framework.permissions import AllowAny
 from .serializers import UserRegistrationSerializer, CustomTokenObtainPairSerializer, UserSerializer
 from .models import User
 from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework import generics, permissions
+from rest_framework.permissions import IsAuthenticated
+from .models import Category
+from .serializers import CategorySerializer
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class UserRegistrationView(generics.CreateAPIView):
@@ -42,3 +49,22 @@ class UserDetailView(generics.RetrieveUpdateAPIView):
 
     def get_object(self):
         return self.request.user
+
+
+class CategoryCreateView(generics.CreateAPIView):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        serializer.save()
+
+
+class CategoryListView(generics.ListAPIView):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    permission_classes = [AllowAny]
+
+    def get_queryset(self):
+        logger.debug("Fetching all categories")
+        return super().get_queryset()

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="db" uuid="06ba5b91-408c-496a-bdf5-53cac03733c4">
+    <data-source source="LOCAL" name="db" uuid="46427542-b849-483a-a2a1-0b20d2142a7e">
       <driver-ref>sqlite.xerial</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
-      <jdbc-url>jdbc:sqlite:D:\ashion-ecommerce-api\db.sqlite3</jdbc-url>
+      <jdbc-url>jdbc:sqlite:D:\ashionEcommerceApi\db.sqlite3</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
       <libraries>
         <library>

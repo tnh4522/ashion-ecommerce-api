@@ -1,7 +1,10 @@
 from rest_framework import serializers
 from django.contrib.auth import authenticate
-from .models import User
+from .models import *
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
@@ -92,3 +95,20 @@ class UserSerializer(serializers.ModelSerializer):
             'preferences',
         )
         read_only_fields = ('id',)
+
+
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = (
+            'id',
+            'name',
+            'parent',
+            'slug',
+            'description',
+            'image',
+            'is_active',
+            'meta_title',
+            'meta_description',
+            'sort_order',
+        )
