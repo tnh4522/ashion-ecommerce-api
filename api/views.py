@@ -1,8 +1,10 @@
-from rest_framework import generics, status, permissions
+from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
-from .serializers import UserRegistrationSerializer, CustomTokenObtainPairSerializer, UserSerializer
-from .models import User
+
+from .permissions import IsAdminOrSeller
+from .serializers import UserRegistrationSerializer, CustomTokenObtainPairSerializer, UserSerializer, ProductSerializer
+from .models import User, Product
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework import generics, permissions
 from rest_framework.permissions import IsAuthenticated
@@ -23,7 +25,6 @@ class UserRegistrationView(generics.CreateAPIView):
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
 
-        # Generate token upon successful registration
         from rest_framework_simplejwt.tokens import RefreshToken
         refresh = RefreshToken.for_user(user)
         return Response(
@@ -68,3 +69,18 @@ class CategoryListView(generics.ListAPIView):
     def get_queryset(self):
         logger.debug("Fetching all categories")
         return super().get_queryset()
+
+
+class ProductCreateView(generics.CreateAPIView):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+    permission_classes = [IsAuthenticated, IsAdminOrSeller]
+
+    def perform_create(self, serializer):
+        serializer.save()
+
+
+class ProductListView(generics.ListAPIView):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+    permission_classes = [AllowAny]
