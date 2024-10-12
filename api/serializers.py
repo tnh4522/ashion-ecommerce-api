@@ -1,5 +1,4 @@
 from rest_framework import serializers
-from django.contrib.auth import authenticate
 from .models import *
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 import logging
@@ -137,7 +136,6 @@ class ProductSerializer(serializers.ModelSerializer):
         read_only_fields = ('seller', 'slug')
 
     def create(self, validated_data):
-        # Pop 'seller' from validated_data if it exists
         seller = validated_data.pop('seller', self.context['request'].user)
         tags = validated_data.pop('tags', [])
         product = Product.objects.create(seller=seller, **validated_data)
