@@ -1,5 +1,5 @@
 # models.py
-
+from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MinValueValidator, MaxValueValidator
@@ -33,6 +33,59 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.username
+
+
+class Permission(models.Model):
+    ACTION_CHOICES = (
+        ('view', 'View'),
+        ('add', 'Add'),
+        ('change', 'Change'),
+        ('delete', 'Delete'),
+    )
+
+    MODEL_CHOICES = (
+        ('User', 'User'),
+        ('Address', 'Address'),
+        ('Category', 'Category'),
+        ('Tag', 'Tag'),
+        ('Product', 'Product'),
+        ('ProductImage', 'ProductImage'),
+        ('Cart', 'Cart'),
+        ('CartItem', 'CartItem'),
+        ('Wishlist', 'Wishlist'),
+        ('WishlistItem', 'WishlistItem'),
+        ('Order', 'Order'),
+        ('OrderItem', 'OrderItem'),
+        ('Review', 'Review'),
+        ('ReviewImage', 'ReviewImage'),
+        ('Coupon', 'Coupon'),
+        ('LoyaltyPoint', 'LoyaltyPoint'),
+        ('Transaction', 'Transaction'),
+        ('MessageThread', 'MessageThread'),
+        ('Message', 'Message'),
+        ('Promotion', 'Promotion'),
+        ('Notification', 'Notification'),
+        ('ReturnRequest', 'ReturnRequest'),
+        ('ShippingMethod', 'ShippingMethod'),
+        ('PaymentMethod', 'PaymentMethod'),
+        ('SellerProfile', 'SellerProfile'),
+        ('ActivityLog', 'ActivityLog'),
+    )
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, related_name='permissions', on_delete=models.CASCADE
+    )
+    model_name = models.CharField(max_length=50, choices=MODEL_CHOICES)
+    action = models.CharField(max_length=10, choices=ACTION_CHOICES)
+    allowed = models.BooleanField(default=False)
+
+    class Meta:
+        unique_together = ('user', 'model_name', 'action')
+        verbose_name = 'Permission'
+        verbose_name_plural = 'Permissions'
+
+    def __str__(self):
+        return f"{self.user.username} can {self.get_action_display()} {self.model_name}: {'Yes' if self.allowed else 'No'}"
 
 
 # Address model with additional fields
@@ -95,11 +148,10 @@ class Product(models.Model):
         ('INACTIVE', 'Inactive'),
         ('DRAFT', 'Draft'),
     )
-    seller = models.ForeignKey(
+    user = models.ForeignKey(
         User,
         related_name='products',
         on_delete=models.CASCADE,
-        limit_choices_to={'role': 'SELLER'},
     )
     name = models.CharField(max_length=255)
     sku = models.CharField(max_length=100, unique=True)

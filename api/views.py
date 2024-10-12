@@ -2,7 +2,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 
-from .permissions import IsAdminOrSeller
+from .permissions import HasModelPermission
 from .serializers import UserRegistrationSerializer, CustomTokenObtainPairSerializer, UserSerializer, ProductSerializer
 from .models import User, Product
 from rest_framework_simplejwt.views import TokenObtainPairView
@@ -74,13 +74,19 @@ class CategoryListView(generics.ListAPIView):
 class ProductCreateView(generics.CreateAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    permission_classes = [IsAuthenticated, IsAdminOrSeller]
+    permission_classes = [IsAuthenticated, HasModelPermission]
 
     def perform_create(self, serializer):
-        serializer.save()
+        serializer.save(seller=self.request.user)
 
 
 class ProductListView(generics.ListAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     permission_classes = [AllowAny]
+
+
+class ProductUpdateView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+    permission_classes = [IsAuthenticated, HasModelPermission]
