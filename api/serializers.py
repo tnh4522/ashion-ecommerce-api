@@ -1,3 +1,6 @@
+import secrets
+import string
+
 from rest_framework import serializers
 from .models import *
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
@@ -96,6 +99,44 @@ class UserSerializer(serializers.ModelSerializer):
             'preferences',
         )
         read_only_fields = ('id',)
+
+
+class UserCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = (
+            'id',
+            'username',
+            'email',
+            'role',
+            'phone_number',
+            'date_of_birth',
+            'gender',
+            'profile_picture',
+        )
+        extra_kwargs = {
+            'username': {'required': True},
+        }
+
+    def create(self, validated_data):
+        alphabet = string.ascii_letters + string.digits + string.punctuation
+        password = ''.join(secrets.choice(alphabet) for i in range(12))  # 12-character password
+
+        user = User(
+            username=validated_data['username'],
+            email=validated_data.get('email', ''),
+            role=validated_data.get('role', 'BUYER'),
+            phone_number=validated_data.get('phone_number', ''),
+            date_of_birth=validated_data.get('date_of_birth', None),
+            gender=validated_data.get('gender', None),
+            profile_picture=validated_data.get('profile_picture', None),
+        )
+        user.set_password(password)
+        user.save()
+
+        self.generated_password = password
+
+        return user
 
 
 class CategorySerializer(serializers.ModelSerializer):

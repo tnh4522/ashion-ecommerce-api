@@ -3,9 +3,9 @@ from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
 
-from .permissions import HasModelPermission
+from .permissions import HasModelPermission, IsAdmin
 from .serializers import UserRegistrationSerializer, CustomTokenObtainPairSerializer, UserSerializer, ProductSerializer, \
-    PermissionSerializer
+    PermissionSerializer, UserCreateSerializer
 from .models import User, Product, Permission
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework import generics, permissions
@@ -52,6 +52,64 @@ class UserDetailView(generics.RetrieveUpdateAPIView):
 
     def get_object(self):
         return self.request.user
+
+
+class UserRoleView(generics.RetrieveUpdateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        user_id = self.kwargs.get('user_id')
+        if user_id:
+            try:
+                user = User.objects.get(id=user_id)
+            except User.DoesNotExist:
+                return Response({'detail': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
+        else:
+            user = request.user
+        return Response({'role': user.role})
+
+    def put(self, request, *args, **kwargs):
+        if request.user.role != 'ADMIN':
+            return Response({'detail': 'Only administrators can update roles.'}, status=status.HTTP_403_FORBIDDEN)
+
+        user_id = self.kwargs.get('user_id')
+        try:
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            return Response({'detail': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        role = request.data.get('role')
+        if role not in [choice[0] for choice in User.ROLE_CHOICES]:
+            return Response({'detail': 'Invalid role.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        user.role = role
+        user.save()
+        return Response({'detail': 'Role updated successfully.'}, status=status.HTTP_200_OK)
+
+
+class AdminUserCreateView(generics.CreateAPIView):
+    queryset = User.objects.all()
+    permission_classes = [IsAuthenticated, IsAdmin]
+    serializer_class = UserCreateSerializer
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+
+        generated_password = serializer.generated_password
+
+        headers = self.get_success_headers(serializer.data)
+        return Response(
+            {
+                'user': serializer.data,
+                'generated_password': generated_password,
+            },
+            status=status.HTTP_201_CREATED,
+            headers=headers
+        )
 
 
 class CategoryCreateView(generics.CreateAPIView):
@@ -173,5 +231,3 @@ class UpdateUserPermissionsView(APIView):
             else:
                 logger.error(f"Validation failed for permission: {serializer.errors}")
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-

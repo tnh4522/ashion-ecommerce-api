@@ -34,15 +34,15 @@ class HasModelPermission(permissions.BasePermission):
 
 
 class IsAdminOrSeller(BasePermission):
-
     def has_permission(self, request, view):
         return request.user.is_authenticated and request.user.role in ['ADMIN', 'SELLER']
 
 
-class IsSeller(permissions.BasePermission):
-    """
-    Custom permission to only allow sellers to perform certain actions.
-    """
+class IsAdmin(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return request.user.is_authenticated and request.user.role == 'ADMIN'
 
+
+class IsSeller(permissions.BasePermission):
     def has_permission(self, request, view):
         return request.user.is_authenticated and request.user.role == 'SELLER'

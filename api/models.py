@@ -11,6 +11,8 @@ from django.utils.text import slugify
 class User(AbstractUser):
     ROLE_CHOICES = (
         ('ADMIN', 'Administrator'),
+        ('MANAGER', 'Manager'),
+        ('STAFF', 'Staff'),
         ('SELLER', 'Seller'),
         ('BUYER', 'Buyer'),
     )
