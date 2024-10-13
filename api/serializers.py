@@ -142,3 +142,8 @@ class ProductSerializer(serializers.ModelSerializer):
         product.tags.set(tags)
         return product
 
+
+class PermissionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Permission
+        fields = '__all__'
