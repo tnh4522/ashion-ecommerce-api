@@ -12,6 +12,7 @@ urlpatterns = [
     path('login', UserLoginView.as_view(), name='login'),
     path('token/refresh', TokenRefreshView.as_view(), name='token_refresh'),
     path('me/', UserDetailView.as_view(), name='user-detail'),
+    path('user/<int:user_id>/', UserManagerView.as_view(), name='user-manager'),
     path('users/<int:user_id>/role/', UserRoleView.as_view(), name='user-role'),
     path('users/', UserListView.as_view(), name='user-list'),
     path('create-user/', UserCreateView.as_view(), name='admin-create-user'),

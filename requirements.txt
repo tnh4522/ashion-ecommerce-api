@@ -4,3 +4,4 @@ djangorestframework-simplejwt==5.2.2
 django-cors-headers==3.13.0
 django-extensions==3.2.1
 Pillow==10.4.0
+django-filter~=24.3

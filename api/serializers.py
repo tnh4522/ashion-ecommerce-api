@@ -97,6 +97,7 @@ class UserSerializer(serializers.ModelSerializer):
             'bio',
             'social_links',
             'preferences',
+            'role'
         )
         read_only_fields = ('id',)
 
