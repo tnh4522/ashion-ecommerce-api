@@ -1,8 +1,9 @@
-from rest_framework import status
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import status, filters
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
-
+from rest_framework.pagination import PageNumberPagination
 from .permissions import HasModelPermission, IsAdmin
 from .serializers import UserRegistrationSerializer, CustomTokenObtainPairSerializer, UserSerializer, ProductSerializer, \
     PermissionSerializer, UserCreateSerializer
@@ -89,7 +90,7 @@ class UserRoleView(generics.RetrieveUpdateAPIView):
         return Response({'detail': 'Role updated successfully.'}, status=status.HTTP_200_OK)
 
 
-class AdminUserCreateView(generics.CreateAPIView):
+class UserCreateView(generics.CreateAPIView):
     queryset = User.objects.all()
     permission_classes = [IsAuthenticated, IsAdmin]
     serializer_class = UserCreateSerializer
@@ -110,6 +111,21 @@ class AdminUserCreateView(generics.CreateAPIView):
             status=status.HTTP_201_CREATED,
             headers=headers
         )
+
+
+class StandardResultsSetPagination(PageNumberPagination):
+    page_size_query_param = 'page_size'
+
+
+class UserListView(generics.ListAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [permissions.IsAuthenticated, IsAdmin]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_fields = ['role', 'gender']
+    search_fields = ['username', 'email', 'first_name', 'last_name']
+    ordering_fields = ['username', 'email', 'date_joined', 'first_name', 'last_name']
+    pagination_class = StandardResultsSetPagination
 
 
 class CategoryCreateView(generics.CreateAPIView):
