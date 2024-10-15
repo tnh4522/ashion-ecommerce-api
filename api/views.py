@@ -71,6 +71,18 @@ class UserManagerView(generics.RetrieveUpdateDestroyAPIView):
         serializer = UserSerializer(user)
         return Response(serializer.data)
 
+    def delete(self, request, *args, **kwargs):
+        user_id = self.kwargs.get('user_id')
+        if user_id:
+            try:
+                user = User.objects.get(id=user_id)
+            except User.DoesNotExist:
+                return Response({'detail': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
+        else:
+            user = request.user
+        user.delete()
+        return Response({'detail': 'User deleted successfully.'}, status=status.HTTP_200_OK)
+
 
 class UserRoleView(generics.RetrieveUpdateAPIView):
     queryset = User.objects.all()
@@ -167,16 +179,21 @@ class CategoryListView(generics.ListAPIView):
 class ProductCreateView(generics.CreateAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    permission_classes = [IsAuthenticated, HasModelPermission]
+    permission_classes = [IsAuthenticated]
 
     def perform_create(self, serializer):
-        serializer.save(seller=self.request.user)
+        serializer.save()
 
 
 class ProductListView(generics.ListAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     permission_classes = [AllowAny]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_fields = ['category__name', 'price', 'stock']
+    search_fields = ['name', 'category__name']
+    ordering_fields = ['name', 'price', 'stock']
+    pagination_class = StandardResultsSetPagination
 
 
 class ProductUpdateView(generics.RetrieveUpdateDestroyAPIView):
