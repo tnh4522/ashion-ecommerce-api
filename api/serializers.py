@@ -67,16 +67,29 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         token['role'] = user.role
         token['email'] = user.email
         token['id'] = user.id
-        token['permissions'] = list(user.permissions.values_list('codename', flat=True))
+
+        permissions = UserPermission.objects.filter(user=user).values_list('action', 'model_name', 'allowed')
+        token['permissions'] = [
+            f"{model_name}:{action}" for action, model_name, allowed in permissions if allowed
+        ]
+
         return token
 
     def validate(self, attrs):
         data = super().validate(attrs)
-        # Include additional user info in the response
-        data.update({'id': self.user.id})
-        data.update({'role': self.user.role})
-        data.update({'username': self.user.username})
-        data.update({'email': self.user.email})
+
+        data.update({
+            'id': self.user.id,
+            'role': self.user.role,
+            'username': self.user.username,
+            'email': self.user.email,
+        })
+
+        permissions = UserPermission.objects.filter(user=self.user).values_list('action', 'model_name', 'allowed')
+        data['permissions'] = [
+            f"{model_name}:{action}" for action, model_name, allowed in permissions if allowed
+        ]
+
         return data
 
 

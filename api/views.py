@@ -49,7 +49,7 @@ class UserLoginView(TokenObtainPairView):
 
 class UserDetailView(generics.RetrieveUpdateAPIView):
     serializer_class = UserSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def get_object(self):
         return self.request.user
@@ -57,7 +57,7 @@ class UserDetailView(generics.RetrieveUpdateAPIView):
 
 class UserManagerView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = UserSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
         user_id = self.kwargs.get('user_id')
@@ -149,7 +149,9 @@ class StandardResultsSetPagination(PageNumberPagination):
 class UserListView(generics.ListAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [permissions.IsAuthenticated, IsAdmin]
+    permission_classes = [HasModelPermission]
+    model_name = 'User'
+    action = 'view'
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ['role', 'gender']
     search_fields = ['username', 'email', 'first_name', 'last_name']
@@ -160,10 +162,9 @@ class UserListView(generics.ListAPIView):
 class CategoryCreateView(generics.CreateAPIView):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    permission_classes = [IsAuthenticated]
-
-    def perform_create(self, serializer):
-        serializer.save()
+    permission_classes = [IsAuthenticated, HasModelPermission]
+    model_name = 'Category'
+    action = 'add'
 
 
 class CategoryListView(generics.ListAPIView):
@@ -171,18 +172,13 @@ class CategoryListView(generics.ListAPIView):
     serializer_class = CategorySerializer
     permission_classes = [AllowAny]
 
-    def get_queryset(self):
-        logger.debug("Fetching all categories")
-        return super().get_queryset()
-
 
 class ProductCreateView(generics.CreateAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    permission_classes = [IsAuthenticated]
-
-    def perform_create(self, serializer):
-        serializer.save()
+    permission_classes = [IsAuthenticated, HasModelPermission]
+    model_name = 'Product'
+    action = 'add'
 
 
 class ProductListView(generics.ListAPIView):
@@ -200,16 +196,16 @@ class ProductUpdateView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     permission_classes = [IsAuthenticated, HasModelPermission]
+    model_name = 'Product'
+    action = 'change'
 
 
-class CreatePermissionView(APIView):
-    permission_classes = [IsAuthenticated]
+class CreateUserPermissionView(APIView):
+    permission_classes = [IsAuthenticated, HasModelPermission]
+    model_name = 'UserPermission'
+    action = 'add'
 
     def post(self, request):
-        user = request.user
-        if user.role != 'ADMIN':
-            return Response({'detail': 'Only administrators can create permissions.'}, status=status.HTTP_403_FORBIDDEN)
-
         if isinstance(request.data, list):
             serializer = PermissionSerializer(data=request.data, many=True)
         else:
@@ -222,26 +218,26 @@ class CreatePermissionView(APIView):
 
 
 class UserPermissionsView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [HasModelPermission]
+    model_name = 'UserPermission'
+    action = 'view'
 
     def get(self, request, user_id):
         user = User.objects.filter(id=user_id).first()
         if not user:
             return Response({'detail': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
 
-        permissions = UserPermission.objects.filter(user=user)
-        serializer = PermissionSerializer(permissions, many=True)
+        permission = UserPermission.objects.filter(user=user)
+        serializer = PermissionSerializer(permission, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class UpdateUserPermissionsView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, HasModelPermission]
+    model_name = 'UserPermission'
+    action = 'change'
 
     def post(self, request, user_id):
-        user = request.user
-        if user.role != 'ADMIN':
-            return Response({'detail': 'Only administrators can update permissions.'}, status=status.HTTP_403_FORBIDDEN)
-
         target_user = User.objects.filter(id=user_id).first()
         if not target_user:
             return Response({'detail': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
@@ -261,8 +257,8 @@ class UpdateUserPermissionsView(APIView):
                 if serializer.is_valid():
                     serializer.save()
                 else:
-                    logger.error(f"Validation failed for permission: {serializer.errors}")
                     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
             return Response({'detail': 'Permissions updated successfully.'}, status=status.HTTP_200_OK)
         else:
             request.data['user'] = target_user.id
@@ -279,5 +275,4 @@ class UpdateUserPermissionsView(APIView):
                 serializer.save()
                 return Response(serializer.data, status=status.HTTP_200_OK)
             else:
-                logger.error(f"Validation failed for permission: {serializer.errors}")
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

@@ -72,6 +72,7 @@ class UserPermission(models.Model):
         ('PaymentMethod', 'PaymentMethod'),
         ('SellerProfile', 'SellerProfile'),
         ('ActivityLog', 'ActivityLog'),
+        ('UserPermission', 'UserPermission'),
     )
 
     user = models.ForeignKey(

@@ -3,34 +3,19 @@ from rest_framework import permissions
 from .models import UserPermission
 
 
-class HasModelPermission(permissions.BasePermission):
+class HasModelPermission(BasePermission):
     def has_permission(self, request, view):
-        # Determine the action based on the request method
-        if request.method in permissions.SAFE_METHODS:
-            action = 'view'
-        elif request.method == 'POST':
-            action = 'add'
-        elif request.method in ['PUT', 'PATCH']:
-            action = 'change'
-        elif request.method == 'DELETE':
-            action = 'delete'
-        else:
-            return False  # Method not allowed
+        model_name = getattr(view, 'model_name', None)
+        action = getattr(view, 'action', None)
 
-        # Get the model name from the view
-        model_name = view.get_queryset().model.__name__
+        if not model_name or not action:
+            return False
 
-        # Check if the user has permission
-        return UserPermission.objects.filter(
-            user=request.user,
-            model_name=model_name,
-            action=action,
-            allowed=True
-        ).exists()
+        user_permissions = UserPermission.objects.filter(
+            user=request.user, model_name=model_name, action=action, allowed=True
+        )
 
-    def has_object_permission(self, request, view, obj):
-        # For object-level permissions, we can use the same logic
-        return self.has_permission(request, view)
+        return user_permissions.exists()
 
 
 class IsAdminOrSeller(BasePermission):
