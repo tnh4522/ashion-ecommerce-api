@@ -37,7 +37,7 @@ class User(AbstractUser):
         return self.username
 
 
-class Permission(models.Model):
+class UserPermission(models.Model):
     ACTION_CHOICES = (
         ('view', 'View'),
         ('add', 'Add'),

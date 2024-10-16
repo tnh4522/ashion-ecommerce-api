@@ -66,6 +66,8 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         token['username'] = user.username
         token['role'] = user.role
         token['email'] = user.email
+        token['id'] = user.id
+        token['permissions'] = list(user.permissions.values_list('codename', flat=True))
         return token
 
     def validate(self, attrs):
@@ -188,5 +190,5 @@ class ProductSerializer(serializers.ModelSerializer):
 
 class PermissionSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Permission
+        model = UserPermission
         fields = '__all__'

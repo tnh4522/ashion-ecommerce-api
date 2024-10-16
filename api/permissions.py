@@ -1,6 +1,6 @@
 from rest_framework.permissions import BasePermission
 from rest_framework import permissions
-from .models import Permission
+from .models import UserPermission
 
 
 class HasModelPermission(permissions.BasePermission):
@@ -21,7 +21,7 @@ class HasModelPermission(permissions.BasePermission):
         model_name = view.get_queryset().model.__name__
 
         # Check if the user has permission
-        return Permission.objects.filter(
+        return UserPermission.objects.filter(
             user=request.user,
             model_name=model_name,
             action=action,

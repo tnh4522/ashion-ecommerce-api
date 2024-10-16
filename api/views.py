@@ -7,7 +7,7 @@ from rest_framework.pagination import PageNumberPagination
 from .permissions import HasModelPermission, IsAdmin
 from .serializers import UserRegistrationSerializer, CustomTokenObtainPairSerializer, UserSerializer, ProductSerializer, \
     PermissionSerializer, UserCreateSerializer
-from .models import User, Product, Permission
+from .models import User, Product, UserPermission
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework import generics, permissions
 from rest_framework.permissions import IsAuthenticated
@@ -229,7 +229,7 @@ class UserPermissionsView(APIView):
         if not user:
             return Response({'detail': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
 
-        permissions = Permission.objects.filter(user=user)
+        permissions = UserPermission.objects.filter(user=user)
         serializer = PermissionSerializer(permissions, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -250,7 +250,7 @@ class UpdateUserPermissionsView(APIView):
             for permission_data in request.data:
                 permission_data['user'] = target_user.id
 
-                permission_instance = Permission.objects.filter(
+                permission_instance = UserPermission.objects.filter(
                     user=target_user,
                     model_name=permission_data['model_name'],
                     action=permission_data['action']
@@ -267,7 +267,7 @@ class UpdateUserPermissionsView(APIView):
         else:
             request.data['user'] = target_user.id
 
-            permission_instance = Permission.objects.filter(
+            permission_instance = UserPermission.objects.filter(
                 user=target_user,
                 model_name=request.data['model_name'],
                 action=request.data['action']
