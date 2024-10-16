@@ -1,9 +1,8 @@
+from .models import UserPermission, RolePermission
 from rest_framework.permissions import BasePermission
-from rest_framework import permissions
-from .models import UserPermission
 
 
-class HasModelPermission(BasePermission):
+class CustomPermission(BasePermission):
     def has_permission(self, request, view):
         model_name = getattr(view, 'model_name', None)
         action = getattr(view, 'action', None)
@@ -11,23 +10,27 @@ class HasModelPermission(BasePermission):
         if not model_name or not action:
             return False
 
-        user_permissions = UserPermission.objects.filter(
-            user=request.user, model_name=model_name, action=action, allowed=True
-        )
-
-        return user_permissions.exists()
+        return request.user.has_permission(model_name, action)
 
 
-class IsAdminOrSeller(BasePermission):
+class HasRolePermission(BasePermission):
     def has_permission(self, request, view):
-        return request.user.is_authenticated and request.user.role in ['ADMIN', 'SELLER']
+        model_name = getattr(view, 'model_name', None)
+        action = getattr(view, 'action', None)
 
+        if not model_name or not action:
+            return False
 
-class IsAdmin(permissions.BasePermission):
-    def has_permission(self, request, view):
-        return request.user.is_authenticated and request.user.role == 'ADMIN'
+        user = request.user
 
+        if UserPermission.objects.filter(
+                user=user, permission__model_name=model_name, permission__action=action, allowed=True
+        ).exists():
+            return True
 
-class IsSeller(permissions.BasePermission):
-    def has_permission(self, request, view):
-        return request.user.is_authenticated and request.user.role == 'SELLER'
+        if user.role and RolePermission.objects.filter(
+                role=user.role, permission__model_name=model_name, permission__action=action, allowed=True
+        ).exists():
+            return True
+
+        return False

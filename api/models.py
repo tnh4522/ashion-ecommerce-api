@@ -1,5 +1,3 @@
-# models.py
-from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MinValueValidator, MaxValueValidator
@@ -7,21 +5,51 @@ from django.utils import timezone
 from django.utils.text import slugify
 
 
-# Custom User model with additional fields
-class User(AbstractUser):
-    ROLE_CHOICES = (
-        ('ADMIN', 'Administrator'),
-        ('MANAGER', 'Manager'),
-        ('STAFF', 'Staff'),
-        ('SELLER', 'Seller'),
-        ('BUYER', 'Buyer'),
+class Role(models.Model):
+    name = models.CharField(max_length=50, unique=True)
+    description = models.TextField(blank=True)
+
+    def __str__(self):
+        return self.name
+
+
+class Permission(models.Model):
+    model_name = models.CharField(max_length=50)
+    action = models.CharField(
+        max_length=10,
+        choices=[('view', 'View'), ('add', 'Add'), ('change', 'Change'), ('delete', 'Delete')],
     )
+
+    class Meta:
+        unique_together = ('model_name', 'action')
+
+    def __str__(self):
+        return f"{self.action.capitalize()} {self.model_name}"
+
+
+class RolePermission(models.Model):
+    role = models.ForeignKey(Role, related_name='permissions', on_delete=models.CASCADE)
+    permission = models.ForeignKey(Permission, related_name='roles', on_delete=models.CASCADE)
+    allowed = models.BooleanField(default=True)
+
+    class Meta:
+        unique_together = ('role', 'permission')
+
+    def __str__(self):
+        status = "Granted" if self.allowed else "Denied"
+        return f"{status} {self.permission} to {self.role}"
+
+
+class User(AbstractUser):
     GENDER_CHOICES = (
         ('MALE', 'Male'),
         ('FEMALE', 'Female'),
         ('OTHER', 'Other'),
     )
-    role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='BUYER')
+    role = models.ForeignKey(Role, related_name='users', on_delete=models.SET_NULL, null=True, blank=True)
+    individual_permissions = models.ManyToManyField(
+        Permission, through='UserPermission', related_name='users_with_permissions', blank=True
+    )
     phone_number = models.CharField(max_length=20, blank=True, null=True)
     date_of_birth = models.DateField(null=True, blank=True)
     profile_picture = models.ImageField(upload_to='profile_pictures/', null=True, blank=True)
@@ -36,59 +64,39 @@ class User(AbstractUser):
     def __str__(self):
         return self.username
 
+    def has_permission(self, model_name, action):
+        if UserPermission.objects.filter(
+                user=self, permission__action=action, permission__model_name=model_name, allowed=True
+        ).exists():
+            return True
+
+        if self.role and RolePermission.objects.filter(
+                role=self.role, permission__action=action, permission__model_name=model_name, allowed=True
+        ).exists():
+            return True
+
+        return False
+
 
 class UserPermission(models.Model):
-    ACTION_CHOICES = (
-        ('view', 'View'),
-        ('add', 'Add'),
-        ('change', 'Change'),
-        ('delete', 'Delete'),
-    )
-
-    MODEL_CHOICES = (
-        ('User', 'User'),
-        ('Address', 'Address'),
-        ('Category', 'Category'),
-        ('Tag', 'Tag'),
-        ('Product', 'Product'),
-        ('ProductImage', 'ProductImage'),
-        ('Cart', 'Cart'),
-        ('CartItem', 'CartItem'),
-        ('Wishlist', 'Wishlist'),
-        ('WishlistItem', 'WishlistItem'),
-        ('Order', 'Order'),
-        ('OrderItem', 'OrderItem'),
-        ('Review', 'Review'),
-        ('ReviewImage', 'ReviewImage'),
-        ('Coupon', 'Coupon'),
-        ('LoyaltyPoint', 'LoyaltyPoint'),
-        ('Transaction', 'Transaction'),
-        ('MessageThread', 'MessageThread'),
-        ('Message', 'Message'),
-        ('Promotion', 'Promotion'),
-        ('Notification', 'Notification'),
-        ('ReturnRequest', 'ReturnRequest'),
-        ('ShippingMethod', 'ShippingMethod'),
-        ('PaymentMethod', 'PaymentMethod'),
-        ('SellerProfile', 'SellerProfile'),
-        ('ActivityLog', 'ActivityLog'),
-        ('UserPermission', 'UserPermission'),
-    )
-
     user = models.ForeignKey(
-        settings.AUTH_USER_MODEL, related_name='permissions', on_delete=models.CASCADE
+        User,
+        related_name='user_specific_permissions',
+        on_delete=models.CASCADE
     )
-    model_name = models.CharField(max_length=50, choices=MODEL_CHOICES)
-    action = models.CharField(max_length=10, choices=ACTION_CHOICES)
-    allowed = models.BooleanField(default=False)
+    permission = models.ForeignKey(
+        Permission,
+        related_name='user_permissions',
+        on_delete=models.CASCADE
+    )
+    allowed = models.BooleanField(default=True)
 
     class Meta:
-        unique_together = ('user', 'model_name', 'action')
-        verbose_name = 'Permission'
-        verbose_name_plural = 'Permissions'
+        unique_together = ('user', 'permission')
 
     def __str__(self):
-        return f"{self.user.username} can {self.get_action_display()} {self.model_name}: {'Yes' if self.allowed else 'No'}"
+        status = "Granted" if self.allowed else "Denied"
+        return f"{status} {self.permission} to {self.user.username}"
 
 
 # Address model with additional fields

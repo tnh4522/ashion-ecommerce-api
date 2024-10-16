@@ -3,9 +3,6 @@ from .views import *
 from rest_framework_simplejwt.views import TokenRefreshView
 from django.conf import settings
 from django.conf.urls.static import static
-import logging
-
-logger = logging.getLogger(__name__)
 
 urlpatterns = [
     path('register', UserRegistrationView.as_view(), name='register'),
@@ -26,6 +23,5 @@ urlpatterns = [
 
 ]
 
-logger.debug("URLs for category views have been configured")
 if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.MEDIA_ROOT)
