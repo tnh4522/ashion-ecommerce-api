@@ -157,5 +157,5 @@ class ProductSerializer(serializers.ModelSerializer):
 
 class PermissionSerializer(serializers.ModelSerializer):
     class Meta:
-        model = UserPermission
+        model = Permission
         fields = '__all__'

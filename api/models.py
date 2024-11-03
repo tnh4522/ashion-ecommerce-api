@@ -19,6 +19,7 @@ class Permission(models.Model):
         max_length=10,
         choices=[('view', 'View'), ('add', 'Add'), ('change', 'Change'), ('delete', 'Delete')],
     )
+    description = models.TextField(blank=True)
 
     class Meta:
         unique_together = ('model_name', 'action')

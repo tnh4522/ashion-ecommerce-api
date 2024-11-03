@@ -1,6 +1,5 @@
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import status, filters, generics, permissions
-from rest_framework.response import Response
+from rest_framework import filters, generics, permissions
 from rest_framework.views import APIView
 from rest_framework.pagination import PageNumberPagination
 from .permissions import HasRolePermission
@@ -8,7 +7,7 @@ from .serializers import (
     UserRegistrationSerializer, CustomTokenObtainPairSerializer, UserSerializer,
     ProductSerializer, PermissionSerializer, CategorySerializer
 )
-from .models import User, Product, UserPermission, Category
+from .models import *
 from rest_framework_simplejwt.views import TokenObtainPairView
 
 
@@ -224,3 +223,16 @@ class UpdateUserPermissionsView(APIView):
             serializer.save()
 
         return Response({'detail': 'Permissions updated successfully.'}, status=status.HTTP_200_OK)
+
+
+class PermissionListView(generics.ListAPIView):
+    queryset = Permission.objects.all()
+    serializer_class = PermissionSerializer
+    # permission_classes = [permissions.IsAuthenticated, HasRolePermission]
+    # model_name = 'Permission'
+    # action = 'view'
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_fields = ['model_name', 'action']
+    search_fields = ['model_name', 'action']
+    ordering_fields = ['model_name', 'action']
+    pagination_class = StandardResultsSetPagination
