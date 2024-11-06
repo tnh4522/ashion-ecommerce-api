@@ -3,10 +3,7 @@ from rest_framework import filters, generics, permissions
 from rest_framework.views import APIView
 from rest_framework.pagination import PageNumberPagination
 from .permissions import HasRolePermission
-from .serializers import (
-    UserRegistrationSerializer, CustomTokenObtainPairSerializer, UserSerializer,
-    ProductSerializer, PermissionSerializer, CategorySerializer
-)
+from .serializers import *
 from .models import *
 from rest_framework_simplejwt.views import TokenObtainPairView
 
@@ -236,3 +233,27 @@ class PermissionListView(generics.ListAPIView):
     search_fields = ['model_name', 'action']
     ordering_fields = ['model_name', 'action']
     pagination_class = StandardResultsSetPagination
+
+
+class RoleListCreateView(generics.ListCreateAPIView):
+    queryset = Role.objects.all()
+    serializer_class = RoleSerializer
+    # permission_classes = [permissions.IsAuthenticated, HasRolePermission]
+    # model_name = 'Role'
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_fields = ['name']
+    search_fields = ['name', 'description']
+    ordering_fields = ['name']
+    pagination_class = StandardResultsSetPagination
+
+    def get_action(self):
+        if self.request.method == 'GET':
+            return 'view'
+        elif self.request.method == 'POST':
+            return 'add'
+        else:
+            return None
+
+    def get_permissions(self):
+        self.action = self.get_action()
+        return super().get_permissions()

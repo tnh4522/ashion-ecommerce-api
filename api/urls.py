@@ -21,6 +21,7 @@ urlpatterns = [
     path('permissions/create/', CreateUserPermissionView.as_view(), name='create_permission'),
     path('permissions/user/<int:user_id>/', UserPermissionsView.as_view(), name='user_permissions'),
     path('permissions/user/<int:user_id>/update/', UpdateUserPermissionsView.as_view(), name='update_user_permissions'),
+    path('roles/', RoleListCreateView.as_view(), name='role-list-create'),
 
 ]
 
