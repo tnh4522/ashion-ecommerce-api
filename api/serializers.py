@@ -85,37 +85,60 @@ class UserSerializer(serializers.ModelSerializer):
         fields = (
             'id', 'username', 'email', 'phone_number', 'first_name', 'last_name',
             'date_of_birth', 'gender', 'profile_picture', 'bio',
-            'social_links', 'preferences', 'role'
+            'social_links', 'preferences', 'role', 'password'
         )
         read_only_fields = ('id',)
 
 
 class UserCreateSerializer(serializers.ModelSerializer):
+    social_links = serializers.JSONField(required=False)
+    preferences = serializers.JSONField(required=False)
+
     class Meta:
         model = User
         fields = (
             'id', 'username', 'email', 'role', 'phone_number',
-            'date_of_birth', 'gender', 'profile_picture'
+            'date_of_birth', 'gender', 'profile_picture',
+            'first_name', 'last_name', 'bio', 'social_links', 'preferences'
         )
         extra_kwargs = {'username': {'required': True}}
 
     def create(self, validated_data):
         alphabet = string.ascii_letters + string.digits + string.punctuation
-        password = ''.join(secrets.choice(alphabet) for _ in range(12))  # Generate a 12-character password
+        password = ''.join(secrets.choice(alphabet) for _ in range(12))  # Tạo mật khẩu 12 ký tự ngẫu nhiên
+
+        social_links = validated_data.pop('social_links', {})
+        preferences = validated_data.pop('preferences', {})
+
+        role = validated_data.get('role')
 
         user = User(
             username=validated_data['username'],
             email=validated_data.get('email', ''),
-            role=validated_data.get('role', 'BUYER'),
+            role=role,
             phone_number=validated_data.get('phone_number', ''),
             date_of_birth=validated_data.get('date_of_birth'),
             gender=validated_data.get('gender'),
-            profile_picture=validated_data.get('profile_picture')
+            profile_picture=validated_data.get('profile_picture'),
+            first_name=validated_data.get('first_name', ''),
+            last_name=validated_data.get('last_name', ''),
+            bio=validated_data.get('bio', ''),
+            social_links=social_links,
+            preferences=preferences,
         )
         user.set_password(password)
         user.save()
 
-        # Store the generated password to return in the response
+        if role:
+            role_permissions = RolePermission.objects.filter(role=role, allowed=True)
+
+            user_permissions = [
+                UserPermission(user=user, permission=rp.permission, allowed=True)
+                for rp in role_permissions
+            ]
+
+            UserPermission.objects.bulk_create(user_permissions)
+
         self.generated_password = password
 
         return user
@@ -161,6 +184,14 @@ class PermissionSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class UserPermissionSerializer(serializers.ModelSerializer):
+    permission = PermissionSerializer(read_only=True)
+
+    class Meta:
+        model = UserPermission
+        fields = ('id', 'permission', 'allowed')
+
+
 class RoleSerializer(serializers.ModelSerializer):
     permissions = serializers.ListField(
         child=serializers.CharField(), write_only=True
@@ -192,7 +223,6 @@ class RoleSerializer(serializers.ModelSerializer):
             description=validated_data.get('description', '')
         )
 
-        # Create RolePermissions
         role_permissions = [
             RolePermission(role=role, permission=permission, allowed=True)
             for permission in permissions

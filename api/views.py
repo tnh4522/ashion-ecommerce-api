@@ -2,10 +2,14 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, generics, permissions
 from rest_framework.views import APIView
 from rest_framework.pagination import PageNumberPagination
-from .permissions import HasRolePermission
 from .serializers import *
 from .models import *
 from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework import generics, status
+from rest_framework.response import Response
+from .models import User
+from .serializers import UserCreateSerializer
+from .permissions import HasRolePermission
 
 
 # Pagination Setup
@@ -52,25 +56,17 @@ class UserDetailView(generics.RetrieveUpdateAPIView):
 class UserManagerView(generics.RetrieveUpdateDestroyAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [permissions.IsAuthenticated, HasRolePermission]
-    model_name = 'User'
-    action = 'change'
-
-
-from rest_framework import generics, status
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from .models import User
-from .serializers import UserCreateSerializer
-from .permissions import HasRolePermission
+    # permission_classes = [permissions.IsAuthenticated, HasRolePermission]
+    # model_name = 'User'
+    # action = 'change'
 
 
 class UserCreateView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserCreateSerializer
-    permission_classes = [IsAuthenticated, HasRolePermission]
-    model_name = 'User'
-    action = 'add'
+    # permission_classes = [IsAuthenticated, HasRolePermission]
+    # model_name = 'User'
+    # action = 'add'
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -95,9 +91,9 @@ class UserCreateView(generics.CreateAPIView):
 class UserListView(generics.ListAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [HasRolePermission]
-    model_name = 'User'
-    action = 'view'
+    # permission_classes = [HasRolePermission]
+    # model_name = 'User'
+    # action = 'view'
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ['role', 'gender']
     search_fields = ['username', 'email']
@@ -109,9 +105,9 @@ class UserListView(generics.ListAPIView):
 class UserRoleView(generics.RetrieveUpdateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [HasRolePermission]
-    model_name = 'User'
-    action = 'change'
+    # permission_classes = [HasRolePermission]
+    # model_name = 'User'
+    # action = 'change'
 
     def put(self, request, *args, **kwargs):
         role = request.data.get('role')
@@ -170,9 +166,9 @@ class ProductUpdateView(generics.RetrieveUpdateDestroyAPIView):
 
 # User Permission Management
 class CreateUserPermissionView(APIView):
-    permission_classes = [HasRolePermission]
-    model_name = 'UserPermission'
-    action = 'add'
+    # permission_classes = [HasRolePermission]
+    # model_name = 'UserPermission'
+    # action = 'add'
 
     def post(self, request):
         serializer = PermissionSerializer(data=request.data, many=isinstance(request.data, list))
@@ -182,24 +178,25 @@ class CreateUserPermissionView(APIView):
 
 
 class UserPermissionsView(APIView):
-    permission_classes = [HasRolePermission]
-    model_name = 'UserPermission'
-    action = 'view'
+    # permission_classes = [HasRolePermission]
+    # model_name = 'UserPermission'
+    # action = 'view'
 
     def get(self, request, user_id):
         user = User.objects.filter(id=user_id).first()
         if not user:
             return Response({'detail': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
 
-        permissions = UserPermission.objects.filter(user=user)
-        serializer = PermissionSerializer(permissions, many=True)
+        user_permissions = UserPermission.objects.filter(user=user)
+        serializer = UserPermissionSerializer(user_permissions, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
+
 class UpdateUserPermissionsView(APIView):
-    permission_classes = [HasRolePermission]
-    model_name = 'UserPermission'
-    action = 'change'
+    # permission_classes = [HasRolePermission]
+    # model_name = 'UserPermission'
+    # action = 'change'
 
     def post(self, request, user_id):
         target_user = User.objects.filter(id=user_id).first()
