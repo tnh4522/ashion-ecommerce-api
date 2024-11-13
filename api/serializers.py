@@ -196,10 +196,15 @@ class RoleSerializer(serializers.ModelSerializer):
     permissions = serializers.ListField(
         child=serializers.CharField(), write_only=True
     )
+    permissions_display = serializers.SerializerMethodField()
 
     class Meta:
         model = Role
-        fields = ('id', 'name', 'description', 'permissions')
+        fields = ('id', 'name', 'description', 'permissions', 'permissions_display')
+
+    def get_permissions_display(self, obj):
+        permissions = RolePermission.objects.filter(allowed=True, role=obj)
+        return [f"{perm.permission.model_name}:{perm.permission.action}" for perm in permissions]
 
     def validate_permissions(self, value):
         permissions = []
@@ -211,10 +216,6 @@ class RoleSerializer(serializers.ModelSerializer):
             except (ValueError, Permission.DoesNotExist):
                 raise serializers.ValidationError(f"Invalid permission: {perm_str}")
         return permissions
-
-    def validate(self, attrs):
-        attrs['permissions'] = self.validate_permissions(attrs.get('permissions', []))
-        return attrs
 
     def create(self, validated_data):
         permissions = validated_data.pop('permissions', [])

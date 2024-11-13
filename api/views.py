@@ -64,6 +64,7 @@ class UserManagerView(generics.RetrieveUpdateDestroyAPIView):
 class UserCreateView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserCreateSerializer
+
     # permission_classes = [IsAuthenticated, HasRolePermission]
     # model_name = 'User'
     # action = 'add'
@@ -105,6 +106,7 @@ class UserListView(generics.ListAPIView):
 class UserRoleView(generics.RetrieveUpdateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+
     # permission_classes = [HasRolePermission]
     # model_name = 'User'
     # action = 'change'
@@ -192,7 +194,6 @@ class UserPermissionsView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-
 class UpdateUserPermissionsView(APIView):
     # permission_classes = [HasRolePermission]
     # model_name = 'UserPermission'
@@ -248,6 +249,28 @@ class RoleListCreateView(generics.ListCreateAPIView):
             return 'view'
         elif self.request.method == 'POST':
             return 'add'
+        else:
+            return None
+
+    def get_permissions(self):
+        self.action = self.get_action()
+        return super().get_permissions()
+
+
+class RoleDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Role.objects.all()
+    serializer_class = RoleSerializer
+
+    # permission_classes = [permissions.IsAuthenticated, HasRolePermission]
+    # model_name = 'Role'
+
+    def get_action(self):
+        if self.request.method == 'GET':
+            return 'view'
+        elif self.request.method in ['PUT', 'PATCH']:
+            return 'change'
+        elif self.request.method == 'DELETE':
+            return 'delete'
         else:
             return None
 
