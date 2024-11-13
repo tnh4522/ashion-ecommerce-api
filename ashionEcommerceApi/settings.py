@@ -42,7 +42,8 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'django_extensions',
     'corsheaders',
-    'django_filters'
+    'django_filters',
+    'django_vite',
 ]
 
 MIDDLEWARE = [
@@ -166,3 +167,21 @@ CORS_ALLOW_METHODS = [
 
 MEDIA_URL = 'media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+DJANGO_VITE = {
+  "default": {
+    "dev_mode": True,
+  }
+}
+
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+
+STATICFILES_FINDERS = [
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+]
+
+DJANGO_VITE_ASSETS_PATH = os.path.join(BASE_DIR, 'static')
+
+
+
