@@ -13,7 +13,6 @@ from .permissions import HasRolePermission
 from rest_framework.permissions import IsAuthenticated
 
 
-
 # Pagination Setup
 class StandardResultsSetPagination(PageNumberPagination):
     page_size_query_param = 'page_size'
@@ -307,8 +306,8 @@ class StockListView(generics.ListAPIView):
     serializer_class = StockSerializer
     # permission_classes = [permissions.IsAuthenticated]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ['name', 'is_active']
-    search_fields = ['name', 'description']
+    filterset_fields = ['name', 'is_active', 'location']
+    search_fields = ['name', 'description', 'location']
     ordering_fields = ['name', 'created_at']
     pagination_class = StandardResultsSetPagination
 
@@ -337,6 +336,7 @@ class StockProductListView(generics.ListAPIView):
     search_fields = ['product__name']
     ordering_fields = ['quantity', 'updated_at']
     pagination_class = StandardResultsSetPagination
+
 
 class OrderCreateAPIView(generics.CreateAPIView):
     queryset = Order.objects.all()
