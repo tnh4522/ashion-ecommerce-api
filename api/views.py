@@ -194,6 +194,8 @@ class UserPermissionsView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
+# views.py
+
 class UpdateUserPermissionsView(APIView):
     # permission_classes = [HasRolePermission]
     # model_name = 'UserPermission'
@@ -207,15 +209,20 @@ class UpdateUserPermissionsView(APIView):
         data = request.data if isinstance(request.data, list) else [request.data]
 
         for permission_data in data:
-            permission_data['user'] = target_user.id
-            instance = UserPermission.objects.filter(
-                user=target_user, permission__model_name=permission_data['model_name'],
-                permission__action=permission_data['action']
-            ).first()
+            up_id = permission_data.get('id')
+            allowed = permission_data.get('allowed')
 
-            serializer = PermissionSerializer(instance=instance, data=permission_data)
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
+            if up_id is None:
+                return Response({'detail': 'Permission ID is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+            try:
+                instance = UserPermission.objects.get(id=up_id, user=target_user)
+            except UserPermission.DoesNotExist:
+                return Response({'detail': f'UserPermission with ID {up_id} not found for this user.'},
+                                status=status.HTTP_404_NOT_FOUND)
+
+            instance.allowed = allowed
+            instance.save()
 
         return Response({'detail': 'Permissions updated successfully.'}, status=status.HTTP_200_OK)
 
