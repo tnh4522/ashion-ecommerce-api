@@ -10,6 +10,8 @@ from rest_framework.response import Response
 from .models import User
 from .serializers import UserCreateSerializer
 from .permissions import HasRolePermission
+from rest_framework.permissions import IsAuthenticated
+
 
 
 # Pagination Setup
@@ -335,3 +337,15 @@ class StockProductListView(generics.ListAPIView):
     search_fields = ['product__name']
     ordering_fields = ['quantity', 'updated_at']
     pagination_class = StandardResultsSetPagination
+
+class OrderCreateAPIView(generics.CreateAPIView):
+    queryset = Order.objects.all()
+    serializer_class = OrderSerializer
+    permission_classes = [IsAuthenticated]
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
