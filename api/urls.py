@@ -23,6 +23,12 @@ urlpatterns = [
     path('permissions/user/<int:user_id>/update/', UpdateUserPermissionsView.as_view(), name='update_user_permissions'),
     path('roles/', RoleListCreateView.as_view(), name='role-list-create'),
     path('roles/<int:pk>/', RoleDetailView.as_view(), name='role-detail'),
+    path('stocks/', StockListView.as_view(), name='stock-list'),
+    path('stocks/create/', StockCreateView.as_view(), name='stock-create'),
+    path('stocks/<int:pk>/', StockUpdateDeleteView.as_view(), name='stock-update-delete'),
+    path('stock-products/', StockProductListView.as_view(), name='stock-product-list'),
+    path('stock-products/create/', StockProductCreateView.as_view(), name='stock-product-create'),
+    path('stock-products/<int:pk>/', StockProductUpdateDeleteView.as_view(), name='stock-product-update-delete'),
 ]
 
 if settings.DEBUG:

@@ -659,3 +659,23 @@ class ActivityLog(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.action} at {self.created_at}"
+
+
+class Stock(models.Model):
+    name = models.CharField(max_length=255)
+    description = models.TextField(blank=True)
+    is_active = models.BooleanField(default=True)
+    location = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+
+class StockProduct(models.Model):
+    stock = models.ForeignKey(Stock, related_name='products', on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, related_name='stocks', on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Stock of {self.product.name} - {self.quantity} items"
