@@ -79,15 +79,19 @@ class UserSerializer(serializers.ModelSerializer):
     profile_picture = serializers.ImageField(required=False)
     social_links = serializers.JSONField(required=False)
     preferences = serializers.JSONField(required=False)
+    role_display = serializers.SerializerMethodField()
 
     class Meta:
         model = User
         fields = (
             'id', 'username', 'email', 'phone_number', 'first_name', 'last_name',
             'date_of_birth', 'gender', 'profile_picture', 'bio',
-            'social_links', 'preferences', 'role', 'password'
+            'social_links', 'preferences', 'role', 'password', 'role_display'
         )
         read_only_fields = ('id',)
+
+    def get_role_display(self, obj):
+        return obj.role.name if obj.role else None
 
 
 class UserCreateSerializer(serializers.ModelSerializer):

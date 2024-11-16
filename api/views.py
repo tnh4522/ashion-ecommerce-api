@@ -75,14 +75,10 @@ class UserCreateView(generics.CreateAPIView):
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
 
-        # Lấy mật khẩu đã được tạo ngẫu nhiên từ serializer
-        generated_password = serializer.generated_password
-
         headers = self.get_success_headers(serializer.data)
         return Response(
             {
                 'user': serializer.data,
-                'generated_password': generated_password,
             },
             status=status.HTTP_201_CREATED,
             headers=headers
