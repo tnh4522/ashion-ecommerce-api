@@ -679,3 +679,30 @@ class StockProduct(models.Model):
 
     def __str__(self):
         return f"Stock of {self.product.name} - {self.quantity} items"
+
+
+# Store Model
+class Store(models.Model):
+    user = models.ForeignKey('User', on_delete=models.CASCADE, related_name='stores')
+    store_name = models.CharField(max_length=255)
+    store_description = models.TextField(blank=True)
+    store_logo = models.ImageField(upload_to='store_logos/', blank=True, null=True)
+    rating = models.DecimalField(max_digits=3, decimal_places=2, default=0.0)
+    total_sales = models.PositiveIntegerField(default=0)
+    joined_date = models.DateField(auto_now_add=True)
+    is_verified = models.BooleanField(default=False)
+    address = models.TextField(blank=True)
+    policies = models.TextField(blank=True)
+    return_policy = models.TextField(blank=True)
+    shipping_policy = models.TextField(blank=True)
+    seller_rating = models.DecimalField(max_digits=3, decimal_places=2, default=0.0)
+    phone_number = models.CharField(max_length=20, blank=True, null=True)
+    email = models.EmailField(max_length=255, blank=True, null=True)
+    social_links = models.JSONField(blank=True, null=True)  # Store social media links as JSON
+    business_hours = models.JSONField(blank=True, null=True)  # Store business hours as JSON
+    store_tags = models.CharField(max_length=255, blank=True)  # Tags to classify the store
+    location_coordinates = models.CharField(max_length=100, blank=True, null=True)  # Geolocation coordinates
+    total_reviews = models.PositiveIntegerField(default=0)  # Number of reviews
+
+    def __str__(self):
+        return self.store_name

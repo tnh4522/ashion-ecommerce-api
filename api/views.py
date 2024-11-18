@@ -94,7 +94,8 @@ class CreatePasswordView(generics.CreateAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
-        return Response({'detail': f'Password created successfully for user {user.username}'}, status=status.HTTP_201_CREATED)
+        return Response({'detail': f'Password created successfully for user {user.username}'},
+                        status=status.HTTP_201_CREATED)
 
 
 # User List (Admin)
@@ -357,3 +358,47 @@ class OrderCreateAPIView(generics.CreateAPIView):
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+
+# Store Management Views
+# Create Store
+class StoreCreateView(generics.CreateAPIView):
+    queryset = Store.objects.all()
+    serializer_class = StoreSerializer
+    # permission_classes = [permissions.IsAuthenticated, HasRolePermission]
+    # model_name = 'Store'
+    # action = 'add'
+
+    def perform_create(self, serializer):
+        user = self.request.user
+        serializer.save(user=user)
+
+
+# List All Stores
+class StoreListView(generics.ListAPIView):
+    queryset = Store.objects.all()
+    serializer_class = StoreSerializer
+    permission_classes = [permissions.AllowAny]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_fields = ['store_name', 'is_verified']
+    search_fields = ['store_name', 'store_description']
+    ordering_fields = ['store_name', 'rating', 'total_sales']
+    pagination_class = StandardResultsSetPagination
+
+
+# Store Detail, Update, Delete
+class StoreDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Store.objects.all()
+    serializer_class = StoreSerializer
+    # permission_classes = [permissions.IsAuthenticated, HasRolePermission]
+    # model_name = 'Store'
+
+    def get_action(self):
+        if self.request.method == 'GET':
+            return 'view'
+        elif self.request.method in ['PUT', 'PATCH']:
+            return 'change'
+        elif self.request.method == 'DELETE':
+            return 'delete'
+        else:
+            return None

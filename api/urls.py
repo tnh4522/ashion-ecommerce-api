@@ -31,6 +31,9 @@ urlpatterns = [
     path('stock-products/create/', StockProductCreateView.as_view(), name='stock-product-create'),
     path('stock-products/<int:pk>/', StockProductUpdateDeleteView.as_view(), name='stock-product-update-delete'),
     path('orders/create/', OrderCreateAPIView.as_view(), name='order-create'),
+    path('stores/create/', StoreCreateView.as_view(), name='store-create'),
+    path('stores/', StoreListView.as_view(), name='store-list'),
+    path('stores/<int:pk>/', StoreDetailView.as_view(), name='store-update-delete'),
 ]
 
 if settings.DEBUG:
