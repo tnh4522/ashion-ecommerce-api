@@ -13,6 +13,7 @@ urlpatterns = [
     path('users/<int:pk>/role/', UserRoleView.as_view(), name='user-role'),
     path('users/', UserListView.as_view(), name='user-list'),
     path('create-user/', UserCreateView.as_view(), name='admin-create-user'),
+    path('users/create-password/', CreatePasswordView.as_view(), name='create-password'),
     path('categories/', CategoryListView.as_view(), name='category-list'),
     path('categories/create/', CategoryCreateView.as_view(), name='category-create'),
     path('products/', ProductListView.as_view(), name='product-list'),

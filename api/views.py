@@ -1,5 +1,5 @@
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters, generics, permissions
+from rest_framework import filters, permissions
 from rest_framework.views import APIView
 from rest_framework.pagination import PageNumberPagination
 from .serializers import *
@@ -78,11 +78,23 @@ class UserCreateView(generics.CreateAPIView):
         headers = self.get_success_headers(serializer.data)
         return Response(
             {
-                'user': serializer.data,
+                'user': serializer.data
             },
             status=status.HTTP_201_CREATED,
             headers=headers
         )
+
+
+# View for creating password
+class CreatePasswordView(generics.CreateAPIView):
+    permissions_classes = [IsAuthenticated]
+    serializer_class = CreatePasswordSerializer
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+        return Response({'detail': f'Password created successfully for user {user.username}'}, status=status.HTTP_201_CREATED)
 
 
 # User List (Admin)

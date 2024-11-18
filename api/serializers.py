@@ -30,7 +30,6 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             username=validated_data['username'],
             email=validated_data.get('email', ''),
             password=validated_data['password'],
-            role=validated_data.get('role', 'BUYER'),
             phone_number=validated_data.get('phone_number', ''),
             date_of_birth=validated_data.get('date_of_birth'),
             gender=validated_data.get('gender'),
@@ -86,7 +85,7 @@ class UserSerializer(serializers.ModelSerializer):
         fields = (
             'id', 'username', 'email', 'phone_number', 'first_name', 'last_name',
             'date_of_birth', 'gender', 'profile_picture', 'bio',
-            'social_links', 'preferences', 'role', 'password', 'role_display'
+            'social_links', 'preferences', 'role', 'role_display'
         )
         read_only_fields = ('id',)
 
@@ -108,18 +107,16 @@ class UserCreateSerializer(serializers.ModelSerializer):
         extra_kwargs = {'username': {'required': True}}
 
     def create(self, validated_data):
-        alphabet = string.ascii_letters + string.digits + string.punctuation
-        password = ''.join(secrets.choice(alphabet) for _ in range(12))  # Tạo mật khẩu 12 ký tự ngẫu nhiên
-
         social_links = validated_data.pop('social_links', {})
         preferences = validated_data.pop('preferences', {})
 
         role = validated_data.get('role')
 
-        user = User(
+        user = User.objects.create_user(
             username=validated_data['username'],
             email=validated_data.get('email', ''),
-            role=role,
+            password=None,
+            role=validated_data.get('role'),
             phone_number=validated_data.get('phone_number', ''),
             date_of_birth=validated_data.get('date_of_birth'),
             gender=validated_data.get('gender'),
@@ -130,7 +127,6 @@ class UserCreateSerializer(serializers.ModelSerializer):
             social_links=social_links,
             preferences=preferences,
         )
-        user.set_password(password)
         user.save()
 
         if role:
@@ -143,9 +139,34 @@ class UserCreateSerializer(serializers.ModelSerializer):
 
             UserPermission.objects.bulk_create(user_permissions)
 
-        self.generated_password = password
-
         return user
+
+
+class CreatePasswordSerializer(serializers.Serializer):
+    username = serializers.CharField(required=True)
+    password = serializers.CharField(write_only=True, required=True, style={'input_type': 'password'})
+    password2 = serializers.CharField(write_only=True, required=True, label='Confirm Password',
+                                      style={'input_type': 'password'})
+
+    def validate(self, attrs):
+        if attrs['password'] != attrs['password2']:
+            raise serializers.ValidationError({'password': "Passwords do not match."})
+        return attrs
+
+    def create(self, validated_data):
+        username = validated_data.get('username')
+        password = validated_data.get('password')
+
+        try:
+            user = User.objects.get(username=username)
+            if user and not user.has_usable_password():
+                user.set_password(password)
+                user.save()
+                return user
+            else:
+                raise serializers.ValidationError({'username': "User already has a password or does not exist."})
+        except User.DoesNotExist:
+            raise serializers.ValidationError({'username': "Invalid username."})
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -258,6 +279,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
         fields = [
             'product', 'quantity', 'price', 'total_price', 'size', 'color', 'weight'
         ]
+
 
 class OrderSerializer(serializers.ModelSerializer):
     items = OrderItemSerializer(many=True)
