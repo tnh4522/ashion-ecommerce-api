@@ -11,7 +11,7 @@ from .models import User
 from .serializers import UserCreateSerializer
 from .permissions import HasRolePermission
 from rest_framework.permissions import IsAuthenticated
-
+from rest_framework.parsers import MultiPartParser, FormParser
 
 # Pagination Setup
 class StandardResultsSetPagination(PageNumberPagination):
@@ -136,7 +136,8 @@ class UserRoleView(generics.RetrieveUpdateAPIView):
 class CategoryCreateView(generics.CreateAPIView):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    permission_classes = [HasRolePermission]
+    # permission_classes = [HasRolePermission]
+    permission_classes = [permissions.AllowAny]
     model_name = 'Category'
     action = 'add'
 
@@ -146,6 +147,45 @@ class CategoryListView(generics.ListAPIView):
     serializer_class = CategorySerializer
     permission_classes = [permissions.AllowAny]
 
+    # Update Category
+class CategoryUpdateView(APIView):
+    # permission_classes = [HasRolePermission]
+    permission_classes = [permissions.AllowAny]
+
+    def put(self, request, pk, *args, **kwargs):
+        try:
+            category = Category.objects.get(pk=pk)
+        except Category.DoesNotExist:
+            return Response({"detail": "Category not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = CategorySerializer(category, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class CategoryDetailView(APIView):
+    #permission_classes = [HasRolePermission]
+    permission_classes = [permissions.AllowAny]
+    def get(self, request, pk, *args, **kwargs):
+        try:
+            category = Category.objects.get(pk=pk)
+            serializer = CategorySerializer(category)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Category.DoesNotExist:
+            return Response({"detail": "Category not found."}, status=status.HTTP_404_NOT_FOUND)
+
+# Delete Category
+class CategoryDeleteView(APIView):
+    #permission_classes = [HasRolePermission]
+    permission_classes = [permissions.AllowAny]
+    def delete(self, request, pk, format=None):
+        try:
+            category = Category.objects.get(pk=pk)
+            category.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except Category.DoesNotExist:
+            return Response({'error': 'Category not found'}, status=status.HTTP_404_NOT_FOUND)
 
 # Product Management
 class ProductCreateView(generics.CreateAPIView):
