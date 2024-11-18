@@ -706,3 +706,17 @@ class Store(models.Model):
 
     def __str__(self):
         return self.store_name
+
+
+# Brand Model
+class Brand(models.Model):
+    brand_name = models.CharField(max_length=255)
+    brand_description = models.TextField(blank=True)
+    website = models.URLField(blank=True, null=True)
+    brand_logo = models.ImageField(upload_to='brand_logos/', blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    is_verified = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.brand_name

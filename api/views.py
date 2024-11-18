@@ -365,6 +365,7 @@ class OrderCreateAPIView(generics.CreateAPIView):
 class StoreCreateView(generics.CreateAPIView):
     queryset = Store.objects.all()
     serializer_class = StoreSerializer
+
     # permission_classes = [permissions.IsAuthenticated, HasRolePermission]
     # model_name = 'Store'
     # action = 'add'
@@ -390,8 +391,49 @@ class StoreListView(generics.ListAPIView):
 class StoreDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Store.objects.all()
     serializer_class = StoreSerializer
+
     # permission_classes = [permissions.IsAuthenticated, HasRolePermission]
     # model_name = 'Store'
+
+    def get_action(self):
+        if self.request.method == 'GET':
+            return 'view'
+        elif self.request.method in ['PUT', 'PATCH']:
+            return 'change'
+        elif self.request.method == 'DELETE':
+            return 'delete'
+        else:
+            return None
+
+
+# Brand Management Views
+# Create Brand
+class BrandCreateView(generics.CreateAPIView):
+    queryset = Brand.objects.all()
+    serializer_class = BrandSerializer
+    # permission_classes = [permissions.IsAuthenticated, HasRolePermission]
+    # model_name = 'Brand'
+    # action = 'add'
+
+
+# List All Brands
+class BrandListView(generics.ListAPIView):
+    queryset = Brand.objects.all()
+    serializer_class = BrandSerializer
+    permission_classes = [permissions.AllowAny]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_fields = ['brand_name', 'is_verified']
+    search_fields = ['brand_name', 'brand_description']
+    ordering_fields = ['brand_name', 'created_at']
+    pagination_class = StandardResultsSetPagination
+
+
+# Brand Detail, Update, Delete
+class BrandDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Brand.objects.all()
+    serializer_class = BrandSerializer
+    # permission_classes = [permissions.IsAuthenticated, HasRolePermission]
+    # model_name = 'Brand'
 
     def get_action(self):
         if self.request.method == 'GET':

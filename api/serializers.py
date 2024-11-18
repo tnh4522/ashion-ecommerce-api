@@ -319,3 +319,9 @@ class StoreSerializer(serializers.ModelSerializer):
             'email', 'social_links', 'business_hours', 'store_tags', 'location_coordinates', 'total_reviews'
         ]
         read_only_fields = ['user', 'joined_date', 'rating', 'total_sales', 'seller_rating', 'total_reviews']
+
+
+class BrandSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Brand
+        fields = '__all__'
