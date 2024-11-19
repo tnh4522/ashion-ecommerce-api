@@ -11,7 +11,7 @@ from .models import User
 from .serializers import UserCreateSerializer
 from .permissions import HasRolePermission
 from rest_framework.permissions import IsAuthenticated
-
+from rest_framework.parsers import MultiPartParser, FormParser
 
 # Pagination Setup
 class StandardResultsSetPagination(PageNumberPagination):
@@ -94,7 +94,8 @@ class CreatePasswordView(generics.CreateAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
-        return Response({'detail': f'Password created successfully for user {user.username}'}, status=status.HTTP_201_CREATED)
+        return Response({'detail': f'Password created successfully for user {user.username}'},
+                        status=status.HTTP_201_CREATED)
 
 
 # User List (Admin)
@@ -136,7 +137,8 @@ class UserRoleView(generics.RetrieveUpdateAPIView):
 class CategoryCreateView(generics.CreateAPIView):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    permission_classes = [HasRolePermission]
+    # permission_classes = [HasRolePermission]
+    permission_classes = [permissions.AllowAny]
     model_name = 'Category'
     action = 'add'
 
@@ -146,6 +148,45 @@ class CategoryListView(generics.ListAPIView):
     serializer_class = CategorySerializer
     permission_classes = [permissions.AllowAny]
 
+    # Update Category
+class CategoryUpdateView(APIView):
+    # permission_classes = [HasRolePermission]
+    permission_classes = [permissions.AllowAny]
+
+    def put(self, request, pk, *args, **kwargs):
+        try:
+            category = Category.objects.get(pk=pk)
+        except Category.DoesNotExist:
+            return Response({"detail": "Category not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = CategorySerializer(category, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class CategoryDetailView(APIView):
+    #permission_classes = [HasRolePermission]
+    permission_classes = [permissions.AllowAny]
+    def get(self, request, pk, *args, **kwargs):
+        try:
+            category = Category.objects.get(pk=pk)
+            serializer = CategorySerializer(category)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Category.DoesNotExist:
+            return Response({"detail": "Category not found."}, status=status.HTTP_404_NOT_FOUND)
+
+# Delete Category
+class CategoryDeleteView(APIView):
+    #permission_classes = [HasRolePermission]
+    permission_classes = [permissions.AllowAny]
+    def delete(self, request, pk, format=None):
+        try:
+            category = Category.objects.get(pk=pk)
+            category.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except Category.DoesNotExist:
+            return Response({'error': 'Category not found'}, status=status.HTTP_404_NOT_FOUND)
 
 # Product Management
 class ProductCreateView(generics.CreateAPIView):
@@ -366,3 +407,89 @@ class OrderCreateAPIView(generics.CreateAPIView):
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+
+# Store Management Views
+# Create Store
+class StoreCreateView(generics.CreateAPIView):
+    queryset = Store.objects.all()
+    serializer_class = StoreSerializer
+
+    # permission_classes = [permissions.IsAuthenticated, HasRolePermission]
+    # model_name = 'Store'
+    # action = 'add'
+
+    def perform_create(self, serializer):
+        user = self.request.user
+        serializer.save(user=user)
+
+
+# List All Stores
+class StoreListView(generics.ListAPIView):
+    queryset = Store.objects.all()
+    serializer_class = StoreSerializer
+    permission_classes = [permissions.AllowAny]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_fields = ['store_name', 'is_verified']
+    search_fields = ['store_name', 'store_description']
+    ordering_fields = ['store_name', 'rating', 'total_sales']
+    pagination_class = StandardResultsSetPagination
+
+
+# Store Detail, Update, Delete
+class StoreDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Store.objects.all()
+    serializer_class = StoreSerializer
+
+    # permission_classes = [permissions.IsAuthenticated, HasRolePermission]
+    # model_name = 'Store'
+
+    def get_action(self):
+        if self.request.method == 'GET':
+            return 'view'
+        elif self.request.method in ['PUT', 'PATCH']:
+            return 'change'
+        elif self.request.method == 'DELETE':
+            return 'delete'
+        else:
+            return None
+
+
+# Brand Management Views
+# Create Brand
+class BrandCreateView(generics.CreateAPIView):
+    queryset = Brand.objects.all()
+    serializer_class = BrandSerializer
+    # permission_classes = [permissions.IsAuthenticated, HasRolePermission]
+    # model_name = 'Brand'
+    # action = 'add'
+
+
+# List All Brands
+class BrandListView(generics.ListAPIView):
+    queryset = Brand.objects.all()
+    serializer_class = BrandSerializer
+    permission_classes = [permissions.AllowAny]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_fields = ['brand_name', 'is_verified']
+    search_fields = ['brand_name', 'brand_description']
+    ordering_fields = ['brand_name', 'created_at']
+    pagination_class = StandardResultsSetPagination
+
+
+# Brand Detail, Update, Delete
+class BrandDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Brand.objects.all()
+    serializer_class = BrandSerializer
+    # permission_classes = [permissions.IsAuthenticated, HasRolePermission]
+    # model_name = 'Brand'
+
+    def get_action(self):
+        if self.request.method == 'GET':
+            return 'view'
+        elif self.request.method in ['PUT', 'PATCH']:
+            return 'change'
+        elif self.request.method == 'DELETE':
+            return 'delete'
+        else:
+            return None

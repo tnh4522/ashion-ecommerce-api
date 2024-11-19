@@ -16,6 +16,9 @@ urlpatterns = [
     path('users/create-password/', CreatePasswordView.as_view(), name='create-password'),
     path('categories/', CategoryListView.as_view(), name='category-list'),
     path('categories/create/', CategoryCreateView.as_view(), name='category-create'),
+    path('categories/<int:pk>/', CategoryDetailView.as_view(), name='category-detail'),
+    path('categories/<int:pk>/update/', CategoryUpdateView.as_view(), name='category-update'),
+    path('categories/<int:pk>/delete/', CategoryDeleteView.as_view(), name='category-delete'),
     path('products/', ProductListView.as_view(), name='product-list'),
     path('products/create/', ProductCreateView.as_view(), name='product-create'),
     path('permissions/', PermissionListView.as_view(), name='permissions'),
@@ -32,6 +35,12 @@ urlpatterns = [
     path('stock-products/<int:pk>/', StockProductUpdateDeleteView.as_view(), name='stock-product-update-delete'),
     path('orders/', OrderListView.as_view(), name='order-list'),
     path('orders/create/', OrderCreateAPIView.as_view(), name='order-create'),
+    path('stores/create/', StoreCreateView.as_view(), name='store-create'),
+    path('stores/', StoreListView.as_view(), name='store-list'),
+    path('stores/<int:pk>/', StoreDetailView.as_view(), name='store-update-delete'),
+    path('brands/', BrandListView.as_view(), name='brand-list'),
+    path('brands/create/', BrandCreateView.as_view(), name='brand-create'),
+    path('brands/<int:pk>/', BrandDetailView.as_view(), name='brand-update-delete'),
 ]
 
 if settings.DEBUG:
