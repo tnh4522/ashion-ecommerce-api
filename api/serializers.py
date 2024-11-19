@@ -280,8 +280,8 @@ class OrderItemSerializer(serializers.ModelSerializer):
             'product', 'quantity', 'price', 'total_price', 'size', 'color', 'weight'
         ]
 
-
 class OrderSerializer(serializers.ModelSerializer):
+    user = serializers.StringRelatedField()
     items = OrderItemSerializer(many=True)
 
     class Meta:

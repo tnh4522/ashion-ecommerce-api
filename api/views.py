@@ -345,6 +345,15 @@ class StockProductListView(generics.ListAPIView):
     ordering_fields = ['quantity', 'updated_at']
     pagination_class = StandardResultsSetPagination
 
+#List all orders
+class OrderListView(generics.ListAPIView):
+    queryset = Order.objects.all()
+    serializer_class = OrderSerializer
+    # permission_classes = [permissions.IsAuthenticated]
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
+    ordering_fields = ['created_at', 'total_price']
+    pagination_class = StandardResultsSetPagination
+
 
 class OrderCreateAPIView(generics.CreateAPIView):
     queryset = Order.objects.all()
