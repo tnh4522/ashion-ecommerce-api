@@ -26,6 +26,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         validated_data.pop('password2')
+        role = validated_data.pop('role', None)
         user = User.objects.create_user(
             username=validated_data['username'],
             email=validated_data.get('email', ''),
@@ -35,6 +36,10 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             gender=validated_data.get('gender'),
             profile_picture=validated_data.get('profile_picture')
         )
+        if role:
+            user.role = role
+            user.save()
+
         return user
 
 
