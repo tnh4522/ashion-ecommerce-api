@@ -40,6 +40,11 @@ urlpatterns = [
     path('brands/', BrandListView.as_view(), name='brand-list'),
     path('brands/create/', BrandCreateView.as_view(), name='brand-create'),
     path('brands/<int:pk>/', BrandDetailView.as_view(), name='brand-update-delete'),
+    path('customers/', CustomerManagerView.as_view(), name='customer-manager'),
+    path('customer/<int:pk>/', CustomerDetailView.as_view(), name='customer-detail'),
+    path('customer/create/', CustomerManagerView.as_view(), name='customer-create'),
+    path('address/create/', AddressCreateView.as_view(), name='address-create'),
+    path('address/<int:pk>/', AddressCreateView.as_view(), name='address-detail'),
 ]
 
 if settings.DEBUG:

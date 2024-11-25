@@ -109,7 +109,8 @@ class Address(models.Model):
         ('SHIPPING', 'Shipping'),
         ('BILLING', 'Billing'),
     )
-    user = models.ForeignKey(User, related_name='addresses', on_delete=models.CASCADE)
+    user = models.ForeignKey(User, related_name='addresses', on_delete=models.CASCADE, null=True, blank=True)
+    customer = models.ForeignKey('Customer', related_name='addresses', on_delete=models.CASCADE, null=True, blank=True)
     full_name = models.CharField(max_length=255)
     phone_number = models.CharField(max_length=20)
     street_address = models.TextField()
@@ -720,3 +721,22 @@ class Brand(models.Model):
 
     def __str__(self):
         return self.brand_name
+
+
+class Customer(models.Model):
+    first_name = models.CharField(max_length=255)
+    last_name = models.CharField(max_length=255)
+    pronouns = models.CharField(max_length=50, blank=True, null=True)
+    address = models.ForeignKey(Address, related_name='customers', on_delete=models.SET_NULL, null=True)
+    phone_number = models.CharField(max_length=20, blank=True, null=True)
+    email = models.EmailField(blank=True, null=True)
+    date_of_birth = models.DateField(blank=True, null=True, help_text="YYYY-MM-DD")
+    identification_number = models.CharField(max_length=20, blank=True, null=True)
+    social_links = models.JSONField(blank=True, null=True)
+    points = models.PositiveIntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Customer with email {self.email}"
