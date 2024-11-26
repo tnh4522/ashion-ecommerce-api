@@ -507,6 +507,15 @@ class AddressCreateView(generics.CreateAPIView):
     # model_name = 'Address'
     # action = 'add'
 
+
+class AddressDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Address.objects.all()
+    serializer_class = AddressSerializer
+
+    # permission_classes = [permissions.IsAuthenticated, HasRolePermission]
+    # model_name = 'Address'
+    # action = 'add'
+
 # Address listview user   
 class AddressListView(generics.ListAPIView):
     serializer_class = AddressSerializer
