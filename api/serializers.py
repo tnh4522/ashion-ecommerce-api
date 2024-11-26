@@ -332,12 +332,19 @@ class BrandSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+# Address Serializer
 class AddressSerializer(serializers.ModelSerializer):
     class Meta:
         model = Address
-        fields = (
-            'id', 'full_name', 'phone_number', 'street_address',
-            'city', 'province', 'postal_code', 'country',
-            'default', 'address_type', 'latitude', 'longitude'
-        )
-        read_only_fields = ('id',)
+        fields = [
+            'id', 'street_address', 'city', 'province', 'postal_code', 'country', 'latitude', 'longitude'
+        ]
+
+
+class CustomerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Customer
+        fields = [
+            'id', 'first_name', 'last_name', 'pronouns', 'address', 'phone_number', 'email', 'date_of_birth',
+            'identification_number', 'social_links', 'points', 'is_active'
+        ]
