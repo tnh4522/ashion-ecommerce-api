@@ -330,3 +330,14 @@ class BrandSerializer(serializers.ModelSerializer):
     class Meta:
         model = Brand
         fields = '__all__'
+
+
+class AddressSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Address
+        fields = (
+            'id', 'full_name', 'phone_number', 'street_address',
+            'city', 'province', 'postal_code', 'country',
+            'default', 'address_type', 'latitude', 'longitude'
+        )
+        read_only_fields = ('id',)

@@ -41,6 +41,8 @@ urlpatterns = [
     path('brands/', BrandListView.as_view(), name='brand-list'),
     path('brands/create/', BrandCreateView.as_view(), name='brand-create'),
     path('brands/<int:pk>/', BrandDetailView.as_view(), name='brand-update-delete'),
+    path('address/', AddressListView.as_view(), name='address-list'),
+    path('address/create/', AddressCreateView.as_view(), name='address-create'),
 ]
 
 if settings.DEBUG:

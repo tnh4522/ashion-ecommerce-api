@@ -192,7 +192,7 @@ class CategoryDeleteView(APIView):
 class ProductCreateView(generics.CreateAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    permission_classes = [HasRolePermission]
+    permission_classes = [permissions.AllowAny]
     model_name = 'Product'
     action = 'add'
 
@@ -493,3 +493,27 @@ class BrandDetailView(generics.RetrieveUpdateDestroyAPIView):
             return 'delete'
         else:
             return None
+        
+class AddressCreateView(generics.CreateAPIView):
+    queryset = Address.objects.all()
+    serializer_class = AddressSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def perform_create(self, serializer):
+       # If this is the first address or marked as default, handle default address logic
+       if serializer.validated_data.get('default', False) or not Address.objects.filter(user=self.request.user).exists():
+           # Set all other addresses of the same type to non-default
+           Address.objects.filter(
+               user=self.request.user,
+               address_type=serializer.validated_data.get('address_type', 'SHIPPING')
+           ).update(default=False)
+       
+       serializer.save(user=self.request.user)
+
+class AddressListView(generics.ListAPIView):
+    queryset = Address.objects.all()
+    serializer_class = AddressSerializer
+    permission_classes = [permissions.AllowAny]
+    
+    def get_queryset(self):
+       return Address.objects.filter(user=self.request.user)
