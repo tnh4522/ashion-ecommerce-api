@@ -499,7 +499,7 @@ class BrandDetailView(generics.RetrieveUpdateDestroyAPIView):
 
 
 # Address Create API View
-class AddressCreateView(generics.RetrieveUpdateAPIView):
+class AddressCreateView(generics.CreateAPIView):
     queryset = Address.objects.all()
     serializer_class = AddressSerializer
 
@@ -507,6 +507,14 @@ class AddressCreateView(generics.RetrieveUpdateAPIView):
     # model_name = 'Address'
     # action = 'add'
 
+# Address listview user   
+class AddressListView(generics.ListAPIView):
+    serializer_class = AddressSerializer
+    permission_classes = [permissions.AllowAny]
+    
+    def get_queryset(self):
+        user_id = self.kwargs.get('user_id')
+        return Address.objects.filter(user_id=user_id)
 
 # Customer Manager API View
 class CustomerManagerView(generics.ListCreateAPIView):
@@ -550,3 +558,5 @@ class CustomerDetailView(generics.RetrieveUpdateDestroyAPIView):
             customer_data['address'] = AddressSerializer(instance.address).data
 
         return Response(customer_data)
+
+

@@ -45,6 +45,7 @@ urlpatterns = [
     path('customer/<int:pk>/', CustomerDetailView.as_view(), name='customer-detail'),
     path('customer/create/', CustomerManagerView.as_view(), name='customer-create'),
     path('address/create/', AddressCreateView.as_view(), name='address-create'),
+    path('address/<int:user_id>/', AddressListView.as_view(), name='address-list'),
     path('address/<int:pk>/', AddressCreateView.as_view(), name='address-detail'),
 ]
 
