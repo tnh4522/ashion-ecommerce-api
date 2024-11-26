@@ -70,12 +70,12 @@ class User(AbstractUser):
 
     def has_permission(self, model_name, action):
         if UserPermission.objects.filter(
-                user=self, permission__action=action, permission__model_name=model_name, allowed=True
+            user=self, permission__model_name=model_name, permission__action=action, allowed=True
         ).exists():
             return True
 
         if self.role and RolePermission.objects.filter(
-                role=self.role, permission__action=action, permission__model_name=model_name, allowed=True
+            role=self.role, permission__model_name=model_name, permission__action=action, allowed=True
         ).exists():
             return True
 
@@ -208,6 +208,9 @@ class Product(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     # For SEO purposes
     slug = models.SlugField(unique=True, max_length=255, blank=True)
+
+    class Meta:
+        ordering = ['id']
 
     def save(self, *args, **kwargs):
         if not self.slug:

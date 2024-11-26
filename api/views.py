@@ -11,7 +11,7 @@ from .models import User
 from .serializers import UserCreateSerializer
 from .permissions import HasRolePermission
 from rest_framework.permissions import IsAuthenticated
-
+from rest_framework.parsers import MultiPartParser, FormParser
 
 # Pagination Setup
 class StandardResultsSetPagination(PageNumberPagination):
@@ -149,8 +149,6 @@ class CategoryListView(generics.ListAPIView):
     permission_classes = [permissions.AllowAny]
 
     # Update Category
-
-
 class CategoryUpdateView(APIView):
     # permission_classes = [HasRolePermission]
     permission_classes = [permissions.AllowAny]
@@ -167,11 +165,9 @@ class CategoryUpdateView(APIView):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
 class CategoryDetailView(APIView):
-    # permission_classes = [HasRolePermission]
+    #permission_classes = [HasRolePermission]
     permission_classes = [permissions.AllowAny]
-
     def get(self, request, pk, *args, **kwargs):
         try:
             category = Category.objects.get(pk=pk)
@@ -180,12 +176,10 @@ class CategoryDetailView(APIView):
         except Category.DoesNotExist:
             return Response({"detail": "Category not found."}, status=status.HTTP_404_NOT_FOUND)
 
-
 # Delete Category
 class CategoryDeleteView(APIView):
-    # permission_classes = [HasRolePermission]
+    #permission_classes = [HasRolePermission]
     permission_classes = [permissions.AllowAny]
-
     def delete(self, request, pk, format=None):
         try:
             category = Category.objects.get(pk=pk)
@@ -193,7 +187,6 @@ class CategoryDeleteView(APIView):
             return Response(status=status.HTTP_204_NO_CONTENT)
         except Category.DoesNotExist:
             return Response({'error': 'Category not found'}, status=status.HTTP_404_NOT_FOUND)
-
 
 # Product Management
 class ProductCreateView(generics.CreateAPIView):
@@ -290,6 +283,11 @@ class PermissionListView(generics.ListAPIView):
     # permission_classes = [permissions.IsAuthenticated, HasRolePermission]
     # model_name = 'Permission'
     # action = 'view'
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_fields = ['model_name', 'action']
+    search_fields = ['model_name', 'action']
+    ordering_fields = ['model_name', 'action']
+    pagination_class = StandardResultsSetPagination
 
 
 class RoleListCreateView(generics.ListCreateAPIView):
@@ -474,7 +472,6 @@ class BrandListView(generics.ListAPIView):
 class BrandDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Brand.objects.all()
     serializer_class = BrandSerializer
-
     # permission_classes = [permissions.IsAuthenticated, HasRolePermission]
     # model_name = 'Brand'
 
@@ -487,57 +484,3 @@ class BrandDetailView(generics.RetrieveUpdateDestroyAPIView):
             return 'delete'
         else:
             return None
-
-
-# Address Create API View
-class AddressCreateView(generics.RetrieveUpdateAPIView):
-    queryset = Address.objects.all()
-    serializer_class = AddressSerializer
-
-    # permission_classes = [permissions.IsAuthenticated, HasRolePermission]
-    # model_name = 'Address'
-    # action = 'add'
-
-
-# Customer Manager API View
-class CustomerManagerView(generics.ListCreateAPIView):
-    queryset = Customer.objects.all()
-    serializer_class = CustomerSerializer
-    # permission_classes = [permissions.IsAuthenticated, HasRolePermission]
-    # model_name = 'Customer'
-    # action = 'view'
-    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ['email', 'phone_number', 'first_name', 'last_name', 'is_active']
-    search_fields = ['email', 'phone_number', 'first_name', 'last_name']
-    ordering_fields = ['email', 'created_at', 'first_name', 'last_name']
-
-    # def get_permissions(self):
-    #     if self.request.method == 'POST':
-    #         self.permission_classes = [permissions.IsAuthenticated, HasRolePermission]
-    #         self.action = 'add'
-    #     return super(CustomerManagerView, self).get_permissions()
-
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        customer = serializer.save()
-        headers = self.get_success_headers(serializer.data)
-        return Response(
-            {'customer': serializer.data},
-            status=status.HTTP_201_CREATED,
-            headers=headers
-        )
-
-
-class CustomerDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Customer.objects.all()
-    serializer_class = CustomerSerializer
-
-    def retrieve(self, request, *args, **kwargs):
-        instance = self.get_object()
-        customer_data = self.get_serializer(instance).data
-
-        if instance.address:
-            customer_data['address'] = AddressSerializer(instance.address).data
-
-        return Response(customer_data)
