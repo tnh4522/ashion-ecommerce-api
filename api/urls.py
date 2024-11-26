@@ -36,6 +36,7 @@ urlpatterns = [
     path('stock-products/', StockProductListView.as_view(), name='stock-product-list'),
     path('stock-products/create/', StockProductCreateView.as_view(), name='stock-product-create'),
     path('stock-products/<int:pk>/', StockProductUpdateDeleteView.as_view(), name='stock-product-update-delete'),
+    path('orders/', OrderListView.as_view(), name='order-list'),
     path('orders/create/', OrderCreateAPIView.as_view(), name='order-create'),
     path('stores/create/', StoreCreateView.as_view(), name='store-create'),
     path('stores/', StoreListView.as_view(), name='store-list'),
@@ -47,7 +48,8 @@ urlpatterns = [
     path('customer/<int:pk>/', CustomerDetailView.as_view(), name='customer-detail'),
     path('customer/create/', CustomerManagerView.as_view(), name='customer-create'),
     path('address/create/', AddressCreateView.as_view(), name='address-create'),
-    path('address/<int:pk>/', AddressDetailView.as_view(), name='address-detail'),
+    path('address/<int:user_id>/', AddressListView.as_view(), name='address-list'),
+    path('address/<int:pk>/', AddressCreateView.as_view(), name='address-detail'),
 ]
 
 if settings.DEBUG:

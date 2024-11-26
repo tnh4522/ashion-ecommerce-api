@@ -199,7 +199,7 @@ class CategoryDeleteView(APIView):
 class ProductCreateView(generics.CreateAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    permission_classes = [HasRolePermission]
+    permission_classes = [permissions.AllowAny]
     model_name = 'Product'
     action = 'add'
 
@@ -388,6 +388,15 @@ class StockProductListView(generics.ListAPIView):
     ordering_fields = ['quantity', 'updated_at']
     pagination_class = StandardResultsSetPagination
 
+#List all orders
+class OrderListView(generics.ListAPIView):
+    queryset = Order.objects.all()
+    serializer_class = OrderSerializer
+    # permission_classes = [permissions.IsAuthenticated]
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
+    ordering_fields = ['created_at', 'total_price']
+    pagination_class = StandardResultsSetPagination
+
 
 class OrderCreateAPIView(generics.CreateAPIView):
     queryset = Order.objects.all()
@@ -507,6 +516,14 @@ class AddressDetailView(generics.RetrieveUpdateDestroyAPIView):
     # model_name = 'Address'
     # action = 'add'
 
+# Address listview user   
+class AddressListView(generics.ListAPIView):
+    serializer_class = AddressSerializer
+    permission_classes = [permissions.AllowAny]
+    
+    def get_queryset(self):
+        user_id = self.kwargs.get('user_id')
+        return Address.objects.filter(user_id=user_id)
 
 # Customer Manager API View
 class CustomerManagerView(generics.ListCreateAPIView):
@@ -550,3 +567,5 @@ class CustomerDetailView(generics.RetrieveUpdateDestroyAPIView):
             customer_data['address'] = AddressSerializer(instance.address).data
 
         return Response(customer_data)
+
+
