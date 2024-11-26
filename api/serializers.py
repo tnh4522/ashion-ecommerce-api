@@ -26,6 +26,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         validated_data.pop('password2')
+        role = validated_data.pop('role', None)
         user = User.objects.create_user(
             username=validated_data['username'],
             email=validated_data.get('email', ''),
@@ -35,6 +36,10 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             gender=validated_data.get('gender'),
             profile_picture=validated_data.get('profile_picture')
         )
+        if role:
+            user.role = role
+            user.save()
+
         return user
 
 
@@ -177,7 +182,6 @@ class CategorySerializer(serializers.ModelSerializer):
             'is_active', 'meta_title', 'meta_description', 'sort_order'
         )
 
-
 class ProductSerializer(serializers.ModelSerializer):
     user = serializers.StringRelatedField(read_only=True)
     category = serializers.PrimaryKeyRelatedField(queryset=Category.objects.all(), required=False, allow_null=True)
@@ -202,6 +206,14 @@ class ProductSerializer(serializers.ModelSerializer):
         product.tags.set(tags)
         return product
 
+    def update(self, instance, validated_data):
+        tags = validated_data.pop('tags', None)
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+        if tags is not None:
+            instance.tags.set(tags)
+        return instance
 
 class PermissionSerializer(serializers.ModelSerializer):
     class Meta:
@@ -280,8 +292,8 @@ class OrderItemSerializer(serializers.ModelSerializer):
             'product', 'quantity', 'price', 'total_price', 'size', 'color', 'weight'
         ]
 
-
 class OrderSerializer(serializers.ModelSerializer):
+    user = serializers.StringRelatedField()
     items = OrderItemSerializer(many=True)
 
     class Meta:
@@ -307,3 +319,39 @@ class OrderSerializer(serializers.ModelSerializer):
             OrderItem.objects.create(order=order, seller=seller, **item_data)
 
         return order
+
+
+# Store Serializer
+class StoreSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Store
+        fields = [
+            'id', 'user', 'store_name', 'store_description', 'store_logo', 'rating', 'total_sales', 'joined_date',
+            'is_verified', 'address', 'policies', 'return_policy', 'shipping_policy', 'seller_rating', 'phone_number',
+            'email', 'social_links', 'business_hours', 'store_tags', 'location_coordinates', 'total_reviews'
+        ]
+        read_only_fields = ['user', 'joined_date', 'rating', 'total_sales', 'seller_rating', 'total_reviews']
+
+
+class BrandSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Brand
+        fields = '__all__'
+
+
+# Address Serializer
+class AddressSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Address
+        fields = [
+            'id', 'street_address', 'city', 'province', 'postal_code', 'country', 'latitude', 'longitude'
+        ]
+
+
+class CustomerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Customer
+        fields = [
+            'id', 'first_name', 'last_name', 'pronouns', 'address', 'phone_number', 'email', 'date_of_birth',
+            'identification_number', 'social_links', 'points', 'is_active'
+        ]
