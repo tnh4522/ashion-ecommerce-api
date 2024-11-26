@@ -21,9 +21,9 @@ urlpatterns = [
     path('categories/<int:pk>/delete/', CategoryDeleteView.as_view(), name='category-delete'),
     path('products/', ProductListView.as_view(), name='product-list'),
     path('products/create/', ProductCreateView.as_view(), name='product-create'),
-    path('products/<int:pk>/', ProductDetailView.as_view(), name='product-detail'),
+    # path('products/<int:pk>/', ProductDetailView.as_view(), name='product-detail'),
     path('products/<int:pk>/update/', ProductUpdateView.as_view(), name='product-update'),
-    path('products/<int:pk>/delete/', ProductDeleteView.as_view(), name='product-delete'),
+    # path('products/<int:pk>/delete/', ProductDeleteView.as_view(), name='product-delete'),
     path('permissions/', PermissionListView.as_view(), name='permissions'),
     path('permissions/create/', CreateUserPermissionView.as_view(), name='create_permission'),
     path('permissions/user/<int:user_id>/', UserPermissionsView.as_view(), name='user_permissions'),
@@ -47,7 +47,7 @@ urlpatterns = [
     path('customer/<int:pk>/', CustomerDetailView.as_view(), name='customer-detail'),
     path('customer/create/', CustomerManagerView.as_view(), name='customer-create'),
     path('address/create/', AddressCreateView.as_view(), name='address-create'),
-    path('address/<int:pk>/', AddressCreateView.as_view(), name='address-detail'),
+    path('address/<int:pk>/', AddressDetailView.as_view(), name='address-detail'),
 ]
 
 if settings.DEBUG:

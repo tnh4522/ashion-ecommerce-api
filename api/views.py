@@ -490,7 +490,16 @@ class BrandDetailView(generics.RetrieveUpdateDestroyAPIView):
 
 
 # Address Create API View
-class AddressCreateView(generics.RetrieveUpdateAPIView):
+class AddressCreateView(generics.CreateAPIView):
+    queryset = Address.objects.all()
+    serializer_class = AddressSerializer
+
+    # permission_classes = [permissions.IsAuthenticated, HasRolePermission]
+    # model_name = 'Address'
+    # action = 'add'
+
+
+class AddressDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Address.objects.all()
     serializer_class = AddressSerializer
 
