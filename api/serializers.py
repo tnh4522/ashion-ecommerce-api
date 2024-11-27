@@ -306,7 +306,7 @@ class OrderSerializer(serializers.ModelSerializer):
             'loyalty_points_used', 'tracking_number', 'estimated_delivery_date',
             'note', 'transaction_id', 'created_at', 'updated_at', 'items'
         ]
-        read_only_fields = ('user', 'order_number', 'payment_status', 'status', 'created_at', 'updated_at')
+        read_only_fields = ('user', 'order_number')
 
     def create(self, validated_data):
         items_data = validated_data.pop('items')

@@ -388,17 +388,20 @@ class StockProductListView(generics.ListAPIView):
     ordering_fields = ['quantity', 'updated_at']
     pagination_class = StandardResultsSetPagination
 
-#List all orders
+# Order Management Views
+# List Orders
 class OrderListView(generics.ListAPIView):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
-    # permission_classes = [permissions.IsAuthenticated]
-    filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
+    permission_classes = [permissions.AllowAny]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_fields = ['status', 'total_price']
+    search_fields = ['order_number', 'user__username']
     ordering_fields = ['created_at', 'total_price']
     pagination_class = StandardResultsSetPagination
 
-
-class OrderCreateAPIView(generics.CreateAPIView):
+# Create Order
+class OrderCreateView(generics.CreateAPIView):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
     permission_classes = [IsAuthenticated]
@@ -410,6 +413,21 @@ class OrderCreateAPIView(generics.CreateAPIView):
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
+# Order Detail, Update, Delete
+class OrderDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Order.objects.all()
+    serializer_class = OrderSerializer
+    # permission_classes = [permissions.IsAuthenticated]
+
+    def get_action(self):
+        if self.request.method == 'GET':
+            return 'view'
+        elif self.request.method in ['PUT', 'PATCH']:
+            return 'change'
+        elif self.request.method == 'DELETE':
+            return 'delete'
+        else:
+            return None
 
 # Store Management Views
 # Create Store
@@ -515,15 +533,31 @@ class AddressDetailView(generics.RetrieveUpdateDestroyAPIView):
     # permission_classes = [permissions.IsAuthenticated, HasRolePermission]
     # model_name = 'Address'
     # action = 'add'
+    def get_action(self):
+        if self.request.method == 'GET':
+            return 'view'
+        elif self.request.method in ['PUT', 'PATCH']:
+            return 'change'
+        elif self.request.method == 'DELETE':
+            return 'delete'
+        else:
+            return None
 
-# Address listview user   
+# Address list view
 class AddressListView(generics.ListAPIView):
+    queryset = Address.objects.all()
     serializer_class = AddressSerializer
     permission_classes = [permissions.AllowAny]
+    pagination_class = StandardResultsSetPagination
     
-    def get_queryset(self):
-        user_id = self.kwargs.get('user_id')
-        return Address.objects.filter(user_id=user_id)
+
+# class AddressListView(generics.ListAPIView):
+#     serializer_class = AddressSerializer
+#     permission_classes = [permissions.AllowAny]
+    
+#     def get_queryset(self):
+#         user_id = self.kwargs.get('user_id')
+#         return Address.objects.filter(user_id=user_id)
 
 # Customer Manager API View
 class CustomerManagerView(generics.ListCreateAPIView):
