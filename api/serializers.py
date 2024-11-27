@@ -349,6 +349,8 @@ class AddressSerializer(serializers.ModelSerializer):
 
 
 class CustomerSerializer(serializers.ModelSerializer):
+    address = AddressSerializer(required=False)
+
     class Meta:
         model = Customer
         fields = [
