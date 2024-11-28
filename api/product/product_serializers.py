@@ -1,15 +1,6 @@
-# my_app/serializers/product_serializers.py
-
 from rest_framework import serializers
-from ..models import Category, Product
+from ..models import Category, Product, Tag
 
-class CategorySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Category
-        fields = (
-            'id', 'name', 'parent', 'slug', 'description', 'image',
-            'is_active', 'meta_title', 'meta_description', 'sort_order'
-        )
 
 class ProductSerializer(serializers.ModelSerializer):
     user = serializers.StringRelatedField(read_only=True)
