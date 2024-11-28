@@ -270,38 +270,8 @@ class RoleSerializer(serializers.ModelSerializer):
         return role
 
 
-class OrderItemSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = OrderItem
-        fields = [
-            'product', 'quantity', 'price', 'total_price', 'size', 'color', 'weight'
-        ]
 
 
-class OrderSerializer(serializers.ModelSerializer):
-    user = serializers.StringRelatedField()
-    items = OrderItemSerializer(many=True)
 
-    class Meta:
-        model = Order
-        fields = [
-            'id', 'user', 'order_number', 'subtotal_price', 'shipping_cost',
-            'discount_amount', 'tax_amount', 'total_price', 'total_weight',
-            'shipping_address', 'billing_address', 'shipping_method',
-            'payment_method', 'payment_status', 'status', 'coupon',
-            'loyalty_points_used', 'tracking_number', 'estimated_delivery_date',
-            'note', 'transaction_id', 'created_at', 'updated_at', 'items'
-        ]
-        read_only_fields = ('user', 'order_number')
 
-    def create(self, validated_data):
-        items_data = validated_data.pop('items')
-        user = self.context['request'].user
-        order = Order.objects.create(user=user, **validated_data)
 
-        for item_data in items_data:
-            product = Product.objects.get(id=item_data['product'].id)
-            seller = item_data.get('seller', product.user)
-            OrderItem.objects.create(order=order, seller=seller, **item_data)
-
-        return order

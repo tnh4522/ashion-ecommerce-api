@@ -5,6 +5,7 @@ from .brand.brand_views import *
 from .customer.customer_views import *
 from .stock.stock_views import *
 from .store.store_views import *
+from .order.order_views import *
 from .views import *
 from rest_framework_simplejwt.views import TokenRefreshView
 from django.conf import settings
