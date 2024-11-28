@@ -338,24 +338,3 @@ class RoleDetailView(generics.RetrieveUpdateDestroyAPIView):
         return super().get_permissions()
 
 
-# List all orders
-class OrderListView(generics.ListAPIView):
-    queryset = Order.objects.all()
-    serializer_class = OrderSerializer
-    # permission_classes = [permissions.IsAuthenticated]
-    filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
-    ordering_fields = ['created_at', 'total_price']
-    pagination_class = StandardResultsSetPagination
-
-
-class OrderCreateAPIView(generics.CreateAPIView):
-    queryset = Order.objects.all()
-    serializer_class = OrderSerializer
-    permission_classes = [IsAuthenticated]
-
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)

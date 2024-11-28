@@ -22,10 +22,17 @@ class AddressDetailView(generics.RetrieveUpdateDestroyAPIView):
     # action = 'add'
 
 
+# Address list view
 class AddressListView(generics.ListAPIView):
+    queryset = Address.objects.all()
     serializer_class = AddressSerializer
     permission_classes = [permissions.AllowAny]
+    
 
-    def get_queryset(self):
-        user_id = self.kwargs.get('user_id')
-        return Address.objects.filter(user_id=user_id)
+# class AddressListView(generics.ListAPIView):
+#     serializer_class = AddressSerializer
+#     permission_classes = [permissions.AllowAny]
+    
+#     def get_queryset(self):
+#         user_id = self.kwargs.get('user_id')
+#         return Address.objects.filter(user_id=user_id)
