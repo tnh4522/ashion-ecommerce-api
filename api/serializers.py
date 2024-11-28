@@ -1,5 +1,3 @@
-import secrets
-import string
 from rest_framework import serializers
 from .models import *
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
@@ -182,6 +180,7 @@ class CategorySerializer(serializers.ModelSerializer):
             'is_active', 'meta_title', 'meta_description', 'sort_order'
         )
 
+
 class ProductSerializer(serializers.ModelSerializer):
     user = serializers.StringRelatedField(read_only=True)
     category = serializers.PrimaryKeyRelatedField(queryset=Category.objects.all(), required=False, allow_null=True)
@@ -214,6 +213,7 @@ class ProductSerializer(serializers.ModelSerializer):
         if tags is not None:
             instance.tags.set(tags)
         return instance
+
 
 class PermissionSerializer(serializers.ModelSerializer):
     class Meta:
@@ -270,27 +270,13 @@ class RoleSerializer(serializers.ModelSerializer):
         return role
 
 
-class StockSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Stock
-        fields = ['id', 'name', 'description', 'is_active', 'location', 'created_at', 'updated_at']
-
-
-class StockProductSerializer(serializers.ModelSerializer):
-    stock = serializers.PrimaryKeyRelatedField(read_only=False, queryset=Stock.objects.all())
-    product = serializers.PrimaryKeyRelatedField(read_only=False, queryset=Product.objects.all())
-
-    class Meta:
-        model = StockProduct
-        fields = ['id', 'stock', 'product', 'quantity', 'created_at', 'updated_at']
-
-
 class OrderItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = OrderItem
         fields = [
             'product', 'quantity', 'price', 'total_price', 'size', 'color', 'weight'
         ]
+
 
 class OrderSerializer(serializers.ModelSerializer):
     user = serializers.StringRelatedField()
@@ -319,41 +305,3 @@ class OrderSerializer(serializers.ModelSerializer):
             OrderItem.objects.create(order=order, seller=seller, **item_data)
 
         return order
-
-
-# Store Serializer
-class StoreSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Store
-        fields = [
-            'id', 'user', 'store_name', 'store_description', 'store_logo', 'rating', 'total_sales', 'joined_date',
-            'is_verified', 'address', 'policies', 'return_policy', 'shipping_policy', 'seller_rating', 'phone_number',
-            'email', 'social_links', 'business_hours', 'store_tags', 'location_coordinates', 'total_reviews'
-        ]
-        read_only_fields = ['user', 'joined_date', 'rating', 'total_sales', 'seller_rating', 'total_reviews']
-
-
-class BrandSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Brand
-        fields = '__all__'
-
-
-# Address Serializer
-class AddressSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Address
-        fields = [
-            'id', 'street_address', 'city', 'province', 'postal_code', 'country', 'latitude', 'longitude'
-        ]
-
-
-class CustomerSerializer(serializers.ModelSerializer):
-    address = AddressSerializer(required=False)
-
-    class Meta:
-        model = Customer
-        fields = [
-            'id', 'first_name', 'last_name', 'pronouns', 'address', 'phone_number', 'email', 'date_of_birth',
-            'identification_number', 'social_links', 'points', 'is_active'
-        ]
