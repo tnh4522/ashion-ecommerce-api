@@ -361,3 +361,19 @@ class OrderCreateView(generics.CreateAPIView):
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+    
+# Order Detail, Update, Delete
+class OrderDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Order.objects.all()
+    serializer_class = OrderSerializer
+    # permission_classes = [permissions.IsAuthenticated]
+
+    def get_action(self):
+        if self.request.method == 'GET':
+            return 'view'
+        elif self.request.method in ['PUT', 'PATCH']:
+            return 'change'
+        elif self.request.method == 'DELETE':
+            return 'delete'
+        else:
+            return None
