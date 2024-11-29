@@ -1,6 +1,5 @@
-from django.urls import path
+from django.urls import path, include
 
-from .address.address_views import *
 from .brand.brand_views import *
 from .customer.customer_views import *
 from .stock.stock_views import *
@@ -49,16 +48,9 @@ urlpatterns = [
     path('stores/create/', StoreCreateView.as_view(), name='store-create'),
     path('stores/', StoreListView.as_view(), name='store-list'),
     path('stores/<int:pk>/', StoreDetailView.as_view(), name='store-update-delete'),
-    path('brands/', BrandListView.as_view(), name='brand-list'),
-    path('brands/create/', BrandCreateView.as_view(), name='brand-create'),
-    path('brands/<int:pk>/', BrandDetailView.as_view(), name='brand-update-delete'),
-    path('customers/', CustomerManagerView.as_view(), name='customer-manager'),
-    path('customer/<int:pk>/', CustomerDetailView.as_view(), name='customer-detail'),
-    path('customer/create/', CustomerManagerView.as_view(), name='customer-create'),
-    path('address/', AddressListView.as_view(), name='address-list'),
-    path('address/create/', AddressCreateView.as_view(), name='address-create'),
-    # path('address/<int:user_id>/', AddressListView.as_view(), name='address-list-user'),
-    path('address/<int:pk>/', AddressDetailView.as_view(), name='address-detail'),
+    path('brand/', include('api.brand.brand_urls')),
+    path('customer/', include('api.customer.customer_urls')),
+    path('address/', include('api.address.address_urls')),
 ]
 
 if settings.DEBUG:
