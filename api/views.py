@@ -323,18 +323,4 @@ class RoleDetailView(generics.RetrieveUpdateDestroyAPIView):
     # permission_classes = [permissions.IsAuthenticated, HasRolePermission]
     # model_name = 'Role'
 
-    def get_action(self):
-        if self.request.method == 'GET':
-            return 'view'
-        elif self.request.method in ['PUT', 'PATCH']:
-            return 'change'
-        elif self.request.method == 'DELETE':
-            return 'delete'
-        else:
-            return None
-
-    def get_permissions(self):
-        self.action = self.get_action()
-        return super().get_permissions()
-
 
