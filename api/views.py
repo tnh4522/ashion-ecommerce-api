@@ -195,34 +195,6 @@ class CategoryDeleteView(APIView):
             return Response({'error': 'Category not found'}, status=status.HTTP_404_NOT_FOUND)
 
 
-# Product Management
-class ProductCreateView(generics.CreateAPIView):
-    queryset = Product.objects.all()
-    serializer_class = ProductSerializer
-    permission_classes = [permissions.AllowAny]
-    model_name = 'Product'
-    action = 'add'
-
-
-class ProductListView(generics.ListAPIView):
-    queryset = Product.objects.all()
-    serializer_class = ProductSerializer
-    permission_classes = [permissions.AllowAny]
-    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ['category__name', 'price', 'stock']
-    search_fields = ['name', 'category__name']
-    ordering_fields = ['name', 'price', 'stock']
-    pagination_class = StandardResultsSetPagination
-
-
-class ProductUpdateView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Product.objects.all()
-    serializer_class = ProductSerializer
-    permission_classes = [HasRolePermission]
-    model_name = 'Product'
-    action = 'change'
-
-
 # User Permission Management
 class CreateUserPermissionView(APIView):
     # permission_classes = [HasRolePermission]
@@ -322,5 +294,3 @@ class RoleDetailView(generics.RetrieveUpdateDestroyAPIView):
 
     # permission_classes = [permissions.IsAuthenticated, HasRolePermission]
     # model_name = 'Role'
-
-
