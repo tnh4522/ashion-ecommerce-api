@@ -5,13 +5,12 @@ from ..models import Category, Product, Tag
 class ProductSerializer(serializers.ModelSerializer):
     user = serializers.StringRelatedField(read_only=True)
     category = serializers.PrimaryKeyRelatedField(queryset=Category.objects.all(), required=False, allow_null=True)
-    tags = serializers.PrimaryKeyRelatedField(queryset=Tag.objects.all(), many=True, required=False, allow_null=True)
 
     class Meta:
         model = Product
         fields = [
             'id', 'user', 'name', 'sku', 'barcode', 'brand', 'description',
-            'material', 'care_instructions', 'category', 'tags', 'price',
+            'material', 'care_instructions', 'category', 'price',
             'sale_price', 'start_sale_date', 'end_sale_date', 'stock', 'weight',
             'dimensions', 'sizes', 'colors', 'status', 'is_featured',
             'is_new_arrival', 'is_on_sale', 'main_image', 'video_url',

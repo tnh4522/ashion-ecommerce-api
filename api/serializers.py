@@ -234,14 +234,20 @@ class RoleSerializer(serializers.ModelSerializer):
         child=serializers.CharField(), write_only=True
     )
     permissions_display = serializers.SerializerMethodField()
+    permissions_objects = serializers.SerializerMethodField()
 
     class Meta:
         model = Role
-        fields = ('id', 'name', 'description', 'permissions', 'permissions_display')
+        fields = ('id', 'name', 'description', 'permissions', 'permissions_display', 'permissions_objects')
 
     def get_permissions_display(self, obj):
         permissions = RolePermission.objects.filter(allowed=True, role=obj)
         return [f"{perm.permission.model_name}:{perm.permission.action}" for perm in permissions]
+
+    def get_permissions_objects(self, obj):
+        role_permissions = RolePermission.objects.filter(allowed=True, role=obj)
+        permissions = [rp.permission for rp in role_permissions]
+        return PermissionSerializer(permissions, many=True).data
 
     def validate_permissions(self, value):
         permissions = []
