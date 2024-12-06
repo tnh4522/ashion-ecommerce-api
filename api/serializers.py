@@ -274,10 +274,3 @@ class RoleSerializer(serializers.ModelSerializer):
         RolePermission.objects.bulk_create(role_permissions)
 
         return role
-
-
-
-
-
-
-
