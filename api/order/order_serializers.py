@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from api.models import Order, OrderItem, Product
+from api.models import Customer, Order, OrderItem, Product
 
 
 class OrderItemSerializer(serializers.ModelSerializer):
@@ -17,7 +17,7 @@ class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         fields = [
-            'id', 'user', 'order_number', 'subtotal_price', 'shipping_cost',
+            'id', 'user', 'customer', 'order_number', 'subtotal_price', 'shipping_cost',
             'discount_amount', 'tax_amount', 'total_price', 'total_weight',
             'shipping_address', 'billing_address', 'shipping_method',
             'payment_method', 'payment_status', 'status', 'coupon',
@@ -27,6 +27,7 @@ class OrderSerializer(serializers.ModelSerializer):
         read_only_fields = ('user', 'order_number')
 
     def create(self, validated_data):
+        print(validated_data) # test data
         items_data = validated_data.pop('items')
         user = self.context['request'].user
         order = Order.objects.create(user=user, **validated_data)
