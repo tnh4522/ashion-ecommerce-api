@@ -1,7 +1,7 @@
 from api.models import ActivityLog
 
 
-def raise_event(user, action, model_name, context='', data=None, request=None):
+def raise_event(user, status, action, model_name, context='', data=None, request=None):
     ip_address = None
     if request is not None:
         x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
@@ -12,6 +12,7 @@ def raise_event(user, action, model_name, context='', data=None, request=None):
 
     ActivityLog.objects.create(
         user=user,
+        status=status,
         action=action,
         model=model_name,
         context=context,

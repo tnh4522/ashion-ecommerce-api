@@ -659,6 +659,7 @@ class ActivityLog(models.Model):
     action = models.CharField(max_length=255)
     model = models.CharField(max_length=50)
     context = models.TextField(blank=True)
+    status = models.CharField(max_length=50, blank=True)
     data = models.JSONField(blank=True, null=True)
     ip_address = models.GenericIPAddressField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)

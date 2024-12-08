@@ -34,6 +34,7 @@ class CustomerManagerView(generics.ListCreateAPIView):
 
         raise_event(
             user=request.user,
+            status=status.HTTP_201_CREATED,
             action="Create",
             model_name="Customer",
             context="Create a new customer",
