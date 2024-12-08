@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from api.address.address_serializers import AddressSerializer
-from api.models import Customer
+from api.models import Customer, Address
 
 
 class CustomerSerializer(serializers.ModelSerializer):
@@ -13,3 +13,14 @@ class CustomerSerializer(serializers.ModelSerializer):
             'id', 'first_name', 'last_name', 'pronouns', 'address', 'phone_number', 'email', 'date_of_birth',
             'identification_number', 'social_links', 'points', 'is_active'
         ]
+
+    def create(self, validated_data):
+        address_data = validated_data.pop('address', None)
+        customer = Customer.objects.create(**validated_data)
+
+        if address_data:
+            address = Address.objects.create(**address_data)
+            customer.address = address
+            customer.save()
+
+        return customer

@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from api.address.address_serializers import AddressSerializer
 from api.customer.customer_serializers import CustomerSerializer
 from api.models import Customer
+from api.utils import raise_event
 
 
 class CustomerManagerView(generics.ListCreateAPIView):
@@ -30,6 +31,16 @@ class CustomerManagerView(generics.ListCreateAPIView):
         serializer.is_valid(raise_exception=True)
         customer = serializer.save()
         headers = self.get_success_headers(serializer.data)
+
+        raise_event(
+            user=request.user,
+            action="Create",
+            model_name="Customer",
+            context="Create a new customer",
+            data={"customer_id": customer.id},
+            request=request
+        )
+
         return Response(
             {'customer': serializer.data},
             status=status.HTTP_201_CREATED,

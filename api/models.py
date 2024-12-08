@@ -657,7 +657,9 @@ class SellerProfile(models.Model):
 class ActivityLog(models.Model):
     user = models.ForeignKey(User, related_name='activity_logs', on_delete=models.CASCADE)
     action = models.CharField(max_length=255)
-    description = models.TextField(blank=True)
+    model = models.CharField(max_length=50)
+    context = models.TextField(blank=True)
+    data = models.JSONField(blank=True, null=True)
     ip_address = models.GenericIPAddressField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
