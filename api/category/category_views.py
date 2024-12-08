@@ -8,6 +8,10 @@ from rest_framework.response import Response
 from rest_framework import generics, status
 from rest_framework.views import APIView
 from api.product.product_serializers import ProductSerializer
+import json
+import csv
+from django.core.exceptions import ValidationError
+from django.http import JsonResponse
 
 # Category Management
 class CategoryCreateView(generics.CreateAPIView):
@@ -130,3 +134,65 @@ class SubCategoryCreateView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+class ImportCategoriesView(APIView):
+    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        data = json.loads(request.data.get('data'))
+
+        categories = []
+        for item in data:
+            parent_id = item.get('parent')
+            parent = None
+            if parent_id:
+                parent = Category.objects.filter(id=parent_id).first()
+                if not parent:
+                    parent = None
+
+            name = item.get('name')
+            slug = item.get('slug')
+            is_active = item.get('is_active', 'false')
+            meta_title = item.get('meta_title', '')
+            meta_description = item.get('meta_description', '')
+            description = item.get('description', '')
+            sort_order = item.get('sort_order', 0)
+
+            category = Category(
+                name=name,
+                slug=slug,
+                is_active=is_active,
+                parent=parent,
+                meta_title=meta_title,
+                meta_description=meta_description,
+                description=description,
+                sort_order=sort_order
+            )
+            categories.append(category)
+
+        Category.objects.bulk_create(categories)
+
+        return Response({"message": "Categories imported successfully!"}, status=201)
+    
+class ExportSelectedCategoriesView(APIView):
+    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.AllowAny]
+    def post(self, request, *args, **kwargs):
+        ids = request.data.get("ids", [])
+        if not ids:
+            return Response(
+                {"error": "No IDs provided"}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        categories = Category.objects.filter(id__in=ids)
+
+        if not categories.exists():
+            return Response(
+                {"error": "No categories found with the given IDs"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        serializer = CategorySerializer(categories, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)

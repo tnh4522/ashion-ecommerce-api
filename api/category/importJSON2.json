@@ -1,0 +1,22 @@
+[
+    {
+        "name": "Category 1",
+        "slug": "",
+        "parent": 27,
+        "description": "",
+        "is_active": true,
+        "meta_title": "",
+        "meta_description": "",
+        "sort_order": 1
+    },
+    {
+        "name": "Category 2",
+        "slug": "",
+        "parent": 27,
+        "description": "",
+        "is_active": true,
+        "meta_title": "",
+        "meta_description": "",
+        "sort_order": 2
+    }
+]

@@ -1,0 +1,22 @@
+[
+    {
+        "name": "Category 1",
+        "slug": "category-1",
+        "parent": null,
+        "description": "Description of Category 1",
+        "is_active": true,
+        "meta_title": "Category 1 Meta Title",
+        "meta_description": "Category 1 Meta Description",
+        "sort_order": 1
+    },
+    {
+        "name": "Category 2",
+        "slug": "category-2",
+        "parent": null,
+        "description": "Description of Category 2",
+        "is_active": true,
+        "meta_title": "Category 2 Meta Title",
+        "meta_description": "Category 2 Meta Description",
+        "sort_order": 2
+    }
+]
