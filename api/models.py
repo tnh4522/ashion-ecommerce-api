@@ -4,7 +4,6 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from django.utils import timezone
 from django.utils.text import slugify
 
-
 class Role(models.Model):
     name = models.CharField(max_length=50, unique=True)
     description = models.TextField(blank=True)
@@ -302,6 +301,7 @@ class Order(models.Model):
     )
     user = models.ForeignKey(User, related_name='orders', on_delete=models.CASCADE)
     order_number = models.CharField(max_length=20, unique=True, editable=False)
+    customer = models.ForeignKey('Customer', related_name='orders', on_delete=models.CASCADE)
     subtotal_price = models.DecimalField(max_digits=12, decimal_places=2, default=0.0)
     shipping_cost = models.DecimalField(max_digits=12, decimal_places=2, default=0.0)
     discount_amount = models.DecimalField(max_digits=12, decimal_places=2, default=0.0)
@@ -743,6 +743,7 @@ class Customer(models.Model):
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    order = models.ForeignKey(Order, related_name='customers', on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
         return f"Customer with email {self.email}"
