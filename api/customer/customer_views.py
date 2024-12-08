@@ -1,12 +1,18 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, status
 from rest_framework import generics, permissions
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 
 from api.address.address_serializers import AddressSerializer
 from api.customer.customer_serializers import CustomerSerializer
 from api.models import Customer
-from api.utils import raise_event
+
+
+class CustomerPagination(PageNumberPagination):
+    page_size = 5
+    page_size_query_param = 'page_size'
+    max_page_size = 100
 
 
 class CustomerManagerView(generics.ListCreateAPIView):
@@ -19,6 +25,7 @@ class CustomerManagerView(generics.ListCreateAPIView):
     filterset_fields = ['email', 'phone_number', 'first_name', 'last_name', 'is_active']
     search_fields = ['email', 'phone_number', 'first_name', 'last_name']
     ordering_fields = ['email', 'created_at', 'first_name', 'last_name']
+    pagination_class = CustomerPagination
 
     # def get_permissions(self):
     #     if self.request.method == 'POST':
@@ -31,15 +38,6 @@ class CustomerManagerView(generics.ListCreateAPIView):
         serializer.is_valid(raise_exception=True)
         customer = serializer.save()
         headers = self.get_success_headers(serializer.data)
-
-        raise_event(
-            user=request.user,
-            action="Create",
-            model_name="Customer",
-            context="Create a new customer",
-            data={"customer_id": customer.id},
-            request=request
-        )
 
         return Response(
             {'customer': serializer.data},
