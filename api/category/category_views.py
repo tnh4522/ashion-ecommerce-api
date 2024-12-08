@@ -22,7 +22,6 @@ class CategoryCreateView(generics.CreateAPIView):
 class CategoryListView(generics.ListAPIView):
     serializer_class = CategorySerializer
     permission_classes = [permissions.AllowAny]
-    # Update Category
     def get_queryset(self):
         queryset = Category.objects.all()
         sort_by = self.request.query_params.get('sort_by', 'name')
@@ -99,3 +98,35 @@ class ProductByCategoryView(APIView):
         serializer = ProductSerializer(products, many=True)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class SubCategoryListView(APIView):
+    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.AllowAny]
+    def get(self, request, category_id):
+        try:
+            category = Category.objects.get(id=category_id)
+        except Category.DoesNotExist:
+            return Response({'error': 'Category not found'}, status=status.HTTP_404_NOT_FOUND)
+        
+        subcategories = category.subcategories.all().select_related('parent')
+        serializer = SubCategorySerializer(subcategories, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+        
+class SubCategoryCreateView(APIView):
+    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request, category_id):
+        try:
+            parent_category = Category.objects.get(id=category_id)
+        except Category.DoesNotExist:
+            return Response({'error': 'Parent category not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        data = request.data
+        data['parent'] = parent_category.id
+        serializer = SubCategorySerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

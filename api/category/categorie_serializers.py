@@ -10,9 +10,9 @@ class CategorySerializer(serializers.ModelSerializer):
             'id', 'name', 'parent', 'slug', 'description', 'image',
             'is_active', 'meta_title', 'meta_description', 'sort_order', 'product_public'
         )
-
-def get_product_public(self, obj):
+    def get_product_public(self, obj):
         return obj.products.count()
+
 
 class CategoryActiveUpdateSerializer(serializers.Serializer):
     ids = serializers.ListField(
@@ -26,3 +26,23 @@ class CategoryDeleteSerializer(serializers.Serializer):
         child=serializers.IntegerField(), 
         allow_empty=False
     )
+
+class SubCategorySerializer(serializers.ModelSerializer):
+    product_public = serializers.SerializerMethodField()
+    class Meta:
+        model = Category
+        fields = [
+            'id', 
+            'name', 
+            'slug', 
+            'description', 
+            'image', 
+            'is_active', 
+            'meta_title', 
+            'meta_description', 
+            'sort_order', 
+            'parent',
+            'product_public'
+        ]
+    def get_product_public(self, obj):
+        return obj.products.count()
