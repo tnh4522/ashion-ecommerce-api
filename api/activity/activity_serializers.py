@@ -3,10 +3,17 @@ from ..models import ActivityLog
 from ..serializers import UserSerializer
 
 
-class ActivityLogSerializer(serializers.ModelSerializer):
-    ip_address = serializers.CharField(required=False, allow_blank=True, allow_null=True)
+class ActivityLogListViewSerializer(serializers.ModelSerializer):
     user = UserSerializer(required=False)
 
     class Meta:
         model = ActivityLog
-        fields = ['id', 'user', 'status', 'action', 'model', 'context', 'ip_address', 'data', 'created_at']
+        fields = ['id', 'user', 'status', 'action', 'model', 'context', 'data', 'created_at']
+
+
+class ActivityLogCreateSerializer(serializers.ModelSerializer):
+    ip_address = serializers.CharField(required=False)
+
+    class Meta:
+        model = ActivityLog
+        fields = ['user', 'status', 'action', 'model', 'context', 'data', 'ip_address']
