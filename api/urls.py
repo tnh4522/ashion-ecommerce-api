@@ -11,6 +11,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
+    path('activity/', include('api.activity.activity_urls')),
     path('register', UserRegistrationView.as_view(), name='register'),
     path('login', UserLoginView.as_view(), name='login'),
     path('token/refresh', TokenRefreshView.as_view(), name='token_refresh'),
@@ -20,11 +21,7 @@ urlpatterns = [
     path('users/', UserListView.as_view(), name='user-list'),
     path('create-user/', UserCreateView.as_view(), name='admin-create-user'),
     path('users/create-password/', CreatePasswordView.as_view(), name='create-password'),
-    path('categories/', CategoryListView.as_view(), name='category-list'),
-    path('categories/create/', CategoryCreateView.as_view(), name='category-create'),
-    path('categories/<int:pk>/', CategoryDetailView.as_view(), name='category-detail'),
-    path('categories/<int:pk>/update/', CategoryUpdateView.as_view(), name='category-update'),
-    path('categories/<int:pk>/delete/', CategoryDeleteView.as_view(), name='category-delete'),
+    path('categories/', include('api.category.categories_urls')),
     path('product/', include('api.product.product_urls')),
     path('permissions/', PermissionListView.as_view(), name='permissions'),
     path('permissions/create/', CreateUserPermissionView.as_view(), name='create_permission'),

@@ -88,7 +88,7 @@ class UserSerializer(serializers.ModelSerializer):
         fields = (
             'id', 'username', 'email', 'phone_number', 'first_name', 'last_name',
             'date_of_birth', 'gender', 'profile_picture', 'bio',
-            'social_links', 'preferences', 'role', 'role_display'
+            'social_links', 'preferences', 'role', 'role_display', 'is_superuser'
         )
         read_only_fields = ('id',)
 
@@ -274,10 +274,3 @@ class RoleSerializer(serializers.ModelSerializer):
         RolePermission.objects.bulk_create(role_permissions)
 
         return role
-
-
-
-
-
-
-
