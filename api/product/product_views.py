@@ -11,9 +11,11 @@ class ProductCreateView(generics.CreateAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     permission_classes = [permissions.AllowAny]
-    # model_name = 'Product'
-    # action = 'add'
 
+    def perform_create(self, serializer):
+        product = serializer.save()
+        updated_serializer = self.get_serializer(product)
+        self.final_response_data = updated_serializer.data
 
 class ProductListView(generics.ListAPIView):
     queryset = Product.objects.all()

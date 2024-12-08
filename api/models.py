@@ -147,7 +147,6 @@ class Category(models.Model):
         return self.name
 
 
-# Tag model for product tagging
 class Tag(models.Model):
     name = models.CharField(max_length=50, unique=True)
     slug = models.SlugField(unique=True)
@@ -155,8 +154,6 @@ class Tag(models.Model):
     def __str__(self):
         return self.name
 
-
-# Product model with additional fields
 class Product(models.Model):
     STATUS_CHOICES = (
         ('ACTIVE', 'Active'),
@@ -178,6 +175,7 @@ class Product(models.Model):
     category = models.ForeignKey(
         Category, related_name='products', on_delete=models.SET_NULL, null=True
     )
+    # images = models.ImageField(upload_to='product_images/', blank=True, null=True)
     tags = models.ManyToManyField(Tag, related_name='products', blank=True)
     price = models.DecimalField(max_digits=12, decimal_places=2)
     sale_price = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
@@ -225,16 +223,16 @@ class Product(models.Model):
 
 # ProductImage model with additional fields
 class ProductImage(models.Model):
-    product = models.ForeignKey(Product, related_name='images', on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, related_name='product_images', on_delete=models.CASCADE)
     image = models.ImageField(upload_to='product_images/')
     is_main = models.BooleanField(default=False)
     caption = models.CharField(max_length=255, blank=True)
     alt_text = models.CharField(max_length=255, blank=True)
     order = models.PositiveIntegerField(default=0)
 
+
     def __str__(self):
         return f"Image of {self.product.name}"
-
 
 # Cart and CartItem models with additional fields
 class Cart(models.Model):
