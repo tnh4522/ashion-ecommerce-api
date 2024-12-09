@@ -113,7 +113,7 @@ class Address(models.Model):
     full_name = models.CharField(max_length=255)
     phone_number = models.CharField(max_length=20)
     street_address = models.TextField()
-    city = models.CharField(max_length=100)
+    ward = models.CharField(max_length=100)
     province = models.CharField(max_length=100)
     postal_code = models.CharField(max_length=20)
     country = models.CharField(max_length=100, default='Vietnam')
