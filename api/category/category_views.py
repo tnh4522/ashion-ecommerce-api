@@ -12,6 +12,7 @@ import json
 import csv
 from django.core.exceptions import ValidationError
 from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
 
 # Category Management
 class CategoryCreateView(generics.CreateAPIView):
@@ -26,14 +27,22 @@ class CategoryCreateView(generics.CreateAPIView):
 class CategoryListView(generics.ListAPIView):
     serializer_class = CategorySerializer
     permission_classes = [permissions.AllowAny]
+
     def get_queryset(self):
         queryset = Category.objects.all()
+
+        without_parent = self.request.query_params.get('without_parent', None)
+        if without_parent == 'true':
+            queryset = queryset.filter(parent__isnull=True)
+
         sort_by = self.request.query_params.get('sort_by', 'name')
         if sort_by == 'sort_order':
             queryset = queryset.order_by('sort_order')
         else:
             queryset = queryset.order_by('name')
+
         return queryset
+
 
 
 class CategoryActiveUpdateView(APIView):
@@ -196,3 +205,4 @@ class ExportSelectedCategoriesView(APIView):
         
         serializer = CategorySerializer(categories, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    

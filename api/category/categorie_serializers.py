@@ -4,14 +4,18 @@ from ..models import Category
 
 class CategorySerializer(serializers.ModelSerializer):
     product_public = serializers.SerializerMethodField()
+    subcategory_count = serializers.SerializerMethodField() 
     class Meta:
         model = Category
         fields = (
             'id', 'name', 'parent', 'slug', 'description', 'image',
-            'is_active', 'meta_title', 'meta_description', 'sort_order', 'product_public'
+            'is_active', 'meta_title', 'meta_description', 'sort_order', 'product_public', 'subcategory_count'
         )
     def get_product_public(self, obj):
         return obj.products.count()
+    
+    def get_subcategory_count(self, obj):
+        return obj.subcategories.count()
 
 
 class CategoryActiveUpdateSerializer(serializers.Serializer):
