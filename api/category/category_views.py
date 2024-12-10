@@ -1,7 +1,6 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 from rest_framework import generics, permissions
-
 from api.models import Category, Product
 from api.category.categorie_serializers import *
 from rest_framework.response import Response
@@ -9,20 +8,24 @@ from rest_framework import generics, status
 from rest_framework.views import APIView
 from api.product.product_serializers import ProductSerializer
 import json
-import csv
-from django.core.exceptions import ValidationError
-from django.http import JsonResponse
-from django.shortcuts import get_object_or_404
+from rest_framework.generics import CreateAPIView
 
-# Category Management
-class CategoryCreateView(generics.CreateAPIView):
+class CategoryCreateView(CreateAPIView):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    # permission_classes = [HasRolePermission]
     permission_classes = [permissions.AllowAny]
-    model_name = 'Category'
-    action = 'add'
 
+    def create(self, request, *args, **kwargs):
+        data = request.data
+        name = data.get('name')
+
+        if Category.objects.filter(name=name).exists():
+            return Response(
+                {"error": "Name already exists. Please use a different one."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        return super().create(request, *args, **kwargs)
 
 class CategoryListView(generics.ListAPIView):
     serializer_class = CategorySerializer
@@ -114,15 +117,14 @@ class ProductByCategoryView(APIView):
 
 
 class SubCategoryListView(APIView):
-    # permission_classes = [permissions.IsAuthenticated]
     permission_classes = [permissions.AllowAny]
+
     def get(self, request, category_id):
         try:
             category = Category.objects.get(id=category_id)
         except Category.DoesNotExist:
             return Response({'error': 'Category not found'}, status=status.HTTP_404_NOT_FOUND)
-        
-        subcategories = category.subcategories.all().select_related('parent')
+        subcategories = category.subcategories.all().select_related('parent').order_by('name')
         serializer = SubCategorySerializer(subcategories, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
         
@@ -138,10 +140,20 @@ class SubCategoryCreateView(APIView):
 
         data = request.data
         data['parent'] = parent_category.id
+        
+        sub_category_name = data.get('name', '').strip()
+
+        if Category.objects.filter(name__iexact=sub_category_name).exists():
+            return Response(
+                {'error': f"Category with name '{sub_category_name}' already exists."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
         serializer = SubCategorySerializer(data=data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+        
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 class ImportCategoriesView(APIView):
@@ -206,3 +218,17 @@ class ExportSelectedCategoriesView(APIView):
         serializer = CategorySerializer(categories, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
+class CheckCategoryNameView(APIView):
+    # permission_classes = [permissions.IsAuthenticated]
+
+    permission_classes = [permissions.AllowAny]
+    def get(self, request):
+        name = request.query_params.get('name', '').strip()
+        if not name:
+            return Response(
+                {'error': 'Name parameter is required.', 'available': False},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        exists = Category.objects.filter(name__iexact=name).exists()
+        return Response({'exists': exists, 'available': not exists}, status=status.HTTP_200_OK)

@@ -15,5 +15,6 @@ urlpatterns = [
     path('<int:category_id>/sub-categories/create/', SubCategoryCreateView.as_view(), name='subcategory-create'),
     path('import/', ImportCategoriesView.as_view(), name='import-categories'),
     path('export-selected/', ExportSelectedCategoriesView.as_view(), name='export-selected-categories'),
+    path('check-name/', CheckCategoryNameView.as_view(), name='check-category-name'),
 ]
 
