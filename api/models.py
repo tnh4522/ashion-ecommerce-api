@@ -69,12 +69,12 @@ class User(AbstractUser):
 
     def has_permission(self, model_name, action):
         if UserPermission.objects.filter(
-            user=self, permission__model_name=model_name, permission__action=action, allowed=True
+                user=self, permission__model_name=model_name, permission__action=action, allowed=True
         ).exists():
             return True
 
         if self.role and RolePermission.objects.filter(
-            role=self.role, permission__model_name=model_name, permission__action=action, allowed=True
+                role=self.role, permission__model_name=model_name, permission__action=action, allowed=True
         ).exists():
             return True
 
@@ -113,8 +113,9 @@ class Address(models.Model):
     full_name = models.CharField(max_length=255)
     phone_number = models.CharField(max_length=20)
     street_address = models.TextField()
-    ward = models.CharField(max_length=100)
-    province = models.CharField(max_length=100)
+    ward = models.CharField(max_length=100, blank=True)
+    province = models.CharField(max_length=100, blank=True)
+    district = models.CharField(max_length=100, blank=True)
     postal_code = models.CharField(max_length=20)
     country = models.CharField(max_length=100, default='Vietnam')
     default = models.BooleanField(default=False)
@@ -153,6 +154,7 @@ class Tag(models.Model):
 
     def __str__(self):
         return self.name
+
 
 class Product(models.Model):
     STATUS_CHOICES = (
@@ -230,9 +232,9 @@ class ProductImage(models.Model):
     alt_text = models.CharField(max_length=255, blank=True)
     order = models.PositiveIntegerField(default=0)
 
-
     def __str__(self):
         return f"Image of {self.product.name}"
+
 
 # Cart and CartItem models with additional fields
 class Cart(models.Model):
