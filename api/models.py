@@ -4,6 +4,7 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from django.utils import timezone
 from django.utils.text import slugify
 
+
 class Role(models.Model):
     name = models.CharField(max_length=50, unique=True)
     description = models.TextField(blank=True)
@@ -69,12 +70,12 @@ class User(AbstractUser):
 
     def has_permission(self, model_name, action):
         if UserPermission.objects.filter(
-            user=self, permission__model_name=model_name, permission__action=action, allowed=True
+                user=self, permission__model_name=model_name, permission__action=action, allowed=True
         ).exists():
             return True
 
         if self.role and RolePermission.objects.filter(
-            role=self.role, permission__model_name=model_name, permission__action=action, allowed=True
+                role=self.role, permission__model_name=model_name, permission__action=action, allowed=True
         ).exists():
             return True
 
@@ -164,6 +165,7 @@ class Stock(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+
 class Product(models.Model):
     STATUS_CHOICES = (
         ('ACTIVE', 'Active'),
@@ -240,7 +242,6 @@ class ProductImage(models.Model):
     alt_text = models.CharField(max_length=255, blank=True)
     order = models.PositiveIntegerField(default=0)
 
-
     def __str__(self):
         return f"Image of {self.product.name}"
 
@@ -281,6 +282,7 @@ class StockVariant(models.Model):
 
     def __str__(self):
         return f"{self.variant_name} - {self.product.name} - {self.stock.name}"
+
 
 # Cart and CartItem models with additional fields
 class Cart(models.Model):
@@ -712,15 +714,6 @@ class ActivityLog(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.action} at {self.created_at}"
-
-
-class Stock(models.Model):
-    name = models.CharField(max_length=255)
-    description = models.TextField(blank=True)
-    is_active = models.BooleanField(default=True)
-    location = models.TextField()
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
 
 
 class StockProduct(models.Model):
