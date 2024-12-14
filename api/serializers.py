@@ -71,7 +71,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 
         permissions = UserPermission.objects.filter(user=self.user).values_list('permission__model_name',
                                                                                 'permission__action', 'allowed')
-        data['permissions'] = [
+        data['scope'] = [
             f"{model_name}:{action}" for model_name, action, allowed in permissions if allowed
         ]
         return data

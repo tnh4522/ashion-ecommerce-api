@@ -12,6 +12,8 @@ from .serializers import UserCreateSerializer
 from .permissions import HasRolePermission
 from rest_framework.permissions import IsAuthenticated
 
+from .store.store_serializers import StoreSerializer
+
 
 # Pagination Setup
 class StandardResultsSetPagination(PageNumberPagination):
@@ -132,6 +134,7 @@ class UserRoleView(generics.RetrieveUpdateAPIView):
         user.save()
         return Response({'detail': 'Role updated successfully.'}, status=status.HTTP_200_OK)
 
+
 # User Permission Management
 class CreateUserPermissionView(APIView):
     # permission_classes = [HasRolePermission]
@@ -231,3 +234,15 @@ class RoleDetailView(generics.RetrieveUpdateDestroyAPIView):
 
     # permission_classes = [permissions.IsAuthenticated, HasRolePermission]
     # model_name = 'Role'
+
+
+class GetStoreByUser(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        store = Store.objects.filter(user=request.user).first()
+        if not store:
+            return Response({'detail': 'Store not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = StoreSerializer(store)
+        return Response(serializer.data, status=status.HTTP_200_OK)

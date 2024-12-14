@@ -18,6 +18,7 @@ urlpatterns = [
     path('login', UserLoginView.as_view(), name='login'),
     path('token/refresh', TokenRefreshView.as_view(), name='token_refresh'),
     path('me/', UserDetailView.as_view(), name='user-detail'),
+    path('me/store/', GetStoreByUser.as_view(), name='user-store'),
     path('user/<int:pk>/', UserManagerView.as_view(), name='user-manager'),
     path('users/<int:pk>/role/', UserRoleView.as_view(), name='user-role'),
     path('users/', UserListView.as_view(), name='user-list'),
@@ -47,6 +48,3 @@ urlpatterns = [
     path('customer/', include('api.customer.customer_urls')),
     path('address/', include('api.address.address_urls')),
 ]
-
-if settings.DEBUG:
-    urlpatterns += static(settings.STATIC_URL, document_root=settings.MEDIA_ROOT)
