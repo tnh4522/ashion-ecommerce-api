@@ -69,12 +69,12 @@ class User(AbstractUser):
 
     def has_permission(self, model_name, action):
         if UserPermission.objects.filter(
-                user=self, permission__model_name=model_name, permission__action=action, allowed=True
+            user=self, permission__model_name=model_name, permission__action=action, allowed=True
         ).exists():
             return True
 
         if self.role and RolePermission.objects.filter(
-                role=self.role, permission__model_name=model_name, permission__action=action, allowed=True
+            role=self.role, permission__model_name=model_name, permission__action=action, allowed=True
         ).exists():
             return True
 
@@ -156,6 +156,14 @@ class Tag(models.Model):
         return self.name
 
 
+class Stock(models.Model):
+    name = models.CharField(max_length=255)
+    description = models.TextField(blank=True)
+    is_active = models.BooleanField(default=True)
+    location = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
 class Product(models.Model):
     STATUS_CHOICES = (
         ('ACTIVE', 'Active'),
@@ -168,10 +176,10 @@ class Product(models.Model):
         on_delete=models.CASCADE,
     )
     name = models.CharField(max_length=255)
-    sku = models.CharField(max_length=100, unique=True)
+    sku = models.CharField(max_length=100, unique=True, blank=True, null=True)
+    description = models.TextField(blank=True, null=True)
     barcode = models.CharField(max_length=100, blank=True, null=True)
     brand = models.CharField(max_length=255, blank=True)
-    description = models.TextField()
     material = models.CharField(max_length=255, blank=True)
     care_instructions = models.TextField(blank=True)
     category = models.ForeignKey(
@@ -232,9 +240,47 @@ class ProductImage(models.Model):
     alt_text = models.CharField(max_length=255, blank=True)
     order = models.PositiveIntegerField(default=0)
 
+
     def __str__(self):
         return f"Image of {self.product.name}"
 
+
+class StockVariant(models.Model):
+    product = models.ForeignKey(
+        Product,
+        related_name='stock_variants',
+        on_delete=models.CASCADE,
+        verbose_name="Product"
+    )
+    stock = models.ForeignKey(
+        Stock,
+        related_name='stock_variants',
+        on_delete=models.CASCADE,
+        verbose_name="Stock Location"
+    )
+    variant_name = models.CharField(
+        max_length=255,
+        verbose_name="Variant Name",
+        help_text="Example: S - Red"
+    )
+    quantity = models.PositiveIntegerField(
+        default=0,
+        validators=[MinValueValidator(0)],
+        verbose_name="Quantity in Stock"
+    )
+    image = models.ImageField(upload_to='variant_images/', blank=True, null=True)  # Thêm trường này
+
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Created At")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="Updated At")
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['product', 'stock', 'variant_name'], name='unique_stock_variant')
+        ]
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.variant_name} - {self.product.name} - {self.stock.name}"
 
 # Cart and CartItem models with additional fields
 class Cart(models.Model):
@@ -360,7 +406,7 @@ class OrderItem(models.Model):
         User,
         related_name='order_items',
         on_delete=models.CASCADE,
-        limit_choices_to={'role': 'SELLER'},
+        limit_choices_to={'role__name': 'SELLER'},
     )
     quantity = models.PositiveIntegerField()
     price = models.DecimalField(max_digits=12, decimal_places=2)
@@ -632,7 +678,7 @@ class SellerProfile(models.Model):
         User,
         related_name='seller_profile',
         on_delete=models.CASCADE,
-        limit_choices_to={'role': 'SELLER'},
+        limit_choices_to={'role__name': 'SELLER'},
     )
     store_name = models.CharField(max_length=255)
     store_description = models.TextField(blank=True)

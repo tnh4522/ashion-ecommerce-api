@@ -1,3 +1,4 @@
+
 from django.urls import path, include
 
 from .brand.brand_views import *
@@ -6,6 +7,7 @@ from .stock.stock_views import *
 from .store.store_views import *
 from .order.order_views import *
 from .views import *
+from .product.variant_views import *
 from rest_framework_simplejwt.views import TokenRefreshView
 from django.conf import settings
 from django.conf.urls.static import static
@@ -47,4 +49,4 @@ urlpatterns = [
 ]
 
 if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.MEDIA_ROOT)
