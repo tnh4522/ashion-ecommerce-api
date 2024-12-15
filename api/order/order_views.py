@@ -8,7 +8,7 @@ from api.views import StandardResultsSetPagination
 
 # List all orders
 class OrderListView(generics.ListAPIView):
-    queryset = Order.objects.all()
+    queryset = Order.objects.all().order_by('-created_at')
     serializer_class = OrderSerializer
     permission_classes = [permissions.AllowAny]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
