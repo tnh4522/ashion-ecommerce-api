@@ -41,3 +41,9 @@ class ActivityLogCreateView(generics.CreateAPIView):
     def perform_create(self, serializer):
         ip_address = get_client_ip(self.request)
         serializer.save(ip_address=ip_address)
+
+
+class ActivityLogDetailView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = ActivityLogListViewSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+    queryset = ActivityLog.objects.all()
