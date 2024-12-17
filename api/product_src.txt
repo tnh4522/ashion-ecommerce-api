@@ -1,7 +1,7 @@
-api\__init__.py
+api/__init__.py
 default_app_config = 'api.apps.ApiConfig'
 _________________
-api\apps.py
+api/apps.py
 # apps.py
 
 from django.apps import AppConfig
@@ -14,7 +14,7 @@ class ApiConfig(AppConfig):
         import api.signals
 
 _________________
-api\models.py
+api/models.py
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MinValueValidator, MaxValueValidator
@@ -285,7 +285,7 @@ class StockVariant(models.Model):
         validators=[MinValueValidator(0)],
         verbose_name="Quantity in Stock"
     )
-    image = models.ImageField(upload_to='variant_images/', blank=True, null=True)
+    image = models.ImageField(upload_to='variant_images/', blank=True, null=True)  # Thêm trường này
 
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Created At")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Updated At")
@@ -804,7 +804,7 @@ class Customer(models.Model):
         return f"Customer with email {self.email}"
 
 _________________
-api\serializers.py
+api/serializers.py
 from rest_framework import serializers
 from .models import *
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
@@ -1048,7 +1048,7 @@ class RoleSerializer(serializers.ModelSerializer):
         return role
 
 _________________
-api\signals.py
+api/signals.py
 
 import logging
 from django.db.models.signals import post_save, post_delete
@@ -1128,7 +1128,7 @@ def update_product_stock_on_variant_delete(sender, instance, **kwargs):
 
 
 _________________
-api\urls.py
+api/urls.py
 
 from django.urls import path, include
 
@@ -1178,10 +1178,11 @@ urlpatterns = [
     path('brand/', include('api.brand.brand_urls')),
     path('customer/', include('api.customer.customer_urls')),
     path('address/', include('api.address.address_urls')),
+    path('cart/', include('api.cart.cart_urls')),
 ]
 
 _________________
-api\views.py
+api/views.py
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, permissions
 from rest_framework.views import APIView
@@ -1431,7 +1432,7 @@ class GetStoreByUser(APIView):
         serializer = StoreSerializer(store)
         return Response(serializer.data, status=status.HTTP_200_OK)
 _________________
-api/product\product_serializers.py
+api/product/product_serializers.py
 # product/product_serializers.py
 
 from rest_framework import serializers
@@ -1593,7 +1594,7 @@ class ProductSerializer(serializers.ModelSerializer):
         return attrs
 
 _________________
-api/product\product_urls.py
+api/product/product_urls.py
 from django.urls import path
 from .product_views import *
 from .variant_views import *
@@ -1608,7 +1609,7 @@ urlpatterns = [
 ]
 
 _________________
-api/product\product_views.py
+api/product/product_views.py
 from django_filters.rest_framework import DjangoFilterBackend, FilterSet, NumberFilter, CharFilter
 from rest_framework import filters as drf_filters, status, permissions
 from rest_framework.response import Response
@@ -1669,7 +1670,7 @@ class ProductListView(generics.ListAPIView):
 class ProductDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.AllowAny]
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -1678,7 +1679,7 @@ class ProductDetailView(generics.RetrieveUpdateDestroyAPIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 _________________
-api/product\stock_serializers.py
+api/product/stock_serializers.py
 from rest_framework import serializers
 from ..models import Stock
 
@@ -1689,7 +1690,7 @@ class StockSerializer(serializers.ModelSerializer):
 
 
 _________________
-api/product\variant_serializers.py
+api/product/variant_serializers.py
 from rest_framework import serializers
 from ..models import StockVariant, Stock
 from .stock_serializers import StockSerializer
@@ -1732,7 +1733,7 @@ class StockVariantUpdateSerializer(serializers.Serializer):
         return instance
 
 _________________
-api/product\variant_views.py
+api/product/variant_views.py
 from rest_framework import generics, permissions
 from ..models import StockVariant
 from .variant_serializers import StockVariantSerializer

@@ -52,6 +52,13 @@ class ProductSerializer(serializers.ModelSerializer):
 
         return product
 
+    def get_main_image(self, obj):
+        if obj.images.exists():
+            request = self.context.get('request')
+            image_url = obj.images.first().image.url
+            return request.build_absolute_uri(image_url)
+        return None
+
     def update(self, instance, validated_data):
         tags = validated_data.pop('tags', None)
         replaced_image_ids = self.context['request'].data.getlist('replaced_image_id')
