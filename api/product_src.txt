@@ -1,0 +1,1786 @@
+api\__init__.py
+default_app_config = 'api.apps.ApiConfig'
+_________________
+api\apps.py
+# apps.py
+
+from django.apps import AppConfig
+
+class ApiConfig(AppConfig):
+    default_auto_field = 'django.db.models.BigAutoField'
+    name = 'api'
+
+    def ready(self):
+        import api.signals
+
+_________________
+api\models.py
+from django.db import models
+from django.contrib.auth.models import AbstractUser
+from django.core.validators import MinValueValidator, MaxValueValidator
+from django.utils import timezone
+from django.utils.text import slugify
+
+
+class Role(models.Model):
+    name = models.CharField(max_length=50, unique=True)
+    description = models.TextField(blank=True)
+
+    class Meta:
+        ordering = ['id']
+
+    def __str__(self):
+        return self.name
+
+
+class Permission(models.Model):
+    model_name = models.CharField(max_length=50)
+    action = models.CharField(
+        max_length=10,
+        choices=[('view', 'View'), ('add', 'Add'), ('change', 'Change'), ('delete', 'Delete')],
+    )
+    description = models.TextField(blank=True)
+
+    class Meta:
+        unique_together = ('model_name', 'action')
+
+    def __str__(self):
+        return f"{self.action.capitalize()} {self.model_name}"
+
+
+class RolePermission(models.Model):
+    role = models.ForeignKey(Role, related_name='permissions', on_delete=models.CASCADE)
+    permission = models.ForeignKey(Permission, related_name='roles', on_delete=models.CASCADE)
+    allowed = models.BooleanField(default=True)
+
+    class Meta:
+        unique_together = ('role', 'permission')
+
+    def __str__(self):
+        status = "Granted" if self.allowed else "Denied"
+        return f"{status} {self.permission} to {self.role}"
+
+
+class User(AbstractUser):
+    GENDER_CHOICES = (
+        ('MALE', 'Male'),
+        ('FEMALE', 'Female'),
+        ('OTHER', 'Other'),
+    )
+    role = models.ForeignKey(Role, related_name='users', on_delete=models.SET_NULL, null=True, blank=True)
+    individual_permissions = models.ManyToManyField(
+        Permission, through='UserPermission', related_name='users_with_permissions', blank=True
+    )
+    phone_number = models.CharField(max_length=20, blank=True, null=True)
+    date_of_birth = models.DateField(null=True, blank=True)
+    profile_picture = models.ImageField(upload_to='profile_pictures/', null=True, blank=True)
+    email_verified = models.BooleanField(default=False)
+    phone_verified = models.BooleanField(default=False)
+    gender = models.CharField(max_length=10, choices=GENDER_CHOICES, null=True, blank=True)
+    bio = models.TextField(blank=True, null=True)
+    social_links = models.JSONField(blank=True, null=True)
+    preferences = models.JSONField(blank=True, null=True)
+    last_activity = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return self.username
+
+    def has_permission(self, model_name, action):
+        if UserPermission.objects.filter(
+                user=self, permission__model_name=model_name, permission__action=action, allowed=True
+        ).exists():
+            return True
+
+        if self.role and RolePermission.objects.filter(
+                role=self.role, permission__model_name=model_name, permission__action=action, allowed=True
+        ).exists():
+            return True
+
+        return False
+
+
+class UserPermission(models.Model):
+    user = models.ForeignKey(
+        User,
+        related_name='user_specific_permissions',
+        on_delete=models.CASCADE
+    )
+    permission = models.ForeignKey(
+        Permission,
+        related_name='user_permissions',
+        on_delete=models.CASCADE
+    )
+    allowed = models.BooleanField(default=True)
+
+    class Meta:
+        unique_together = ('user', 'permission')
+
+    def __str__(self):
+        status = "Granted" if self.allowed else "Denied"
+        return f"{status} {self.permission} to {self.user.username}"
+
+
+# Address model with additional fields
+class Address(models.Model):
+    ADDRESS_TYPE_CHOICES = (
+        ('SHIPPING', 'Shipping'),
+        ('BILLING', 'Billing'),
+    )
+    user = models.ForeignKey(User, related_name='addresses', on_delete=models.CASCADE, null=True, blank=True)
+    customer = models.ForeignKey('Customer', related_name='addresses', on_delete=models.CASCADE, null=True, blank=True)
+    full_name = models.CharField(max_length=255)
+    phone_number = models.CharField(max_length=20)
+    street_address = models.TextField()
+    ward = models.CharField(max_length=100, blank=True)
+    province = models.CharField(max_length=100, blank=True)
+    district = models.CharField(max_length=100, blank=True)
+    postal_code = models.CharField(max_length=20)
+    country = models.CharField(max_length=100, default='Vietnam')
+    default = models.BooleanField(default=False)
+    address_type = models.CharField(max_length=10, choices=ADDRESS_TYPE_CHOICES, default='SHIPPING')
+    latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
+    longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.full_name}, {self.street_address}"
+
+
+# Category model with additional fields
+class Category(models.Model):
+    name = models.CharField(max_length=255)
+    parent = models.ForeignKey(
+        'self', related_name='subcategories', on_delete=models.CASCADE, blank=True, null=True
+    )
+    slug = models.SlugField(unique=True)
+    description = models.TextField(blank=True)
+    image = models.ImageField(upload_to='category_images/', blank=True, null=True)
+    is_active = models.BooleanField(default=True)
+    meta_title = models.CharField(max_length=255, blank=True)
+    meta_description = models.TextField(blank=True)
+    sort_order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        verbose_name_plural = 'Categories'
+
+    def __str__(self):
+        return self.name
+
+
+class Tag(models.Model):
+    name = models.CharField(max_length=50, unique=True)
+    slug = models.SlugField(unique=True)
+
+    def __str__(self):
+        return self.name
+
+
+class Stock(models.Model):
+    name = models.CharField(max_length=255)
+    description = models.TextField(blank=True)
+    is_active = models.BooleanField(default=True)
+    location = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+
+class Product(models.Model):
+    STATUS_CHOICES = (
+        ('ACTIVE', 'Active'),
+        ('INACTIVE', 'Inactive'),
+        ('DRAFT', 'Draft'),
+    )
+    user = models.ForeignKey(
+        User,
+        related_name='products',
+        on_delete=models.CASCADE,
+    )
+    name = models.CharField(max_length=255)
+    sku = models.CharField(max_length=100, blank=True, null=True)
+    description = models.TextField(blank=True, null=True)
+    barcode = models.CharField(max_length=100, blank=True, null=True)
+    brand = models.CharField(max_length=255, blank=True)
+    material = models.CharField(max_length=255, blank=True)
+    care_instructions = models.TextField(blank=True)
+    category = models.ForeignKey(
+        Category, related_name='products', on_delete=models.SET_NULL, null=True
+    )
+    # images = models.ImageField(upload_to='product_images/', blank=True, null=True)
+    tags = models.ManyToManyField(Tag, related_name='products', blank=True)
+    price = models.DecimalField(max_digits=12, decimal_places=2)
+    sale_price = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+    start_sale_date = models.DateTimeField(null=True, blank=True)
+    end_sale_date = models.DateTimeField(null=True, blank=True)
+    stock = models.PositiveIntegerField(default=0)
+    weight = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True)
+    dimensions = models.CharField(max_length=100, blank=True)
+    sizes = models.CharField(
+        max_length=255, blank=True, help_text="Comma-separated sizes, e.g., S,M,L,XL"
+    )
+    colors = models.CharField(
+        max_length=255, blank=True, help_text="Comma-separated colors, e.g., Red,Blue,Green"
+    )
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='ACTIVE')
+    is_featured = models.BooleanField(default=False)
+    is_new_arrival = models.BooleanField(default=False)
+    is_on_sale = models.BooleanField(default=False)
+    rating = models.DecimalField(max_digits=3, decimal_places=2, default=0.0)
+    num_reviews = models.PositiveIntegerField(default=0)
+    quantity_sold = models.PositiveIntegerField(default=0)
+    main_image = models.ImageField(upload_to='product_images/', blank=True, null=True)
+    video_url = models.URLField(blank=True, null=True)
+    meta_title = models.CharField(max_length=255, blank=True)
+    meta_description = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    # For SEO purposes
+    slug = models.SlugField(unique=True, max_length=255, blank=True)
+
+    class Meta:
+        ordering = ['id']
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            base_slug = slugify(self.name)
+            slug = base_slug
+            counter = 1
+            while Product.objects.filter(slug=slug).exists():
+                slug = f'{base_slug}-{counter}'
+                counter += 1
+            self.slug = slug
+        super().save(*args, **kwargs)
+
+
+# ProductImage model with additional fields
+class ProductImage(models.Model):
+    product = models.ForeignKey(Product, related_name='product_images', on_delete=models.CASCADE)
+    image = models.ImageField(upload_to='product_images/')
+    is_main = models.BooleanField(default=False)
+    caption = models.CharField(max_length=255, blank=True)
+    alt_text = models.CharField(max_length=255, blank=True)
+    order = models.PositiveIntegerField(default=0)
+
+    def __str__(self):
+        return f"Image of {self.product.name}"
+
+class StockVariant(models.Model):
+    product = models.ForeignKey(
+        Product,
+        related_name='stock_variants',
+        on_delete=models.CASCADE,
+        verbose_name="Product"
+    )
+    stock = models.ForeignKey(
+        Stock,
+        related_name='stock_variants',
+        on_delete=models.CASCADE,
+        verbose_name="Stock Location"
+    )
+    variant_name = models.CharField(
+        max_length=255,
+        verbose_name="Variant Name",
+        help_text="Example: S - Red"
+    )
+    quantity = models.PositiveIntegerField(
+        default=0,
+        validators=[MinValueValidator(0)],
+        verbose_name="Quantity in Stock"
+    )
+    image = models.ImageField(upload_to='variant_images/', blank=True, null=True)
+
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Created At")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="Updated At")
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['product', 'stock', 'variant_name'], name='unique_stock_variant')
+        ]
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.variant_name} - {self.product.name} - {self.stock.name}"
+
+
+# Cart and CartItem models with additional fields
+class Cart(models.Model):
+    user = models.OneToOneField(User, related_name='cart', on_delete=models.CASCADE)
+    updated_at = models.DateTimeField(auto_now=True)
+    # For anonymous users
+    session_key = models.CharField(max_length=40, null=True, blank=True)
+
+    def __str__(self):
+        return f"Cart of {self.user.username}"
+
+
+class CartItem(models.Model):
+    cart = models.ForeignKey(Cart, related_name='items', on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, related_name='cart_items', on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=1)
+    size = models.CharField(max_length=50, blank=True, null=True)
+    color = models.CharField(max_length=50, blank=True, null=True)
+    added_at = models.DateTimeField(auto_now_add=True)
+    price_at_time = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+    is_saved_for_later = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.quantity} x {self.product.name}"
+
+
+# Wishlist and WishlistItem models
+class Wishlist(models.Model):
+    user = models.OneToOneField(User, related_name='wishlist', on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"Wishlist of {self.user.username}"
+
+
+class WishlistItem(models.Model):
+    wishlist = models.ForeignKey(Wishlist, related_name='items', on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, related_name='wishlisted_by', on_delete=models.CASCADE)
+    added_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.product.name} in {self.wishlist.user.username}'s wishlist"
+
+
+# Order and OrderItem models with additional fields
+class Order(models.Model):
+    PAYMENT_METHOD_CHOICES = (
+        ('COD', 'Cash on Delivery'),
+        ('BANK_TRANSFER', 'Bank Transfer'),
+        ('CREDIT_CARD', 'Credit Card'),
+        ('PAYPAL', 'PayPal'),
+    )
+    STATUS_CHOICES = (
+        ('PENDING', 'Pending'),
+        ('PROCESSING', 'Processing'),
+        ('SHIPPED', 'Shipped'),
+        ('DELIVERED', 'Delivered'),
+        ('CANCELED', 'Canceled'),
+        ('RETURNED', 'Returned'),
+    )
+    PAYMENT_STATUS_CHOICES = (
+        ('UNPAID', 'Unpaid'),
+        ('PAID', 'Paid'),
+        ('REFUNDED', 'Refunded'),
+    )
+    user = models.ForeignKey(User, related_name='orders', on_delete=models.CASCADE)
+    order_number = models.CharField(max_length=20, unique=True, editable=False)
+    customer = models.ForeignKey('Customer', related_name='orders', on_delete=models.CASCADE)
+    subtotal_price = models.DecimalField(max_digits=12, decimal_places=2, default=0.0)
+    shipping_cost = models.DecimalField(max_digits=12, decimal_places=2, default=0.0)
+    discount_amount = models.DecimalField(max_digits=12, decimal_places=2, default=0.0)
+    tax_amount = models.DecimalField(max_digits=12, decimal_places=2, default=0.0)
+    total_price = models.DecimalField(max_digits=12, decimal_places=2)
+    total_weight = models.DecimalField(max_digits=6, decimal_places=2, default=0.0)
+    shipping_address = models.ForeignKey(
+        Address, related_name='shipping_orders', on_delete=models.SET_NULL, null=True
+    )
+    billing_address = models.ForeignKey(
+        Address, related_name='billing_orders', on_delete=models.SET_NULL, null=True
+    )
+    shipping_method = models.CharField(max_length=255, blank=True, null=True)
+    payment_method = models.CharField(max_length=20, choices=PAYMENT_METHOD_CHOICES)
+    payment_status = models.CharField(
+        max_length=20, choices=PAYMENT_STATUS_CHOICES, default='UNPAID'
+    )
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PENDING')
+    coupon = models.ForeignKey(
+        'Coupon', related_name='orders', on_delete=models.SET_NULL, null=True, blank=True
+    )
+    loyalty_points_used = models.PositiveIntegerField(default=0)
+    tracking_number = models.CharField(max_length=100, blank=True, null=True)
+    estimated_delivery_date = models.DateField(blank=True, null=True)
+    note = models.TextField(blank=True)
+    transaction_id = models.CharField(max_length=100, blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    # For multi-vendor scenarios, remove 'seller' from Order
+
+    def __str__(self):
+        return f"Order {self.order_number} by {self.user.username}"
+
+    def save(self, *args, **kwargs):
+        if not self.order_number:
+            self.order_number = self.generate_order_number()
+        super(Order, self).save(*args, **kwargs)
+
+    def generate_order_number(self):
+        return timezone.now().strftime('%Y%m%d%H%M%S') + str(self.user.id)
+
+
+class OrderItem(models.Model):
+    STATUS_CHOICES = (
+        ('PENDING', 'Pending'),
+        ('PROCESSING', 'Processing'),
+        ('SHIPPED', 'Shipped'),
+        ('DELIVERED', 'Delivered'),
+        ('CANCELED', 'Canceled'),
+        ('RETURNED', 'Returned'),
+    )
+    order = models.ForeignKey(Order, related_name='items', on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, related_name='order_items', on_delete=models.CASCADE)
+    seller = models.ForeignKey(
+        User,
+        related_name='order_items',
+        on_delete=models.CASCADE,
+        limit_choices_to={'role__name': 'SELLER'},
+    )
+    quantity = models.PositiveIntegerField()
+    price = models.DecimalField(max_digits=12, decimal_places=2)
+    total_price = models.DecimalField(max_digits=12, decimal_places=2)
+    size = models.CharField(max_length=50, blank=True, null=True)
+    color = models.CharField(max_length=50, blank=True, null=True)
+    weight = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PENDING')
+    tracking_number = models.CharField(max_length=100, blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.quantity} x {self.product.name}"
+
+
+# Review and ReviewImage models with additional fields
+class Review(models.Model):
+    product = models.ForeignKey(Product, related_name='reviews', on_delete=models.CASCADE)
+    user = models.ForeignKey(User, related_name='reviews', on_delete=models.SET_NULL, null=True)
+    rating = models.PositiveIntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(5)]
+    )
+    title = models.CharField(max_length=255, blank=True)
+    comment = models.TextField()
+    images = models.ManyToManyField('ReviewImage', related_name='reviews', blank=True)
+    video_url = models.URLField(blank=True, null=True)
+    is_verified_purchase = models.BooleanField(default=False)
+    upvotes = models.PositiveIntegerField(default=0)
+    downvotes = models.PositiveIntegerField(default=0)
+    helpful_count = models.PositiveIntegerField(default=0)
+    reported = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    # Removed seller field as it can be accessed via product
+
+    def __str__(self):
+        return f"Review by {self.user.username} on {self.product.name}"
+
+
+class ReviewImage(models.Model):
+    image = models.ImageField(upload_to='review_images/')
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+
+# Coupon model with additional fields
+class Coupon(models.Model):
+    DISCOUNT_TYPE_CHOICES = (
+        ('PERCENTAGE', 'Percentage'),
+        ('FIXED', 'Fixed Amount'),
+        ('FREE_SHIPPING', 'Free Shipping'),
+    )
+    code = models.CharField(max_length=50, unique=True)
+    discount_type = models.CharField(max_length=20, choices=DISCOUNT_TYPE_CHOICES)
+    discount_value = models.DecimalField(max_digits=12, decimal_places=2)
+    minimum_purchase_amount = models.DecimalField(max_digits=12, decimal_places=2, default=0.0)
+    start_date = models.DateTimeField()
+    end_date = models.DateTimeField()
+    usage_limit = models.PositiveIntegerField(default=0, help_text='0 for unlimited')
+    per_user_limit = models.PositiveIntegerField(default=0, help_text='0 for unlimited')
+    used_count = models.PositiveIntegerField(default=0)
+    applicable_categories = models.ManyToManyField(Category, related_name='coupons', blank=True)
+    applicable_products = models.ManyToManyField(Product, related_name='coupons', blank=True)
+    applicable_users = models.ManyToManyField(User, related_name='coupons', blank=True)
+    is_free_shipping = models.BooleanField(default=False)
+    active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.code
+
+    def is_valid(self, user=None):
+        now = timezone.now()
+        if not self.active:
+            return False
+        if self.start_date and self.start_date > now:
+            return False
+        if self.end_date and self.end_date < now:
+            return False
+        if self.usage_limit and self.used_count >= self.usage_limit:
+            return False
+        if user and self.per_user_limit:
+            user_usage = Order.objects.filter(user=user, coupon=self).count()
+            if user_usage >= self.per_user_limit:
+                return False
+        return True
+
+
+# LoyaltyPoint model with additional fields
+class LoyaltyPoint(models.Model):
+    user = models.OneToOneField(User, related_name='loyalty_points', on_delete=models.CASCADE)
+    points = models.PositiveIntegerField(default=0)
+    total_earned = models.PositiveIntegerField(default=0)
+    total_spent = models.PositiveIntegerField(default=0)
+    level = models.CharField(max_length=50, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.points} points"
+
+
+# Transaction model with additional fields
+class Transaction(models.Model):
+    TRANSACTION_STATUS_CHOICES = (
+        ('SUCCESS', 'Success'),
+        ('FAILED', 'Failed'),
+        ('PENDING', 'Pending'),
+        ('REFUNDED', 'Refunded'),
+    )
+    user = models.ForeignKey(User, related_name='transactions', on_delete=models.CASCADE)
+    order = models.ForeignKey(Order, related_name='transactions', on_delete=models.CASCADE)
+    amount = models.DecimalField(max_digits=12, decimal_places=2)
+    payment_method = models.CharField(max_length=20)
+    status = models.CharField(max_length=20, choices=TRANSACTION_STATUS_CHOICES)
+    transaction_id = models.CharField(max_length=100, unique=True)
+    gateway_response = models.JSONField(blank=True, null=True)
+    currency = models.CharField(max_length=10, default='VND')
+    description = models.TextField(blank=True)
+    refunded_amount = models.DecimalField(max_digits=12, decimal_places=2, default=0.0)
+    refund_reason = models.TextField(blank=True, null=True)
+    refunded_at = models.DateTimeField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Transaction {self.transaction_id} - {self.status}"
+
+
+# Message and MessageThread models with additional fields
+class MessageThread(models.Model):
+    participants = models.ManyToManyField(User, related_name='message_threads')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        participant_usernames = ', '.join([user.username for user in self.participants.all()])
+        return f"Thread between {participant_usernames}"
+
+
+class Message(models.Model):
+    thread = models.ForeignKey(
+        MessageThread, related_name='messages', on_delete=models.CASCADE, blank=True, null=True
+    )
+    sender = models.ForeignKey(User, related_name='sent_messages', on_delete=models.CASCADE)
+    recipient = models.ForeignKey(
+        User, related_name='received_messages', on_delete=models.CASCADE
+    )
+    order = models.ForeignKey(
+        Order, related_name='messages', on_delete=models.CASCADE, blank=True, null=True
+    )
+    subject = models.CharField(max_length=255)
+    message = models.TextField()
+    attachment = models.FileField(upload_to='message_attachments/', blank=True, null=True)
+    is_read = models.BooleanField(default=False)
+    sent_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Message from {self.sender.username} to {self.recipient.username}"
+
+
+# Promotion model with additional fields
+class Promotion(models.Model):
+    DISCOUNT_TYPE_CHOICES = (
+        ('PERCENTAGE', 'Percentage'),
+        ('FIXED', 'Fixed Amount'),
+        ('FREE_SHIPPING', 'Free Shipping'),
+    )
+    title = models.CharField(max_length=255)
+    description = models.TextField()
+    image = models.ImageField(upload_to='promotion_images/', blank=True, null=True)
+    discount_type = models.CharField(max_length=20, choices=DISCOUNT_TYPE_CHOICES)
+    discount_value = models.DecimalField(max_digits=12, decimal_places=2)
+    minimum_purchase_amount = models.DecimalField(max_digits=12, decimal_places=2, default=0.0)
+    start_date = models.DateTimeField()
+    end_date = models.DateTimeField()
+    usage_limit = models.PositiveIntegerField(default=0)
+    per_user_limit = models.PositiveIntegerField(default=0)
+    used_count = models.PositiveIntegerField(default=0)
+    products = models.ManyToManyField(Product, related_name='promotions', blank=True)
+    applicable_categories = models.ManyToManyField(
+        Category, related_name='promotions', blank=True
+    )
+    coupon_code = models.CharField(max_length=50, blank=True)
+    active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.title
+
+
+# Notification model with additional fields
+class Notification(models.Model):
+    SENT_VIA_CHOICES = (
+        ('APP', 'In-App'),
+        ('EMAIL', 'Email'),
+        ('SMS', 'SMS'),
+    )
+    user = models.ForeignKey(User, related_name='notifications', on_delete=models.CASCADE)
+    message = models.TextField()
+    notification_type = models.CharField(max_length=50)
+    link = models.URLField(blank=True, null=True)
+    data = models.JSONField(blank=True, null=True)
+    sent_via = models.CharField(max_length=20, choices=SENT_VIA_CHOICES, default='APP')
+    is_read = models.BooleanField(default=False)
+    sent_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Notification for {self.user.username}"
+
+
+# ReturnRequest model for handling returns and refunds
+class ReturnRequest(models.Model):
+    RETURN_REASON_CHOICES = (
+        ('DAMAGED', 'Damaged Product'),
+        ('NOT_AS_DESCRIBED', 'Not as Described'),
+        ('WRONG_ITEM', 'Wrong Item Sent'),
+        ('OTHER', 'Other'),
+    )
+    STATUS_CHOICES = (
+        ('PENDING', 'Pending'),
+        ('APPROVED', 'Approved'),
+        ('DECLINED', 'Declined'),
+        ('COMPLETED', 'Completed'),
+    )
+    user = models.ForeignKey(User, related_name='return_requests', on_delete=models.CASCADE)
+    order_item = models.ForeignKey(
+        OrderItem, related_name='return_requests', on_delete=models.CASCADE
+    )
+    reason = models.CharField(max_length=50, choices=RETURN_REASON_CHOICES)
+    description = models.TextField(blank=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PENDING')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    refund_amount = models.DecimalField(max_digits=12, decimal_places=2, default=0.0)
+
+    def __str__(self):
+        return f"Return request by {self.user.username} for {self.order_item.product.name}"
+
+
+# ShippingMethod model
+class ShippingMethod(models.Model):
+    name = models.CharField(max_length=255)
+    carrier = models.CharField(max_length=255, blank=True)
+    cost = models.DecimalField(max_digits=12, decimal_places=2)
+    estimated_delivery_days = models.PositiveIntegerField()
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.name
+
+
+# PaymentMethod model for storing user's payment methods
+class PaymentMethod(models.Model):
+    user = models.ForeignKey(User, related_name='payment_methods', on_delete=models.CASCADE)
+    METHOD_TYPE_CHOICES = (
+        ('CREDIT_CARD', 'Credit Card'),
+        ('BANK_ACCOUNT', 'Bank Account'),
+        ('PAYPAL', 'PayPal'),
+    )
+    method_type = models.CharField(max_length=50, choices=METHOD_TYPE_CHOICES)
+    provider = models.CharField(max_length=50)
+    account_number = models.CharField(max_length=100)
+    expiry_date = models.DateField(null=True, blank=True)
+    is_default = models.BooleanField(default=False)
+
+    def __str__(self):
+        masked_account = '*' * (len(self.account_number) - 4) + self.account_number[-4:]
+        return f"{self.method_type} ending with {masked_account} for {self.user.username}"
+
+
+# SellerProfile model with additional fields
+class SellerProfile(models.Model):
+    user = models.OneToOneField(
+        User,
+        related_name='seller_profile',
+        on_delete=models.CASCADE,
+        limit_choices_to={'role__name': 'SELLER'},
+    )
+    store_name = models.CharField(max_length=255)
+    store_description = models.TextField(blank=True)
+    store_logo = models.ImageField(upload_to='store_logos/', blank=True, null=True)
+    rating = models.DecimalField(max_digits=3, decimal_places=2, default=0.0)
+    total_sales = models.PositiveIntegerField(default=0)
+    joined_date = models.DateField(auto_now_add=True)
+    is_verified = models.BooleanField(default=False)
+    address = models.ForeignKey(
+        Address, related_name='seller_profiles', on_delete=models.SET_NULL, null=True, blank=True
+    )
+    policies = models.TextField(blank=True)
+    return_policy = models.TextField(blank=True)
+    shipping_policy = models.TextField(blank=True)
+    seller_rating = models.DecimalField(max_digits=3, decimal_places=2, default=0.0)
+
+    def __str__(self):
+        return self.store_name
+
+
+# ActivityLog model for tracking user activities
+class ActivityLog(models.Model):
+    user = models.ForeignKey(User, related_name='activity_logs', on_delete=models.CASCADE)
+    action = models.CharField(max_length=255)
+    model = models.CharField(max_length=50)
+    context = models.TextField(blank=True)
+    status = models.CharField(max_length=50, blank=True)
+    data = models.JSONField(blank=True, null=True)
+    ip_address = models.GenericIPAddressField(protocol='both', unpack_ipv4=True, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.action} at {self.created_at}"
+
+
+class StockProduct(models.Model):
+    stock = models.ForeignKey(Stock, related_name='products', on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, related_name='stocks', on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Stock of {self.product.name} - {self.quantity} items"
+
+
+# Store Model
+class Store(models.Model):
+    user = models.ForeignKey('User', on_delete=models.CASCADE, related_name='stores')
+    store_name = models.CharField(max_length=255)
+    store_description = models.TextField(blank=True)
+    store_logo = models.ImageField(upload_to='store_logos/', blank=True, null=True)
+    rating = models.DecimalField(max_digits=3, decimal_places=2, default=0.0)
+    total_sales = models.PositiveIntegerField(default=0)
+    joined_date = models.DateField(auto_now_add=True)
+    is_verified = models.BooleanField(default=False)
+    address = models.TextField(blank=True)
+    policies = models.TextField(blank=True)
+    return_policy = models.TextField(blank=True)
+    shipping_policy = models.TextField(blank=True)
+    seller_rating = models.DecimalField(max_digits=3, decimal_places=2, default=0.0)
+    phone_number = models.CharField(max_length=20, blank=True, null=True)
+    email = models.EmailField(max_length=255, blank=True, null=True)
+    social_links = models.JSONField(blank=True, null=True)  # Store social media links as JSON
+    business_hours = models.JSONField(blank=True, null=True)  # Store business hours as JSON
+    store_tags = models.CharField(max_length=255, blank=True)  # Tags to classify the store
+    location_coordinates = models.CharField(max_length=100, blank=True, null=True)  # Geolocation coordinates
+    total_reviews = models.PositiveIntegerField(default=0)  # Number of reviews
+
+    def __str__(self):
+        return self.store_name
+
+
+# Brand Model
+class Brand(models.Model):
+    brand_name = models.CharField(max_length=255)
+    brand_description = models.TextField(blank=True)
+    website = models.URLField(blank=True, null=True)
+    brand_logo = models.ImageField(upload_to='brand_logos/', blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    is_verified = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.brand_name
+
+
+class Customer(models.Model):
+    first_name = models.CharField(max_length=255)
+    last_name = models.CharField(max_length=255)
+    pronouns = models.CharField(max_length=50, blank=True, null=True)
+    address = models.ForeignKey(Address, related_name='customers', on_delete=models.SET_NULL, null=True)
+    phone_number = models.CharField(max_length=20, blank=True, null=True)
+    email = models.EmailField(blank=True, null=True)
+    date_of_birth = models.DateField(blank=True, null=True, help_text="YYYY-MM-DD")
+    identification_number = models.CharField(max_length=20, blank=True, null=True)
+    social_links = models.JSONField(blank=True, null=True)
+    points = models.PositiveIntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    order = models.ForeignKey(Order, related_name='customers', on_delete=models.SET_NULL, null=True)
+
+    def __str__(self):
+        return f"Customer with email {self.email}"
+
+_________________
+api\serializers.py
+from rest_framework import serializers
+from .models import *
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from .product.product_serializers import ProductSerializer
+
+class UserRegistrationSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True, required=True, style={'input_type': 'password'})
+    password2 = serializers.CharField(write_only=True, required=True, label='Confirm Password',
+                                      style={'input_type': 'password'})
+
+    class Meta:
+        model = User
+        fields = (
+            'id', 'username', 'email', 'password', 'password2',
+            'role', 'phone_number', 'date_of_birth', 'gender', 'profile_picture'
+        )
+        extra_kwargs = {'password': {'write_only': True}, 'password2': {'write_only': True},
+                        'email': {'required': True}}
+
+    def validate(self, attrs):
+        if attrs['password'] != attrs['password2']:
+            raise serializers.ValidationError({'password': "Passwords do not match."})
+        return attrs
+
+    def create(self, validated_data):
+        validated_data.pop('password2')
+        role = validated_data.pop('role', None)
+        user = User.objects.create_user(
+            username=validated_data['username'],
+            email=validated_data.get('email', ''),
+            password=validated_data['password'],
+            phone_number=validated_data.get('phone_number', ''),
+            date_of_birth=validated_data.get('date_of_birth'),
+            gender=validated_data.get('gender'),
+            profile_picture=validated_data.get('profile_picture')
+        )
+        if role:
+            user.role = role
+            user.save()
+
+        return user
+
+
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+
+        # Add custom claims
+        token['username'] = user.username
+        token['role'] = user.role.name if user.role else None
+        token['email'] = user.email
+        token['id'] = user.id
+
+        permissions = UserPermission.objects.filter(user=user).values_list('permission__model_name',
+                                                                           'permission__action', 'allowed')
+        token['permissions'] = [
+            f"{model_name}:{action}" for model_name, action, allowed in permissions if allowed
+        ]
+        return token
+
+    def validate(self, attrs):
+        data = super().validate(attrs)
+
+        data.update({
+            'id': self.user.id,
+            'role': self.user.role.name if self.user.role else None,
+            'username': self.user.username,
+            'email': self.user.email,
+        })
+
+        permissions = UserPermission.objects.filter(user=self.user).values_list('permission__model_name',
+                                                                                'permission__action', 'allowed')
+        data['scope'] = [
+            f"{model_name}:{action}" for model_name, action, allowed in permissions if allowed
+        ]
+        return data
+
+
+class UserSerializer(serializers.ModelSerializer):
+    profile_picture = serializers.ImageField(required=False)
+    social_links = serializers.JSONField(required=False)
+    preferences = serializers.JSONField(required=False)
+    role_display = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = (
+            'id', 'username', 'email', 'phone_number', 'first_name', 'last_name',
+            'date_of_birth', 'gender', 'profile_picture', 'bio',
+            'social_links', 'preferences', 'role', 'role_display', 'is_superuser'
+        )
+        read_only_fields = ('id',)
+
+    def get_role_display(self, obj):
+        return obj.role.name if obj.role else None
+
+
+class UserCreateSerializer(serializers.ModelSerializer):
+    social_links = serializers.JSONField(required=False)
+    preferences = serializers.JSONField(required=False)
+
+    class Meta:
+        model = User
+        fields = (
+            'id', 'username', 'email', 'role', 'phone_number',
+            'date_of_birth', 'gender', 'profile_picture',
+            'first_name', 'last_name', 'bio', 'social_links', 'preferences'
+        )
+        extra_kwargs = {'username': {'required': True}}
+
+    def create(self, validated_data):
+        social_links = validated_data.pop('social_links', {})
+        preferences = validated_data.pop('preferences', {})
+
+        role = validated_data.get('role')
+
+        user = User.objects.create_user(
+            username=validated_data['username'],
+            email=validated_data.get('email', ''),
+            password=None,
+            role=validated_data.get('role'),
+            phone_number=validated_data.get('phone_number', ''),
+            date_of_birth=validated_data.get('date_of_birth'),
+            gender=validated_data.get('gender'),
+            profile_picture=validated_data.get('profile_picture'),
+            first_name=validated_data.get('first_name', ''),
+            last_name=validated_data.get('last_name', ''),
+            bio=validated_data.get('bio', ''),
+            social_links=social_links,
+            preferences=preferences,
+        )
+        user.save()
+
+        if role:
+            role_permissions = RolePermission.objects.filter(role=role, allowed=True)
+
+            user_permissions = [
+                UserPermission(user=user, permission=rp.permission, allowed=True)
+                for rp in role_permissions
+            ]
+
+            UserPermission.objects.bulk_create(user_permissions)
+
+        return user
+
+
+class CreatePasswordSerializer(serializers.Serializer):
+    username = serializers.CharField(required=True)
+    password = serializers.CharField(write_only=True, required=True, style={'input_type': 'password'})
+    password2 = serializers.CharField(write_only=True, required=True, label='Confirm Password',
+                                      style={'input_type': 'password'})
+
+    def validate(self, attrs):
+        if attrs['password'] != attrs['password2']:
+            raise serializers.ValidationError({'password': "Passwords do not match."})
+        return attrs
+
+    def create(self, validated_data):
+        username = validated_data.get('username')
+        password = validated_data.get('password')
+
+        try:
+            user = User.objects.get(username=username)
+            if user and not user.has_usable_password():
+                user.set_password(password)
+                user.save()
+                return user
+            else:
+                raise serializers.ValidationError({'username': "User already has a password or does not exist."})
+        except User.DoesNotExist:
+            raise serializers.ValidationError({'username': "Invalid username."})
+
+
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = (
+            'id', 'name', 'parent', 'slug', 'description', 'image',
+            'is_active', 'meta_title', 'meta_description', 'sort_order'
+        )
+
+class PermissionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Permission
+        fields = '__all__'
+
+
+class UserPermissionSerializer(serializers.ModelSerializer):
+    permission = PermissionSerializer(read_only=True)
+
+    class Meta:
+        model = UserPermission
+        fields = ('id', 'permission', 'allowed')
+
+
+class RoleSerializer(serializers.ModelSerializer):
+    permissions = serializers.ListField(
+        child=serializers.CharField(), write_only=True
+    )
+    permissions_display = serializers.SerializerMethodField()
+    permissions_objects = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Role
+        fields = ('id', 'name', 'description', 'permissions', 'permissions_display', 'permissions_objects')
+
+    def get_permissions_display(self, obj):
+        permissions = RolePermission.objects.filter(allowed=True, role=obj)
+        return [f"{perm.permission.model_name}:{perm.permission.action}" for perm in permissions]
+
+    def get_permissions_objects(self, obj):
+        role_permissions = RolePermission.objects.filter(allowed=True, role=obj)
+        permissions = [rp.permission for rp in role_permissions]
+        return PermissionSerializer(permissions, many=True).data
+
+    def validate_permissions(self, value):
+        permissions = []
+        for perm_str in value:
+            try:
+                model_name, action = perm_str.split(':')
+                permission = Permission.objects.get(model_name=model_name, action=action)
+                permissions.append(permission)
+            except (ValueError, Permission.DoesNotExist):
+                raise serializers.ValidationError(f"Invalid permission: {perm_str}")
+        return permissions
+
+    def create(self, validated_data):
+        permissions = validated_data.pop('permissions', [])
+        role = Role.objects.create(
+            name=validated_data['name'],
+            description=validated_data.get('description', '')
+        )
+
+        role_permissions = [
+            RolePermission(role=role, permission=permission, allowed=True)
+            for permission in permissions
+        ]
+        RolePermission.objects.bulk_create(role_permissions)
+
+        return role
+
+_________________
+api\signals.py
+
+import logging
+from django.db.models.signals import post_save, post_delete
+from django.dispatch import receiver
+from .models import Product, StockVariant, Stock
+from django.db.models import Sum
+from django.db import transaction
+
+logger = logging.getLogger(__name__)
+
+
+@receiver(post_save, sender=Product)
+def sync_stock_variants(sender, instance, created, **kwargs):
+    """
+    Synchronize StockVariants with the current sizes and colors of the Product.
+    - Create missing StockVariants for valid size-color combinations in each active stock.
+    - Delete StockVariants that are no longer valid.
+    """
+    logger.info(f"Synchronizing StockVariants for Product: {instance.name} (Created: {created})")
+
+    sizes = set([size.strip().upper() for size in instance.sizes.split(',') if size.strip()])
+    colors = set([color.strip().upper() for color in instance.colors.split(',') if color.strip()])
+
+    valid_variant_names = set(f"{size} - {color}" for size in sizes for color in colors)
+
+    active_stocks = Stock.objects.filter(is_active=True)
+
+    for stock in active_stocks:
+        for variant_name in valid_variant_names:
+            if not StockVariant.objects.filter(product=instance, stock=stock, variant_name=variant_name).exists():
+                with transaction.atomic():
+                    StockVariant.objects.create(
+                        product=instance,
+                        stock=stock,
+                        variant_name=variant_name,
+                        quantity=0
+                    )
+                logger.info(f"Created StockVariant: {variant_name} for Product: {instance.name} at Stock: {stock.name}")
+
+    # Xóa StockVariants không hợp lệ
+    existing_variants = StockVariant.objects.filter(product=instance)
+    invalid_variants = existing_variants.exclude(variant_name__in=valid_variant_names)
+    count_deleted = invalid_variants.count()
+    if count_deleted > 0:
+        invalid_variants.delete()
+        logger.info(f"Deleted {count_deleted} invalid StockVariants from Product: {instance.name}")
+    else:
+        logger.info(f"No invalid StockVariants found for Product: {instance.name}")
+
+
+def update_product_stock(product):
+    """
+    Update the total stock of the Product based on its StockVariants.
+    """
+    total_quantity = StockVariant.objects.filter(product=product).aggregate(total=Sum('quantity'))['total'] or 0
+    product.stock = total_quantity
+    product.save(update_fields=['stock'])
+    logger.info(f"Updated Product Stock: {product.name} - Total Quantity: {total_quantity}")
+
+
+@receiver(post_save, sender=StockVariant)
+def update_product_stock_on_variant_save(sender, instance, **kwargs):
+    """
+    Update the Product's total stock when a StockVariant is saved.
+    """
+    logger.info(f"StockVariant saved: {instance.variant_name}, quantity: {instance.quantity}")
+    update_product_stock(instance.product)
+
+
+@receiver(post_delete, sender=StockVariant)
+def update_product_stock_on_variant_delete(sender, instance, **kwargs):
+    """
+    Update the Product's total stock when a StockVariant is deleted.
+    """
+    logger.info(f"StockVariant deleted: {instance.variant_name}")
+    update_product_stock(instance.product)
+
+
+_________________
+api\urls.py
+
+from django.urls import path, include
+
+from .brand.brand_views import *
+from .customer.customer_views import *
+from .stock.stock_views import *
+from .store.store_views import *
+from .order.order_views import *
+from .views import *
+from .product.variant_views import *
+from rest_framework_simplejwt.views import TokenRefreshView
+from django.conf import settings
+from django.conf.urls.static import static
+
+urlpatterns = [
+    path('activity/', include('api.activity.activity_urls')),
+    path('register', UserRegistrationView.as_view(), name='register'),
+    path('login', UserLoginView.as_view(), name='login'),
+    path('token/refresh', TokenRefreshView.as_view(), name='token_refresh'),
+    path('me/', UserDetailView.as_view(), name='user-detail'),
+    path('me/store/', GetStoreByUser.as_view(), name='user-store'),
+    path('user/<int:pk>/', UserManagerView.as_view(), name='user-manager'),
+    path('users/<int:pk>/role/', UserRoleView.as_view(), name='user-role'),
+    path('users/', UserListView.as_view(), name='user-list'),
+    path('create-user/', UserCreateView.as_view(), name='admin-create-user'),
+    path('users/create-password/', CreatePasswordView.as_view(), name='create-password'),
+    path('categories/', include('api.category.categories_urls')),
+    path('product/', include('api.product.product_urls')),
+    path('permissions/', PermissionListView.as_view(), name='permissions'),
+    path('permissions/create/', CreateUserPermissionView.as_view(), name='create_permission'),
+    path('permissions/user/<int:user_id>/', UserPermissionsView.as_view(), name='user_permissions'),
+    path('permissions/user/<int:user_id>/update/', UpdateUserPermissionsView.as_view(), name='update_user_permissions'),
+    path('roles/', RoleListCreateView.as_view(), name='role-list-create'),
+    path('roles/<int:pk>/', RoleDetailView.as_view(), name='role-detail'),
+    path('stocks/', StockListView.as_view(), name='stock-list'),
+    path('stocks/create/', StockCreateView.as_view(), name='stock-create'),
+    path('stocks/<int:pk>/', StockUpdateDeleteView.as_view(), name='stock-update-delete'),
+    path('stock-products/', StockProductListView.as_view(), name='stock-product-list'),
+    path('stock-products/create/', StockProductCreateView.as_view(), name='stock-product-create'),
+    path('stock-products/<int:pk>/', StockProductUpdateDeleteView.as_view(), name='stock-product-update-delete'),
+    path('orders/', OrderListView.as_view(), name='order-list'),
+    path('orders/create/', OrderCreateView.as_view(), name='order-create'),
+    path('orders/<int:pk>/', OrderDetailView.as_view(), name='order-detail'),
+    path('stores/create/', StoreCreateView.as_view(), name='store-create'),
+    path('stores/', StoreListView.as_view(), name='store-list'),
+    path('stores/<int:pk>/', StoreDetailView.as_view(), name='store-update-delete'),
+    path('brand/', include('api.brand.brand_urls')),
+    path('customer/', include('api.customer.customer_urls')),
+    path('address/', include('api.address.address_urls')),
+]
+
+_________________
+api\views.py
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters, permissions
+from rest_framework.views import APIView
+from rest_framework.pagination import PageNumberPagination
+from .serializers import *
+from .models import *
+from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework import generics, status
+from rest_framework.response import Response
+from .models import User
+from .serializers import UserCreateSerializer
+from .permissions import HasRolePermission
+from rest_framework.permissions import IsAuthenticated
+
+from .store.store_serializers import StoreSerializer
+
+
+# Pagination Setup
+class StandardResultsSetPagination(PageNumberPagination):
+    page_size_query_param = 'page_size'
+
+
+# User Registration
+class UserRegistrationView(generics.CreateAPIView):
+    queryset = User.objects.all()
+    permission_classes = (permissions.AllowAny,)
+    serializer_class = UserRegistrationSerializer
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+
+        from rest_framework_simplejwt.tokens import RefreshToken
+        refresh = RefreshToken.for_user(user)
+        return Response({
+            'user': UserRegistrationSerializer(user, context=self.get_serializer_context()).data,
+            'refresh': str(refresh),
+            'access': str(refresh.access_token),
+        }, status=status.HTTP_201_CREATED)
+
+
+# User Login
+class UserLoginView(TokenObtainPairView):
+    permission_classes = (permissions.AllowAny,)
+    serializer_class = CustomTokenObtainPairSerializer
+
+
+# User Detail (Self)
+class UserDetailView(generics.RetrieveUpdateAPIView):
+    serializer_class = UserSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_object(self):
+        return self.request.user
+
+
+# User Manager (Admin)
+class UserManagerView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    # permission_classes = [permissions.IsAuthenticated, HasRolePermission]
+    # model_name = 'User'
+    # action = 'change'
+
+
+class UserCreateView(generics.CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserCreateSerializer
+
+    # permission_classes = [IsAuthenticated, HasRolePermission]
+    # model_name = 'User'
+    # action = 'add'
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+
+        headers = self.get_success_headers(serializer.data)
+        return Response(
+            {
+                'user': serializer.data
+            },
+            status=status.HTTP_201_CREATED,
+            headers=headers
+        )
+
+
+# View for creating password
+class CreatePasswordView(generics.CreateAPIView):
+    permissions_classes = [IsAuthenticated]
+    serializer_class = CreatePasswordSerializer
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+        return Response({'detail': f'Password created successfully for user {user.username}'},
+                        status=status.HTTP_201_CREATED)
+
+
+# User List (Admin)
+class UserListView(generics.ListAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    # permission_classes = [HasRolePermission]
+    # model_name = 'User'
+    # action = 'view'
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_fields = ['role', 'gender']
+    search_fields = ['username', 'email']
+    ordering_fields = ['username', 'email', 'date_joined']
+    pagination_class = StandardResultsSetPagination
+
+
+# Role Management
+class UserRoleView(generics.RetrieveUpdateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+    # permission_classes = [HasRolePermission]
+    # model_name = 'User'
+    # action = 'change'
+
+    def put(self, request, *args, **kwargs):
+        role = request.data.get('role')
+        user = self.get_object()
+
+        if role not in [choice[0] for choice in User.ROLE_CHOICES]:
+            return Response({'detail': 'Invalid role.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        user.role = role
+        user.save()
+        return Response({'detail': 'Role updated successfully.'}, status=status.HTTP_200_OK)
+
+
+# User Permission Management
+class CreateUserPermissionView(APIView):
+    # permission_classes = [HasRolePermission]
+    # model_name = 'UserPermission'
+    # action = 'add'
+
+    def post(self, request):
+        serializer = PermissionSerializer(data=request.data, many=isinstance(request.data, list))
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class UserPermissionsView(APIView):
+    # permission_classes = [HasRolePermission]
+    # model_name = 'UserPermission'
+    # action = 'view'
+
+    def get(self, request, user_id):
+        user = User.objects.filter(id=user_id).first()
+        if not user:
+            return Response({'detail': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        user_permissions = UserPermission.objects.filter(user=user)
+        serializer = UserPermissionSerializer(user_permissions, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+# views.py
+
+class UpdateUserPermissionsView(APIView):
+    # permission_classes = [HasRolePermission]
+    # model_name = 'UserPermission'
+    # action = 'change'
+
+    def post(self, request, user_id):
+        target_user = User.objects.filter(id=user_id).first()
+        if not target_user:
+            return Response({'detail': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        data = request.data if isinstance(request.data, list) else [request.data]
+
+        for permission_data in data:
+            up_id = permission_data.get('id')
+            allowed = permission_data.get('allowed')
+
+            if up_id is None:
+                return Response({'detail': 'Permission ID is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+            try:
+                instance = UserPermission.objects.get(id=up_id, user=target_user)
+            except UserPermission.DoesNotExist:
+                return Response({'detail': f'UserPermission with ID {up_id} not found for this user.'},
+                                status=status.HTTP_404_NOT_FOUND)
+
+            instance.allowed = allowed
+            instance.save()
+
+        return Response({'detail': 'Permissions updated successfully.'}, status=status.HTTP_200_OK)
+
+
+class PermissionListView(generics.ListAPIView):
+    queryset = Permission.objects.all()
+    serializer_class = PermissionSerializer
+    # permission_classes = [permissions.IsAuthenticated, HasRolePermission]
+    # model_name = 'Permission'
+    # action = 'view'
+
+
+class RoleListCreateView(generics.ListCreateAPIView):
+    queryset = Role.objects.all()
+    serializer_class = RoleSerializer
+    # permission_classes = [permissions.IsAuthenticated, HasRolePermission]
+    # model_name = 'Role'
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_fields = ['name']
+    search_fields = ['name', 'description']
+    ordering_fields = ['name']
+    pagination_class = StandardResultsSetPagination
+
+    def get_action(self):
+        if self.request.method == 'GET':
+            return 'view'
+        elif self.request.method == 'POST':
+            return 'add'
+        else:
+            return None
+
+    def get_permissions(self):
+        self.action = self.get_action()
+        return super().get_permissions()
+
+
+class RoleDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Role.objects.all()
+    serializer_class = RoleSerializer
+
+    # permission_classes = [permissions.IsAuthenticated, HasRolePermission]
+    # model_name = 'Role'
+
+
+class GetStoreByUser(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        store = Store.objects.filter(user=request.user).first()
+        if not store:
+            return Response({'detail': 'Store not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = StoreSerializer(store)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+_________________
+api/product\product_serializers.py
+# product/product_serializers.py
+
+from rest_framework import serializers
+from ..models import Category, Product, Tag, ProductImage, StockVariant, Stock
+from .variant_serializers import StockVariantSerializer
+from django.db import transaction
+from django.db.models import Sum
+import logging
+
+logger = logging.getLogger(__name__)
+
+class ProductImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductImage
+        fields = ['id', 'image', 'is_main', 'caption', 'alt_text', 'order']
+
+class ProductSerializer(serializers.ModelSerializer):
+    user = serializers.StringRelatedField(read_only=True)
+    category = serializers.PrimaryKeyRelatedField(queryset=Category.objects.all(), required=False, allow_null=True)
+    images = ProductImageSerializer(source='product_images', many=True, read_only=True)
+    stock_variants = StockVariantSerializer(many=True, read_only=True)
+    tags = serializers.PrimaryKeyRelatedField(queryset=Tag.objects.all(), many=True, required=False)
+
+    class Meta:
+        model = Product
+        fields = [
+            'id', 'user', 'name', 'slug', 'sku', 'barcode', 'brand', 'description',
+            'material', 'care_instructions', 'category', 'price',
+            'sale_price', 'start_sale_date', 'end_sale_date', 'stock', 'weight',
+            'dimensions', 'sizes', 'colors', 'status', 'is_featured',
+            'is_new_arrival', 'is_on_sale', 'main_image', 'video_url',
+            'meta_title', 'meta_description', 'slug', 'images', 'stock_variants', 'tags'
+        ]
+        read_only_fields = ('user', 'slug', 'stock_variants')
+
+    def create(self, validated_data):
+        user = self.context['request'].user
+        tags = validated_data.pop('tags', [])
+        images = self.context['request'].FILES.getlist('images')
+        product = Product.objects.create(user=user, **validated_data)
+        product.tags.set(tags)
+
+        for index, image in enumerate(images):
+            ProductImage.objects.create(
+                product=product,
+                image=image,
+                is_main=(index == 0),  # First image as main
+                order=index
+            )
+
+        self.sync_stock_variants(product)
+
+        return product
+
+    def update(self, instance, validated_data):
+        tags = validated_data.pop('tags', None)
+        replaced_image_ids = self.context['request'].data.getlist('replaced_image_id')
+        new_images = self.context['request'].FILES.getlist('images')
+
+        # Lưu trữ Sizes và Colors cũ để so sánh
+        original_sizes = set([size.strip().upper() for size in instance.sizes.split(',') if size.strip()])
+        original_colors = set([color.strip().upper() for color in instance.colors.split(',') if color.strip()])
+
+        # Cập nhật các trường khác
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        if tags is not None:
+            instance.tags.set(tags)
+
+        # Xử lý hình ảnh
+        for replaced_id, new_image in zip(replaced_image_ids, new_images):
+            try:
+                product_image = ProductImage.objects.get(id=replaced_id, product=instance)
+                product_image.image = new_image
+                product_image.save()
+            except ProductImage.DoesNotExist:
+                continue
+
+        remaining_images = new_images[len(replaced_image_ids):]
+        for new_image in remaining_images:
+            ProductImage.objects.create(
+                product=instance,
+                image=new_image,
+                is_main=False,
+                order=instance.product_images.count()
+            )
+
+        # Xử lý Sizes và Colors mới
+        new_sizes = set([size.strip().upper() for size in validated_data.get('sizes', '').split(',') if size.strip()])
+        new_colors = set([color.strip().upper() for color in validated_data.get('colors', '').split(',') if color.strip()])
+
+        # Kiểm tra sự thay đổi
+        sizes_changed = original_sizes != new_sizes
+        colors_changed = original_colors != new_colors
+
+        if sizes_changed or colors_changed:
+            # Đồng bộ các StockVariant
+            self.sync_stock_variants(instance, new_sizes, new_colors)
+
+            # Cập nhật Stock tổng cộng
+            self.update_product_stock(instance)
+
+        return instance
+
+    def sync_stock_variants(self, product, new_sizes=None, new_colors=None):
+
+        if new_sizes is None:
+            sizes = set([size.strip().upper() for size in product.sizes.split(',') if size.strip()])
+        else:
+            sizes = new_sizes
+
+        if new_colors is None:
+            colors = set([color.strip().upper() for color in product.colors.split(',') if color.strip()])
+        else:
+            colors = new_colors
+
+        valid_variant_names = set(f"{size} - {color}" for size in sizes for color in colors)
+        active_stocks = Stock.objects.filter(is_active=True)
+
+        with transaction.atomic():
+            # Tạo các StockVariant mới nếu chưa tồn tại
+            for stock in active_stocks:
+                for variant_name in valid_variant_names:
+                    variant, created = StockVariant.objects.get_or_create(
+                        product=product,
+                        stock=stock,
+                        variant_name=variant_name,
+                        defaults={'quantity': 0}
+                    )
+                    if created:
+                        logger.info(f"Created StockVariant: {variant_name} for Product: {product.name} at Stock: {stock.name}")
+
+            # Xóa các StockVariant không hợp lệ
+            existing_variants = StockVariant.objects.filter(product=product)
+            invalid_variants = existing_variants.exclude(variant_name__in=valid_variant_names)
+            count_deleted = invalid_variants.count()
+            if count_deleted > 0:
+                invalid_variants.delete()
+                logger.info(f"Deleted {count_deleted} invalid StockVariants from Product: {product.name}")
+            else:
+                logger.info(f"No invalid StockVariants found for Product: {product.name}")
+
+    def update_product_stock(self, product):
+        total_quantity = StockVariant.objects.filter(product=product).aggregate(total=Sum('quantity'))['total'] or 0
+        product.stock = total_quantity
+        product.save(update_fields=['stock'])
+        logger.info(f"Updated Product Stock: {product.name} - Total Quantity: {total_quantity}")
+
+    def validate(self, attrs):
+        sizes = set([size.strip().upper() for size in attrs.get('sizes', '').split(',') if size.strip()])
+        colors = set([color.strip().upper() for color in attrs.get('colors', '').split(',') if color.strip()])
+
+        variant_names = [f"{size} - {color}" for size in sizes for color in colors]
+        if len(variant_names) != len(set(variant_names)):
+            raise serializers.ValidationError("There are duplicate variant names.")
+
+        return attrs
+
+_________________
+api/product\product_urls.py
+from django.urls import path
+from .product_views import *
+from .variant_views import *
+
+urlpatterns = [
+    path('list/', ProductListView.as_view(), name='product-manager'),
+    path('create/', ProductCreateView.as_view(), name='product-create'),
+    path('detail/<int:pk>/', ProductDetailView.as_view(), name='product-detail'),
+    path('stock-variants/<int:pk>/', StockVariantUpdateView.as_view(), name='stock-variant-update'),
+    path('stock-variants/<int:pk>/delete/', StockVariantDestroyView.as_view(), name='stock-variant-delete'),
+    path('update_stock_variants/', UpdateStockVariantsAPIView.as_view(), name='update_stock_variants'),
+]
+
+_________________
+api/product\product_views.py
+from django_filters.rest_framework import DjangoFilterBackend, FilterSet, NumberFilter, CharFilter
+from rest_framework import filters as drf_filters, status, permissions
+from rest_framework.response import Response
+from rest_framework import generics
+from api.models import Product
+from api.product.product_serializers import ProductSerializer
+from api.views import StandardResultsSetPagination
+
+class ProductFilter(FilterSet):
+    price__gte = NumberFilter(field_name="price", lookup_expr='gte')
+    price__lte = NumberFilter(field_name="price", lookup_expr='lte')
+    category__name = CharFilter(field_name='category__name', lookup_expr='icontains')
+    status = CharFilter(field_name='status', lookup_expr='exact')
+
+    class Meta:
+        model = Product
+        fields = ['category__name', 'price', 'status']
+
+
+class ProductCreateView(generics.CreateAPIView):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def perform_create(self, serializer):
+        serializer.save()
+
+
+class ProductListView(generics.ListAPIView):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    # Sử dụng filter, search, ordering của DRF
+    filter_backends = [DjangoFilterBackend, drf_filters.SearchFilter, drf_filters.OrderingFilter]
+    filterset_class = ProductFilter
+    search_fields = ['name', 'description', 'sku', 'category__name']  # có thể search theo name, desc, sku, category
+    ordering_fields = ['price', 'name', 'stock', 'status', 'category__name']
+    pagination_class = StandardResultsSetPagination
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        request = self.request
+        category_names = request.query_params.getlist('category__name__in', [])
+        # Lấy logic category (OR/AND) - hiện tại chỉ OR (vì 1 product 1 category)
+        category_logic = request.query_params.get('category_logic', 'OR')
+
+        # Nếu có nhiều category được chọn
+        if category_names:
+            # Logic OR: sản phẩm thuộc ít nhất một category trong danh sách
+            queryset = queryset.filter(category__name__in=category_names).distinct()
+
+            # Nếu muốn logic AND, cần nhiều category trên product (ManyToMany).
+            # Hiện tại product chỉ có 1 category, nên logic AND không khả thi.
+
+        return queryset
+
+
+class ProductDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        instance.status = 'INACTIVE'
+        instance.save()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+_________________
+api/product\stock_serializers.py
+from rest_framework import serializers
+from ..models import Stock
+
+class StockSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Stock
+        fields = ['id', 'name', 'description', 'is_active', 'location', 'created_at', 'updated_at']
+
+
+_________________
+api/product\variant_serializers.py
+from rest_framework import serializers
+from ..models import StockVariant, Stock
+from .stock_serializers import StockSerializer
+
+
+class StockVariantSerializer(serializers.ModelSerializer):
+    stock = StockSerializer(read_only=True)
+    stock_id = serializers.PrimaryKeyRelatedField(
+        queryset=Stock.objects.all(), source='stock', write_only=True
+    )
+    quantity = serializers.IntegerField()
+    image = serializers.ImageField(required=False, allow_null=True)  # Thêm field image
+
+    class Meta:
+        model = StockVariant
+        fields = ['id', 'product', 'stock', 'variant_name', 'quantity', 'created_at', 'updated_at', 'stock_id', 'image']
+        read_only_fields = ['id', 'product', 'variant_name', 'created_at', 'updated_at']
+
+    def update(self, instance, validated_data):
+        instance.quantity = validated_data.get('quantity', instance.quantity)
+        if 'stock' in validated_data:
+            instance.stock = validated_data['stock']
+        if 'image' in validated_data:
+            instance.image = validated_data['image']
+        instance.save()
+        return instance
+
+class StockVariantUpdateSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    quantity = serializers.IntegerField(min_value=0)
+
+    def validate_id(self, value):
+        if not StockVariant.objects.filter(id=value).exists():
+            raise serializers.ValidationError("StockVariant with this ID does not exist.")
+        return value
+
+    def update(self, instance, validated_data):
+        instance.quantity = validated_data.get('quantity', instance.quantity)
+        instance.save()
+        return instance
+
+_________________
+api/product\variant_views.py
+from rest_framework import generics, permissions
+from ..models import StockVariant
+from .variant_serializers import StockVariantSerializer
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.views import APIView
+from rest_framework import status, permissions
+from rest_framework.response import Response
+from .variant_serializers import StockVariantUpdateSerializer
+from django.db import transaction
+
+class StockVariantUpdateView(generics.UpdateAPIView):
+    queryset = StockVariant.objects.all()
+    serializer_class = StockVariantSerializer
+    permission_classes = [IsAuthenticated, IsAdminUser]  # Chỉ admin mới có quyền cập nhật
+
+    def update(self, request, *args, **kwargs):
+        kwargs['partial'] = True
+        response = super().update(request, *args, **kwargs)
+        return response
+    def put(self, request, *args, **kwargs):
+        return super().put(request, *args, **kwargs)
+
+class StockVariantDestroyView(generics.DestroyAPIView):
+    queryset = StockVariant.objects.all()
+    serializer_class = StockVariantSerializer
+    permission_classes = [IsAuthenticated, IsAdminUser]
+
+class UpdateStockVariantsAPIView(APIView):
+    permission_classes = [permissions.IsAdminUser]
+    def put(self, request, format=None):
+
+        data = request.data
+        if not isinstance(data, list):
+            return Response({"detail": "Invalid data format. Expected a list of objects."},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = StockVariantUpdateSerializer(data=data, many=True)
+        if serializer.is_valid():
+            try:
+                with transaction.atomic():
+                    for item in serializer.validated_data:
+                        variant = StockVariant.objects.get(id=item['id'])
+                        variant.quantity = item['quantity']
+                        variant.save()
+                return Response({"detail": "StockVariants updated successfully."}, status=status.HTTP_200_OK)
+            except Exception as e:
+                return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+_________________

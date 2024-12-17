@@ -178,7 +178,7 @@ class Product(models.Model):
         on_delete=models.CASCADE,
     )
     name = models.CharField(max_length=255)
-    sku = models.CharField(max_length=100, unique=True, blank=True, null=True)
+    sku = models.CharField(max_length=100, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     barcode = models.CharField(max_length=100, blank=True, null=True)
     brand = models.CharField(max_length=255, blank=True)
@@ -244,7 +244,6 @@ class ProductImage(models.Model):
 
     def __str__(self):
         return f"Image of {self.product.name}"
-
 
 class StockVariant(models.Model):
     product = models.ForeignKey(

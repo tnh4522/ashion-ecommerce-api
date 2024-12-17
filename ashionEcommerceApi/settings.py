@@ -34,6 +34,7 @@ ALLOWED_HOSTS = [
 ]
 
 CORS_ALLOW_HEADERS = list(default_headers) + [
+    'Authorization',
     'ngrok-skip-browser-warning',
 ]
 
