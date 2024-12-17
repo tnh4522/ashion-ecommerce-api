@@ -47,4 +47,5 @@ urlpatterns = [
     path('brand/', include('api.brand.brand_urls')),
     path('customer/', include('api.customer.customer_urls')),
     path('address/', include('api.address.address_urls')),
+    path('cart/', include('api.cart.cart_urls')),
 ]
