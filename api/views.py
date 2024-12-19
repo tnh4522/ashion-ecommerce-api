@@ -163,7 +163,6 @@ class UserPermissionsView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-# views.py
 
 class UpdateUserPermissionsView(APIView):
     # permission_classes = [HasRolePermission]
