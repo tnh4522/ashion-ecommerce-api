@@ -103,7 +103,6 @@ class ImageSearchView(APIView):
             return JsonResponse({"detail": f"Invalid image file: {e}"}, status=status.HTTP_400_BAD_REQUEST)
 
         category = classify_image_google(temp_image_path)
-        os.remove(temp_image_path)  # Remove temp image
         print(f"Predicted category: {category}")
 
         print("Searching for similar images using FAISS index...")
