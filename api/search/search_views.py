@@ -29,7 +29,6 @@ SIMILARITY_THRESHOLD = 0.7
 device = "cuda"
 print(f"Thiết bị sử dụng: {device}")
 
-# Google Generative AI configuration
 GOOGLE_API_KEY = "..."
 if not GOOGLE_API_KEY:
     raise ValueError("Google API Key not found.")
