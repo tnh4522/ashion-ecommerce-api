@@ -35,7 +35,6 @@ else:
     'Shoes': [499, 500, 501, 502],  # Sandal, Sneaker
 }
 IMAGE_FOLDER = os.path.join(settings.MEDIA_ROOT, 'product_images')
-TOP_K = 5
 
 device = "cuda" 
 print(f"Thiết bị sử dụng: {device}")
