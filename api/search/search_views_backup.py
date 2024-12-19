@@ -30,6 +30,7 @@ else:
     print("Không thể tải nhãn lớp ImageNet.")
 
 # ImageNet to Category Mapping
+IMAGENET_TO_CATEGORY = {
     'Clothing': [454, 455, 456, 457, 458, 459, 460, 504],  # Thêm 'suit' (ví dụ: class 504)
     'Watch': [437],  # Wristwatch
     'Trouser': [461, 462],  # Jeans, Sweatpants
@@ -108,6 +109,8 @@ else:
 def classify_image(image, model, transform, device):
     """Phân loại hình ảnh vào category."""
     image = transform(image).unsqueeze(0).to(device)
+    with torch.no_grad():
+        outputs = model(image)
         probabilities = torch.nn.functional.softmax(outputs, dim=1)
         top_class = probabilities.argmax(dim=1).item()
         top_prob = probabilities[0][top_class].item()
