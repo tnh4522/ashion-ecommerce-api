@@ -22,7 +22,6 @@ from rest_framework import serializers
 
 logger = logging.getLogger(__name__)
 
-# ImageNet Labels
 response = requests.get(IMAGENET_LABELS_URL)
 if response.status_code == 200:
     imagenet_labels = response.text.splitlines()
