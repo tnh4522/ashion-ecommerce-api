@@ -111,7 +111,6 @@ def classify_image(image, model, transform, device):
     """Phân loại hình ảnh vào category."""
     image = transform(image).unsqueeze(0).to(device)
     with torch.no_grad():
-        outputs = model(image)
         probabilities = torch.nn.functional.softmax(outputs, dim=1)
         top_class = probabilities.argmax(dim=1).item()
         top_prob = probabilities[0][top_class].item()
