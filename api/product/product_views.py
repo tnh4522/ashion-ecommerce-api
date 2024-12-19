@@ -30,7 +30,6 @@ class ProductListView(generics.ListAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-    # Sử dụng filter, search, ordering của DRF
     filter_backends = [DjangoFilterBackend, drf_filters.SearchFilter, drf_filters.OrderingFilter]
     filterset_class = ProductFilter
     search_fields = ['name', 'description', 'sku', 'category__name']  # có thể search theo name, desc, sku, category
@@ -41,16 +40,11 @@ class ProductListView(generics.ListAPIView):
         queryset = super().get_queryset()
         request = self.request
         category_names = request.query_params.getlist('category__name__in', [])
-        # Lấy logic category (OR/AND) - hiện tại chỉ OR (vì 1 product 1 category)
         category_logic = request.query_params.get('category_logic', 'OR')
 
-        # Nếu có nhiều category được chọn
         if category_names:
-            # Logic OR: sản phẩm thuộc ít nhất một category trong danh sách
             queryset = queryset.filter(category__name__in=category_names).distinct()
 
-            # Nếu muốn logic AND, cần nhiều category trên product (ManyToMany).
-            # Hiện tại product chỉ có 1 category, nên logic AND không khả thi.
 
         return queryset
 
