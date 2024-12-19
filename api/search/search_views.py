@@ -26,29 +26,23 @@ IMAGE_FOLDER = os.path.join(settings.MEDIA_ROOT, 'product_images')
 TOP_K = 5
 SIMILARITY_THRESHOLD = 0.7 
 
-device = "cuda"
-print(f"Thiết bị sử dụng: {device}")
+device = "cuda" 
+print(f"Device in use: {device}")
 
+# Validate Google API key
 GOOGLE_API_KEY = "..."
 if not GOOGLE_API_KEY:
     raise ValueError("Google API Key not found.")
 
+# Configure Generative AI API
 genai.configure(api_key=GOOGLE_API_KEY)
 model = genai.GenerativeModel(model_name="models/gemini-1.5-pro-latest")
 
 # Load ResNet-50 model for feature extraction
-print("Tải mô hình ResNet-50 cho feature extraction...")
+print("Loading ResNet-50 model for feature extraction...")
 from torchvision.models import ResNet50_Weights
 resnet = models.resnet50(weights=ResNet50_Weights.IMAGENET1K_V1)
 resnet = torch.nn.Sequential(*list(resnet.children())[:-1]).to(device).eval()
-
-# Image preprocessing
-transform = transforms.Compose([
-    transforms.Resize(256),
-    transforms.CenterCrop(224),
-    transforms.ToTensor(),
-    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-])
 
 # Load images and create FAISS index
 def load_images(image_folder):
@@ -67,23 +61,29 @@ def preprocess_images(image_paths):
             print(f"Error processing image {path}: {e}")
     return torch.cat(images, dim=0) if images else None, valid_paths
 
+print("Loading and preprocessing images...")
 image_paths = load_images(IMAGE_FOLDER)
 images, valid_image_paths = preprocess_images(image_paths)
 
 if images is not None:
+    print("Extracting embeddings for images...")
     with torch.no_grad():
         embeddings = resnet(images).squeeze().cpu().numpy()
     embeddings /= np.linalg.norm(embeddings, axis=1, keepdims=True)
     faiss_index = faiss.IndexFlatIP(embeddings.shape[1])
+    print("Adding embeddings to the FAISS index...")
     faiss_index.add(embeddings)
 else:
+    print("No valid images found. FAISS index is empty.")
     faiss_index = None
 
 def classify_image_google(image_path):
     try:
+        print(f"Uploading image to Google API: {image_path}")
         sample_file = genai.upload_file(path=image_path, display_name="Uploaded Image")
         prompt = "Analyze the object in the provided image and determine its main category. The possible categories are exclusively: Trouser, Watch, Hoodie, Clothing, Shoes, Bags, and Unknown. If the object does not fit into any of the first six categories, it must be classified as Unknown. Please respond with only the category name as a single word, without any additional explanation or text. "
         response = model.generate_content([prompt, sample_file.uri])
+        print("Google API response received.")
         return response.text.strip()
     except Exception as e:
         print(f"Google API Error: {e}")
@@ -100,6 +100,7 @@ class ImageSearchView(APIView):
 
         query_image = request.FILES['image']
         try:
+            print("Saving the uploaded image temporarily for processing...")
             image = Image.open(query_image).convert('RGB')
             temp_image_path = os.path.join(settings.MEDIA_ROOT, 'temp_query_image.jpg')
             image.save(temp_image_path)
@@ -112,6 +113,7 @@ class ImageSearchView(APIView):
         print(f"Predicted category: {category}")
 
         # Step 2: Search similar images with FAISS
+        print("Searching for similar images using FAISS index...")
         with torch.no_grad():
             query_tensor = transform(image).unsqueeze(0).to(device)
             query_embedding = resnet(query_tensor).squeeze().cpu().numpy()
@@ -123,9 +125,11 @@ class ImageSearchView(APIView):
         ]
 
         if not similar_paths:
+            print("No similar images found.")
             return JsonResponse({"category": "UNKNOWN", "products": []}, status=status.HTTP_200_OK)
 
         # Step 3: Find most common category and filter results
+        print("Finding the most common category among similar images...")
         product_counts = {}
         products = []
         for path in similar_paths:
@@ -141,10 +145,13 @@ class ImageSearchView(APIView):
                 continue
 
         if not product_counts:
+            print("No products found for the similar images.")
             return JsonResponse({"category": "UNKNOWN", "products": []}, status=status.HTTP_200_OK)
 
         most_common_category = max(product_counts, key=product_counts.get)
+        print(f"Most common category: {most_common_category}")
         filtered_products = [prod for prod in products if prod.category.name == most_common_category]
 
         serializer = ProductSerializer(filtered_products, many=True, context={'request': request})
+        print(f"Returning {len(serializer.data)} products for the category '{most_common_category}'.")
         return JsonResponse({"category": most_common_category, "products": serializer.data}, status=status.HTTP_200_OK)
