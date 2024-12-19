@@ -1,4 +1,3 @@
-
 import os
 import torch
 import torchvision.models as models
@@ -27,25 +26,26 @@ if response.status_code == 200:
     imagenet_labels = response.text.splitlines()
 else:
     imagenet_labels = []
-    print("Không thể tải nhãn lớp ImageNet.")
+    print("Unable to fetch ImageNet labels.")
 
 # ImageNet to Category Mapping
-    'Clothing': [454, 455, 456, 457, 458, 459, 460, 504],  # Thêm 'suit' (ví dụ: class 504)
+IMAGENET_TO_CATEGORY = {
+    'Clothing': [454, 455, 456, 457, 458, 459, 460, 504],  # Including 'suit' (e.g., class 504)
     'Watch': [437],  # Wristwatch
     'Shoes': [499, 500, 501, 502],  # Sandal, Sneaker
 }
 IMAGE_FOLDER = os.path.join(settings.MEDIA_ROOT, 'product_images')
 
-print(f"Thiết bị sử dụng: {device}")
+print(f"Using device: {device}")
 
-print("Tải mô hình ResNet-50 cho feature extraction...")
+print("Loading ResNet-50 model for feature extraction...")
 from torchvision.models import ResNet50_Weights
 resnet = models.resnet50(weights=ResNet50_Weights.IMAGENET1K_V1)
 resnet = torch.nn.Sequential(*list(resnet.children())[:-1])  
 resnet = resnet.to(device)
 resnet.eval()
 
-print("Tải mô hình ResNet-50 cho classification...")
+print("Loading ResNet-50 model for classification...")
 resnet_classifier = models.resnet50(weights=ResNet50_Weights.IMAGENET1K_V1).to(device)
 resnet_classifier.eval()
 
@@ -59,7 +59,7 @@ transform = transforms.Compose([
     )
 ])
 
-print("Tải hình ảnh từ thư mục...")
+print("Loading images from folder...")
 def load_images(image_folder):
     supported_formats = ('.jpg', '.jpeg', '.png', '.bmp', '.gif', '.webp')
     image_paths = [os.path.join(image_folder, fname) for fname in os.listdir(image_folder)
@@ -76,32 +76,32 @@ def preprocess_images_resnet(image_paths, transform, device):
             images.append(image)
             valid_image_paths.append(path)
         except Exception as e:
-            print(f"Không thể tải hình ảnh {path}: {e}")
+            print(f"Cannot load image {path}: {e}")
     if images:
         images = torch.cat(images, dim=0).to(device)
     else:
         images = None
     return images, valid_image_paths
 
-print("Tạo embeddings cho các hình ảnh...")
+print("Creating embeddings for images...")
 image_paths = load_images(IMAGE_FOLDER)
 images, valid_image_paths = preprocess_images_resnet(image_paths, transform, device)
 
 if images is None:
-    print("Không có hình ảnh hợp lệ để xử lý.")
+    print("No valid images available for processing.")
     image_embeddings = np.array([])
     faiss_index = None
 else:
     with torch.no_grad():
         image_embeddings = resnet(images).cpu().numpy().reshape(images.size(0), -1)
     image_embeddings /= np.linalg.norm(image_embeddings, axis=1, keepdims=True)
-    print("Xây dựng chỉ mục FAISS...")
+    print("Building FAISS index...")
     faiss_index = faiss.IndexFlatIP(image_embeddings.shape[1])
     faiss_index.add(image_embeddings)
-    print(f"Chỉ mục FAISS đã chứa {faiss_index.ntotal} vectors.")
+    print(f"FAISS index contains {faiss_index.ntotal} vectors.")
 
 def classify_image(image, model, transform, device):
-    """Phân loại hình ảnh vào category."""
+    """Classify the image into a category."""
     image = transform(image).unsqueeze(0).to(device)
     with torch.no_grad():
         outputs = model(image)
@@ -136,7 +136,7 @@ class ImageSearchView(APIView):
             return JsonResponse({"detail": f"Invalid image file. Error: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
         
         category = classify_image(image, resnet_classifier, transform, device)
-        print(f"Category dự đoán: {category}")
+        print(f"Predicted category: {category}")
         
         if category == "Unknown":
             return JsonResponse({
