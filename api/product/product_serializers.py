@@ -43,7 +43,6 @@ class ProductSerializer(serializers.ModelSerializer):
             ProductImage.objects.create(
                 product=product,
                 image=image,
-                is_main=(index == 0),  # First image as main
                 order=index
             )
 
