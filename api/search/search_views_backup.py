@@ -23,7 +23,6 @@ from rest_framework import serializers
 logger = logging.getLogger(__name__)
 
 # ImageNet Labels
-IMAGENET_LABELS_URL = "https://raw.githubusercontent.com/pytorch/hub/master/imagenet_classes.txt"
 response = requests.get(IMAGENET_LABELS_URL)
 if response.status_code == 200:
     imagenet_labels = response.text.splitlines()
