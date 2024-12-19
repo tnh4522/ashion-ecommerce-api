@@ -36,13 +36,11 @@ if not GOOGLE_API_KEY:
 genai.configure(api_key=GOOGLE_API_KEY)
 model = genai.GenerativeModel(model_name="models/gemini-1.5-pro-latest")
 
-# Load ResNet-50 model for feature extraction
 print("Loading ResNet-50 model for feature extraction...")
 from torchvision.models import ResNet50_Weights
 resnet = models.resnet50(weights=ResNet50_Weights.IMAGENET1K_V1)
 resnet = torch.nn.Sequential(*list(resnet.children())[:-1]).to(device).eval()
 
-# Load images and create FAISS index
 def load_images(image_folder):
     supported_formats = ('.jpg', '.jpeg', '.png', '.bmp', '.gif', '.webp')
     return [os.path.join(image_folder, fname) for fname in os.listdir(image_folder) if fname.lower().endswith(supported_formats)]
@@ -87,7 +85,6 @@ def classify_image_google(image_path):
         print(f"Google API Error: {e}")
         return "Unknown"
 
-# ImageSearchView Class
 class ImageSearchView(APIView):
     parser_classes = [MultiPartParser, FormParser]
     permission_classes = [permissions.AllowAny]
@@ -105,12 +102,10 @@ class ImageSearchView(APIView):
         except Exception as e:
             return JsonResponse({"detail": f"Invalid image file: {e}"}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Step 1: Classify image with Google API
         category = classify_image_google(temp_image_path)
         os.remove(temp_image_path)  # Remove temp image
         print(f"Predicted category: {category}")
 
-        # Step 2: Search similar images with FAISS
         print("Searching for similar images using FAISS index...")
         with torch.no_grad():
             query_tensor = transform(image).unsqueeze(0).to(device)
@@ -126,7 +121,6 @@ class ImageSearchView(APIView):
             print("No similar images found.")
             return JsonResponse({"category": "UNKNOWN", "products": []}, status=status.HTTP_200_OK)
 
-        # Step 3: Find most common category and filter results
         print("Finding the most common category among similar images...")
         product_counts = {}
         products = []
