@@ -29,12 +29,10 @@ SIMILARITY_THRESHOLD = 0.7
 device = "cuda" if torch.cuda.is_available() else "cpu"
 print(f"Device in use: {device}")
 
-# Validate Google API key
 GOOGLE_API_KEY = "..."
 if not GOOGLE_API_KEY:
     raise ValueError("Google API Key not found.")
 
-# Configure Generative AI API
 genai.configure(api_key=GOOGLE_API_KEY)
 model = genai.GenerativeModel(model_name="models/gemini-1.5-pro-latest")
 
