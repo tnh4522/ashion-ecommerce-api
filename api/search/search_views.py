@@ -26,7 +26,6 @@ IMAGE_FOLDER = os.path.join(settings.MEDIA_ROOT, 'product_images')
 TOP_K = 5
 SIMILARITY_THRESHOLD = 0.7 
 
-# Device configuration
 device = "cuda"
 print(f"Thiết bị sử dụng: {device}")
 
