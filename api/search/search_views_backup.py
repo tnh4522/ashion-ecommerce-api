@@ -1,4 +1,3 @@
-# api/search/views.py
 
 import os
 import torch
