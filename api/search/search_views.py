@@ -21,8 +21,6 @@ import google.generativeai as genai
 import requests
 
 logger = logging.getLogger(__name__)
-
-# Load environment variables
 load_dotenv()
 
 # Constants
@@ -31,7 +29,7 @@ TOP_K = 5
 SIMILARITY_THRESHOLD = 0.7  # Ngưỡng độ tương đồng
 
 # Device configuration
-device = "cuda" if torch.cuda.is_available() else "cpu"
+device = "cuda"
 print(f"Thiết bị sử dụng: {device}")
 
 # Google Generative AI configuration
@@ -85,7 +83,6 @@ if images is not None:
 else:
     faiss_index = None
 
-# Google API Classification
 def classify_image_google(image_path):
     try:
         sample_file = genai.upload_file(path=image_path, display_name="Uploaded Image")
