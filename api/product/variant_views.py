@@ -11,7 +11,7 @@ from django.db import transaction
 class StockVariantUpdateView(generics.UpdateAPIView):
     queryset = StockVariant.objects.all()
     serializer_class = StockVariantSerializer
-    permission_classes = [IsAuthenticated, IsAdminUser]  # Chỉ admin mới có quyền cập nhật
+    permission_classes = [IsAuthenticated, IsAdminUser] 
 
     def update(self, request, *args, **kwargs):
         kwargs['partial'] = True
