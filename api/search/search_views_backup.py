@@ -108,7 +108,6 @@ def classify_image(image, model, transform, device):
         probabilities = torch.nn.functional.softmax(outputs, dim=1)
         top_class = probabilities.argmax(dim=1).item()
         top_prob = probabilities[0][top_class].item()
-    
     if imagenet_labels and top_class < len(imagenet_labels):
         top_label = imagenet_labels[top_class]
         print(f"Predicted Class Index: {top_class}, Label: {top_label}, Probability: {top_prob:.4f}")
