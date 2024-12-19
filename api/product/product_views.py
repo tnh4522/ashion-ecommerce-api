@@ -32,7 +32,6 @@ class ProductListView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     filter_backends = [DjangoFilterBackend, drf_filters.SearchFilter, drf_filters.OrderingFilter]
     filterset_class = ProductFilter
-    search_fields = ['name', 'description', 'sku', 'category__name']  # có thể search theo name, desc, sku, category
     ordering_fields = ['price', 'name', 'stock', 'status', 'category__name']
     pagination_class = StandardResultsSetPagination
 
