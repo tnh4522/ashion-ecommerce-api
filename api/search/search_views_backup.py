@@ -45,7 +45,7 @@ IMAGENET_TO_CATEGORY = {
 IMAGE_FOLDER = os.path.join(settings.MEDIA_ROOT, 'product_images')
 TOP_K = 5
 
-device = "cuda" if torch.cuda.is_available() else "cpu"
+device = "cuda" 
 print(f"Thiết bị sử dụng: {device}")
 
 print("Tải mô hình ResNet-50 cho feature extraction...")

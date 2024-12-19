@@ -30,7 +30,8 @@ DEBUG = True
 ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
-    'sterling-notably-monster.ngrok-free.app'
+    'sterling-notably-monster.ngrok-free.app',
+    '192.168.43.202',
 ]
 
 CORS_ALLOW_HEADERS = list(default_headers) + [
