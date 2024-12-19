@@ -30,7 +30,6 @@ else:
     print("Không thể tải nhãn lớp ImageNet.")
 
 # ImageNet to Category Mapping
-IMAGENET_TO_CATEGORY = {
     'Clothing': [454, 455, 456, 457, 458, 459, 460, 504],  # Thêm 'suit' (ví dụ: class 504)
     'Watch': [437],  # Wristwatch
     'Trouser': [461, 462],  # Jeans, Sweatpants
