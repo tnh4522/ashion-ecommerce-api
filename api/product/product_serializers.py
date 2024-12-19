@@ -1,4 +1,3 @@
-# product/product_serializers.py
 
 from rest_framework import serializers
 from ..models import Category, Product, Tag, ProductImage, StockVariant, Stock
@@ -64,11 +63,9 @@ class ProductSerializer(serializers.ModelSerializer):
         replaced_image_ids = self.context['request'].data.getlist('replaced_image_id')
         new_images = self.context['request'].FILES.getlist('images')
 
-        # Lưu trữ Sizes và Colors cũ để so sánh
         original_sizes = set([size.strip().upper() for size in instance.sizes.split(',') if size.strip()])
         original_colors = set([color.strip().upper() for color in instance.colors.split(',') if color.strip()])
 
-        # Cập nhật các trường khác
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
         instance.save()
@@ -76,7 +73,6 @@ class ProductSerializer(serializers.ModelSerializer):
         if tags is not None:
             instance.tags.set(tags)
 
-        # Xử lý hình ảnh
         for replaced_id, new_image in zip(replaced_image_ids, new_images):
             try:
                 product_image = ProductImage.objects.get(id=replaced_id, product=instance)
@@ -94,19 +90,15 @@ class ProductSerializer(serializers.ModelSerializer):
                 order=instance.product_images.count()
             )
 
-        # Xử lý Sizes và Colors mới
         new_sizes = set([size.strip().upper() for size in validated_data.get('sizes', '').split(',') if size.strip()])
         new_colors = set([color.strip().upper() for color in validated_data.get('colors', '').split(',') if color.strip()])
 
-        # Kiểm tra sự thay đổi
         sizes_changed = original_sizes != new_sizes
         colors_changed = original_colors != new_colors
 
         if sizes_changed or colors_changed:
-            # Đồng bộ các StockVariant
             self.sync_stock_variants(instance, new_sizes, new_colors)
 
-            # Cập nhật Stock tổng cộng
             self.update_product_stock(instance)
 
         return instance
@@ -127,7 +119,6 @@ class ProductSerializer(serializers.ModelSerializer):
         active_stocks = Stock.objects.filter(is_active=True)
 
         with transaction.atomic():
-            # Tạo các StockVariant mới nếu chưa tồn tại
             for stock in active_stocks:
                 for variant_name in valid_variant_names:
                     variant, created = StockVariant.objects.get_or_create(
@@ -139,7 +130,6 @@ class ProductSerializer(serializers.ModelSerializer):
                     if created:
                         logger.info(f"Created StockVariant: {variant_name} for Product: {product.name} at Stock: {stock.name}")
 
-            # Xóa các StockVariant không hợp lệ
             existing_variants = StockVariant.objects.filter(product=product)
             invalid_variants = existing_variants.exclude(variant_name__in=valid_variant_names)
             count_deleted = invalid_variants.count()
