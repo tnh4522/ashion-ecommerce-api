@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 load_dotenv()
 IMAGE_FOLDER = os.path.join(settings.MEDIA_ROOT, 'product_images')
 TOP_K = 5
-SIMILARITY_THRESHOLD = 0.7  # Ngưỡng độ tương đồng
+SIMILARITY_THRESHOLD = 0.7 
 
 # Device configuration
 device = "cuda"
