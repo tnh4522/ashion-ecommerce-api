@@ -9,7 +9,6 @@ class StockVariantSerializer(serializers.ModelSerializer):
         queryset=Stock.objects.all(), source='stock', write_only=True
     )
     quantity = serializers.IntegerField()
-    image = serializers.ImageField(required=False, allow_null=True)  # Thêm field image
 
     class Meta:
         model = StockVariant
