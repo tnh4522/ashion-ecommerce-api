@@ -26,7 +26,6 @@ IMAGE_FOLDER = os.path.join(settings.MEDIA_ROOT, 'product_images')
 TOP_K = 5
 SIMILARITY_THRESHOLD = 0.7 
 
-# Automatically detect GPU or fallback to CPU
 device = "cuda" if torch.cuda.is_available() else "cpu"
 print(f"Device in use: {device}")
 
