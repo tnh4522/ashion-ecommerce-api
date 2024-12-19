@@ -36,7 +36,6 @@ else:
 }
 IMAGE_FOLDER = os.path.join(settings.MEDIA_ROOT, 'product_images')
 
-device = "cuda" 
 print(f"Thiết bị sử dụng: {device}")
 
 print("Tải mô hình ResNet-50 cho feature extraction...")
