@@ -32,7 +32,6 @@ else:
 # ImageNet to Category Mapping
     'Clothing': [454, 455, 456, 457, 458, 459, 460, 504],  # Thêm 'suit' (ví dụ: class 504)
     'Watch': [437],  # Wristwatch
-    'Trouser': [461, 462],  # Jeans, Sweatpants
     'Shoes': [499, 500, 501, 502],  # Sandal, Sneaker
     'Bags': [414, 416]  # Handbag, Backpack
 }
