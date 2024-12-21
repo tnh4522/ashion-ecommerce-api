@@ -1,0 +1,6 @@
+INSERT INTO api_category (id, name, slug, description, image, is_active, meta_title, meta_description, sort_order, parent_id) VALUES (5, 'Clothing', 'clothing', '', 'category_images/Clothing_Category_a4BNzZw.png', 1, '', '', 0, null);
+INSERT INTO api_category (id, name, slug, description, image, is_active, meta_title, meta_description, sort_order, parent_id) VALUES (6, 'Watch', 'watch', '', 'category_images/Watch_Category_fKils1a.png', 1, '', '', 0, null);
+INSERT INTO api_category (id, name, slug, description, image, is_active, meta_title, meta_description, sort_order, parent_id) VALUES (8, 'Shoes', 'shoes', '', 'category_images/Shoes_Category_vqxJhow.png', 1, '', '', 0, null);
+INSERT INTO api_category (id, name, slug, description, image, is_active, meta_title, meta_description, sort_order, parent_id) VALUES (9, 'Bag', 'bag', '', 'category_images/Bag_Category.png', 1, '', '', 0, null);
+INSERT INTO api_category (id, name, slug, description, image, is_active, meta_title, meta_description, sort_order, parent_id) VALUES (10, 'Hoodie', 'hoodie', '', 'category_images/Hoodie_Category_pxD3TJx.png', 1, '', '', 0, 5);
+INSERT INTO api_category (id, name, slug, description, image, is_active, meta_title, meta_description, sort_order, parent_id) VALUES (11, 'Trouser', 'trouser', '', 'category_images/0cabbda1-a4d6-43e7-892b-48160a328670.webp', 1, '', '', 0, 5);

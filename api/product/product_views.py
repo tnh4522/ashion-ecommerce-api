@@ -29,7 +29,8 @@ class ProductCreateView(generics.CreateAPIView):
 class ProductListView(generics.ListAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [permissions.AllowAny]
+    # Sử dụng filter, search, ordering của DRF
     filter_backends = [DjangoFilterBackend, drf_filters.SearchFilter, drf_filters.OrderingFilter]
     filterset_class = ProductFilter
     ordering_fields = ['price', 'name', 'stock', 'status', 'category__name']

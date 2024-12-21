@@ -67,3 +67,29 @@ class OrderSerializer(serializers.ModelSerializer):
         instance.save()
 
         return instance
+
+
+class OrderItemSerializerForView(serializers.ModelSerializer):
+    product_name = serializers.CharField(source='product.name')
+    product_image = serializers.ImageField(source='product.main_image')
+    class Meta:
+        model = OrderItem
+        fields = [
+            'product', 'seller', 'quantity', 'price', 'total_price', 'size', 'color', 'weight', 'product_name', 'product_image'
+        ]
+
+
+class OrderSerializerForView(serializers.ModelSerializer):
+    items = OrderItemSerializerForView(many=True)
+
+    class Meta:
+        model = Order
+        fields = [
+            'id', 'order_number', 'subtotal_price', 'shipping_cost', 'discount_amount',
+            'tax_amount', 'total_price', 'total_weight', 'shipping_address',
+            'billing_address', 'shipping_method', 'payment_method', 'payment_status',
+            'status', 'coupon', 'loyalty_points_used', 'tracking_number',
+            'estimated_delivery_date', 'note', 'transaction_id', 'created_at',
+            'updated_at', 'items'
+        ]
+        read_only_fields = fields

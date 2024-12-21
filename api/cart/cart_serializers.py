@@ -4,10 +4,12 @@ from ..models import Cart, CartItem
 
 class CartItemSerializer(serializers.ModelSerializer):
     product_name = serializers.ReadOnlyField(source='product.name')
+    image = serializers.ImageField(source='product.main_image', read_only=True)
+    price = serializers.ReadOnlyField(source='product.price')
 
     class Meta:
         model = CartItem
-        fields = ['id', 'product', 'product_name', 'quantity', 'size', 'color', 'added_at']
+        fields = ['id', 'product', 'product_name', 'quantity', 'size', 'color', 'added_at', 'image', 'price']
 
 
 class CartSerializer(serializers.ModelSerializer):

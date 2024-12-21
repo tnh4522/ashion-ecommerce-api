@@ -1,9 +1,11 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, permissions
 from rest_framework import generics
+from rest_framework.generics import ListAPIView
+from rest_framework.permissions import IsAuthenticated
 
 from api.models import Order
-from api.order.order_serializers import OrderSerializer
+from api.order.order_serializers import OrderSerializer, OrderSerializerForView
 from api.views import StandardResultsSetPagination
 
 # List all orders
@@ -21,7 +23,7 @@ class OrderListView(generics.ListAPIView):
 class OrderCreateView(generics.CreateAPIView):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.AllowAny]
 
     # def create(self, request, *args, **kwargs):
     #     serializer = self.get_serializer(data=request.data)
@@ -45,3 +47,11 @@ class OrderDetailView(generics.RetrieveUpdateDestroyAPIView):
             return 'delete'
         else:
             return None
+
+
+class OrderByUserView(ListAPIView):
+    serializer_class = OrderSerializerForView
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Order.objects.filter(user=self.request.user).order_by('-created_at')
