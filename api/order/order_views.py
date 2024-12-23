@@ -55,3 +55,12 @@ class OrderByUserView(ListAPIView):
 
     def get_queryset(self):
         return Order.objects.filter(user=self.request.user).order_by('-created_at')
+
+
+class GetOrdersByCustomerID(ListAPIView):
+    serializer_class = OrderSerializerForView
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        customer_id = self.kwargs['pk']
+        return Order.objects.filter(customer_id=customer_id).order_by('-created_at')
