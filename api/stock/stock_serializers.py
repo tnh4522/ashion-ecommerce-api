@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
-from api.models import Stock, StockProduct, Product
+from api.models import Stock, StockProduct, Product, StockVariant
+from api.product.product_serializers import ProductSerializer
 
 
 class StockSerializer(serializers.ModelSerializer):
@@ -16,3 +17,11 @@ class StockProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = StockProduct
         fields = ['id', 'stock', 'product', 'quantity', 'created_at', 'updated_at']
+
+
+class StockProductVariantSerializer(serializers.ModelSerializer):
+    product = ProductSerializer(read_only=True)
+
+    class Meta:
+        model = StockVariant
+        fields = ['id', 'stock', 'product', 'variant_name', 'image', 'quantity', 'created_at', 'updated_at']

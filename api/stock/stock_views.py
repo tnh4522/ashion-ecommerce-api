@@ -1,9 +1,9 @@
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters
+from rest_framework import filters, permissions
 from rest_framework import generics
 
 from api.models import Stock, StockProduct
-from api.stock.stock_serializers import StockSerializer, StockProductSerializer
+from api.stock.stock_serializers import *
 from ..views import StandardResultsSetPagination
 
 
@@ -50,9 +50,19 @@ class StockProductUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
 class StockProductListView(generics.ListAPIView):
     queryset = StockProduct.objects.all()
     serializer_class = StockProductSerializer
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.AllowAny]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ['product__name', 'quantity']
     search_fields = ['product__name']
     ordering_fields = ['quantity', 'updated_at']
     pagination_class = StandardResultsSetPagination
+
+
+class StockProductVariantListView(generics.ListAPIView):
+    queryset = StockProduct.objects.all()
+    serializer_class = StockProductVariantSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def get_queryset(self):
+        stock_id = self.kwargs['pk']
+        return StockVariant.objects.filter(stock_id=stock_id)
