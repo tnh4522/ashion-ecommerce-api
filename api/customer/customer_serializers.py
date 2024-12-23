@@ -1,7 +1,7 @@
 from api.address.address_serializers import AddressSerializer
-from api.models import Customer, Address
 import re
 from rest_framework import serializers
+from ..models import Customer, Address
 
 
 class CustomerSerializer(serializers.ModelSerializer):
@@ -18,16 +18,24 @@ class CustomerSerializer(serializers.ModelSerializer):
         phone_regex = re.compile(r'^\+?1?\d{10,15}$')
         if not phone_regex.match(value):
             raise serializers.ValidationError("Invalid phone number. Please re-enter.")
-        if Customer.objects.filter(phone_number=value).exists():
+
+        instance_id = self.instance.id if self.instance else None
+
+        if Customer.objects.filter(phone_number=value).exclude(id=instance_id).exists():
             raise serializers.ValidationError("Phone number already in use.")
+
         return value
 
     def validate_identification_number(self, value):
         id_regex = re.compile(r'^\d{9}(\d{3})?$')
         if not id_regex.match(value):
             raise serializers.ValidationError("Invalid customer identification number. Please re-enter.")
-        if Customer.objects.filter(identification_number=value).exists():
+
+        instance_id = self.instance.id if self.instance else None
+
+        if Customer.objects.filter(identification_number=value).exclude(id=instance_id).exists():
             raise serializers.ValidationError("The customer identification number already exists.")
+
         return value
 
     def create(self, validated_data):
