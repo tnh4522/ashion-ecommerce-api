@@ -196,3 +196,22 @@ LOGGING = {
         },
     },
 }
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Ecommerce API',
+    'DESCRIPTION': 'API documentation for Ecommerce platform.',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': True,
+    'SERVE_PUBLIC': True,
+    'COMPONENT_SPLIT_REQUEST': True,
+    'TAGS_SORTER': 'alpha',
+    'OPERATIONS_SORTER': 'alpha',
+    'SCHEMA_PATH_PREFIX': r'/api/',
+    'SCHEMA_PATH_PREFIX_TRIM': True,
+    'DEFAULT_GENERATOR_CLASS': 'drf_spectacular.generators.SchemaGenerator',
+    'SECURITY': [
+        {
+            'bearerAuth': []
+        }
+    ],
+}
