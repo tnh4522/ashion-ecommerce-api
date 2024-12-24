@@ -62,5 +62,5 @@ class GetOrdersByCustomerID(ListAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        customer_id = self.kwargs['pk']
+        customer_id = self.kwargs['customer_id']
         return Order.objects.filter(customer_id=customer_id).order_by('-created_at')

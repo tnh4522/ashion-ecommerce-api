@@ -6,5 +6,5 @@ urlpatterns = [
     path('create/', OrderCreateView.as_view(), name='order-create'),
     path('detail/<int:pk>/', OrderDetailView.as_view(), name='order-detail'),
     path('user/', OrderByUserView.as_view(), name='order-by-user'),
-    path('customer/<int:pk>/', GetOrdersByCustomerID.as_view(), name='order-by-customer'),
+    path('customer/<int:customer_id>/', GetOrdersByCustomerID.as_view(), name='order-by-customer'),
 ]

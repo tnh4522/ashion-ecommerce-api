@@ -31,6 +31,7 @@ class ProductSerializer(serializers.ModelSerializer):
             'meta_title', 'meta_description', 'slug', 'images', 'stock_variants', 'tags'
         ]
         read_only_fields = ('user', 'slug', 'stock_variants')
+        ref_name = 'ProductStockSerializer'
 
     def create(self, validated_data):
         user = self.context['request'].user

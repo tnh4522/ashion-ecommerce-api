@@ -64,5 +64,5 @@ class StockProductVariantListView(generics.ListAPIView):
     permission_classes = [permissions.AllowAny]
 
     def get_queryset(self):
-        stock_id = self.kwargs['pk']
+        stock_id = self.kwargs['stock_id']
         return StockVariant.objects.filter(stock_id=stock_id)
