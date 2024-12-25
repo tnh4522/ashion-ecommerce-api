@@ -1,4 +1,5 @@
 from django_filters.rest_framework import DjangoFilterBackend
+from drf_spectacular.utils import extend_schema_view, extend_schema
 from rest_framework import filters, permissions
 from rest_framework.views import APIView
 from rest_framework.pagination import PageNumberPagination
@@ -40,7 +41,11 @@ class UserRegistrationView(generics.CreateAPIView):
         }, status=status.HTTP_201_CREATED)
 
 
-# User Login
+@extend_schema_view(
+    post=extend_schema(
+        responses={200: ResponseLoginSerializer}
+    )
+)
 class UserLoginView(TokenObtainPairView):
     permission_classes = (permissions.AllowAny,)
     serializer_class = CustomTokenObtainPairSerializer

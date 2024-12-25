@@ -1,13 +1,15 @@
 openapi: 3.0.3
 info:
-  title: ''
-  version: 0.0.0
+  title: 'API Documentation'
+  version: 1.0.0
+servers:
+  - url: http://localhost:8000/
 paths:
   /api/activity/create/:
     post:
       operationId: api_activity_create_create
       tags:
-      - api
+        - api
       requestBody:
         content:
           application/json:
@@ -21,7 +23,7 @@ paths:
               $ref: '#/components/schemas/ActivityLogCreate'
         required: true
       security:
-      - jwtAuth: []
+        - jwtAuth: [ ]
       responses:
         '201':
           content:
@@ -33,15 +35,15 @@ paths:
     get:
       operationId: api_activity_detail_retrieve
       parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
       tags:
-      - api
+        - api
       security:
-      - jwtAuth: []
+        - jwtAuth: [ ]
       responses:
         '200':
           content:
@@ -52,13 +54,13 @@ paths:
     put:
       operationId: api_activity_detail_update
       parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
       tags:
-      - api
+        - api
       requestBody:
         content:
           application/json:
@@ -72,7 +74,7 @@ paths:
               $ref: '#/components/schemas/ActivityLogListView'
         required: true
       security:
-      - jwtAuth: []
+        - jwtAuth: [ ]
       responses:
         '200':
           content:
@@ -83,13 +85,13 @@ paths:
     patch:
       operationId: api_activity_detail_partial_update
       parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
       tags:
-      - api
+        - api
       requestBody:
         content:
           application/json:
@@ -102,7 +104,7 @@ paths:
             schema:
               $ref: '#/components/schemas/PatchedActivityLogListView'
       security:
-      - jwtAuth: []
+        - jwtAuth: [ ]
       responses:
         '200':
           content:
@@ -113,15 +115,15 @@ paths:
     delete:
       operationId: api_activity_detail_destroy
       parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
       tags:
-      - api
+        - api
       security:
-      - jwtAuth: []
+        - jwtAuth: [ ]
       responses:
         '204':
           description: No response body
@@ -129,59 +131,59 @@ paths:
     get:
       operationId: api_activity_list_list
       parameters:
-      - in: query
-        name: action
-        schema:
-          type: string
-      - in: query
-        name: context
-        schema:
-          type: string
-      - in: query
-        name: created_at
-        schema:
-          type: string
-          format: date-time
-      - in: query
-        name: model
-        schema:
-          type: string
-      - name: ordering
-        required: false
-        in: query
-        description: Which field to use when ordering the results.
-        schema:
-          type: string
-      - name: page
-        required: false
-        in: query
-        description: A page number within the paginated result set.
-        schema:
-          type: integer
-      - name: page_size
-        required: false
-        in: query
-        description: Number of results to return per page.
-        schema:
-          type: integer
-      - name: search
-        required: false
-        in: query
-        description: A search term.
-        schema:
-          type: string
-      - in: query
-        name: status
-        schema:
-          type: string
-      - in: query
-        name: user
-        schema:
-          type: integer
+        - in: query
+          name: action
+          schema:
+            type: string
+        - in: query
+          name: context
+          schema:
+            type: string
+        - in: query
+          name: created_at
+          schema:
+            type: string
+            format: date-time
+        - in: query
+          name: model
+          schema:
+            type: string
+        - name: ordering
+          required: false
+          in: query
+          description: Which field to use when ordering the results.
+          schema:
+            type: string
+        - name: page
+          required: false
+          in: query
+          description: A page number within the paginated result set.
+          schema:
+            type: integer
+        - name: page_size
+          required: false
+          in: query
+          description: Number of results to return per page.
+          schema:
+            type: integer
+        - name: search
+          required: false
+          in: query
+          description: A search term.
+          schema:
+            type: string
+        - in: query
+          name: status
+          schema:
+            type: string
+        - in: query
+          name: user
+          schema:
+            type: integer
       tags:
-      - api
+        - api
       security:
-      - jwtAuth: []
+        - jwtAuth: [ ]
       responses:
         '200':
           content:
@@ -193,7 +195,7 @@ paths:
     post:
       operationId: api_address_create_create
       tags:
-      - api
+        - api
       requestBody:
         content:
           application/json:
@@ -207,7 +209,7 @@ paths:
               $ref: '#/components/schemas/Address'
         required: true
       security:
-      - jwtAuth: []
+        - jwtAuth: [ ]
       responses:
         '201':
           content:
@@ -219,15 +221,15 @@ paths:
     get:
       operationId: api_address_detail_retrieve
       parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
       tags:
-      - api
+        - api
       security:
-      - jwtAuth: []
+        - jwtAuth: [ ]
       responses:
         '200':
           content:
@@ -238,13 +240,13 @@ paths:
     put:
       operationId: api_address_detail_update
       parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
       tags:
-      - api
+        - api
       requestBody:
         content:
           application/json:
@@ -258,7 +260,7 @@ paths:
               $ref: '#/components/schemas/Address'
         required: true
       security:
-      - jwtAuth: []
+        - jwtAuth: [ ]
       responses:
         '200':
           content:
@@ -269,13 +271,13 @@ paths:
     patch:
       operationId: api_address_detail_partial_update
       parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
       tags:
-      - api
+        - api
       requestBody:
         content:
           application/json:
@@ -288,7 +290,7 @@ paths:
             schema:
               $ref: '#/components/schemas/PatchedAddress'
       security:
-      - jwtAuth: []
+        - jwtAuth: [ ]
       responses:
         '200':
           content:
@@ -299,15 +301,15 @@ paths:
     delete:
       operationId: api_address_detail_destroy
       parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
       tags:
-      - api
+        - api
       security:
-      - jwtAuth: []
+        - jwtAuth: [ ]
       responses:
         '204':
           description: No response body
@@ -315,7 +317,7 @@ paths:
     post:
       operationId: api_brand_create_create
       tags:
-      - api
+        - api
       requestBody:
         content:
           application/json:
@@ -329,7 +331,7 @@ paths:
               $ref: '#/components/schemas/Brand'
         required: true
       security:
-      - jwtAuth: []
+        - jwtAuth: [ ]
       responses:
         '201':
           content:
@@ -341,15 +343,15 @@ paths:
     get:
       operationId: api_brand_detail_retrieve
       parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
       tags:
-      - api
+        - api
       security:
-      - jwtAuth: []
+        - jwtAuth: [ ]
       responses:
         '200':
           content:
@@ -360,13 +362,13 @@ paths:
     put:
       operationId: api_brand_detail_update
       parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
       tags:
-      - api
+        - api
       requestBody:
         content:
           application/json:
@@ -380,7 +382,7 @@ paths:
               $ref: '#/components/schemas/Brand'
         required: true
       security:
-      - jwtAuth: []
+        - jwtAuth: [ ]
       responses:
         '200':
           content:
@@ -391,13 +393,13 @@ paths:
     patch:
       operationId: api_brand_detail_partial_update
       parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
       tags:
-      - api
+        - api
       requestBody:
         content:
           application/json:
@@ -410,7 +412,7 @@ paths:
             schema:
               $ref: '#/components/schemas/PatchedBrand'
       security:
-      - jwtAuth: []
+        - jwtAuth: [ ]
       responses:
         '200':
           content:
@@ -421,15 +423,15 @@ paths:
     delete:
       operationId: api_brand_detail_destroy
       parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
       tags:
-      - api
+        - api
       security:
-      - jwtAuth: []
+        - jwtAuth: [ ]
       responses:
         '204':
           description: No response body
@@ -437,43 +439,43 @@ paths:
     get:
       operationId: api_brand_list_list
       parameters:
-      - in: query
-        name: brand_name
-        schema:
-          type: string
-      - in: query
-        name: is_verified
-        schema:
-          type: boolean
-      - name: ordering
-        required: false
-        in: query
-        description: Which field to use when ordering the results.
-        schema:
-          type: string
-      - name: page
-        required: false
-        in: query
-        description: A page number within the paginated result set.
-        schema:
-          type: integer
-      - name: page_size
-        required: false
-        in: query
-        description: Number of results to return per page.
-        schema:
-          type: integer
-      - name: search
-        required: false
-        in: query
-        description: A search term.
-        schema:
-          type: string
+        - in: query
+          name: brand_name
+          schema:
+            type: string
+        - in: query
+          name: is_verified
+          schema:
+            type: boolean
+        - name: ordering
+          required: false
+          in: query
+          description: Which field to use when ordering the results.
+          schema:
+            type: string
+        - name: page
+          required: false
+          in: query
+          description: A page number within the paginated result set.
+          schema:
+            type: integer
+        - name: page_size
+          required: false
+          in: query
+          description: Number of results to return per page.
+          schema:
+            type: integer
+        - name: search
+          required: false
+          in: query
+          description: A search term.
+          schema:
+            type: string
       tags:
-      - api
+        - api
       security:
-      - jwtAuth: []
-      - {}
+        - jwtAuth: [ ]
+        - { }
       responses:
         '200':
           content:
@@ -485,20 +487,20 @@ paths:
     get:
       operationId: api_cart_create_retrieve
       tags:
-      - api
+        - api
       security:
-      - jwtAuth: []
-      - {}
+        - jwtAuth: [ ]
+        - { }
       responses:
         '200':
           description: No response body
     post:
       operationId: api_cart_create_create
       tags:
-      - api
+        - api
       security:
-      - jwtAuth: []
-      - {}
+        - jwtAuth: [ ]
+        - { }
       responses:
         '200':
           description: No response body
@@ -506,20 +508,20 @@ paths:
     get:
       operationId: api_cart_detail_retrieve
       tags:
-      - api
+        - api
       security:
-      - jwtAuth: []
-      - {}
+        - jwtAuth: [ ]
+        - { }
       responses:
         '200':
           description: No response body
     post:
       operationId: api_cart_detail_create
       tags:
-      - api
+        - api
       security:
-      - jwtAuth: []
-      - {}
+        - jwtAuth: [ ]
+        - { }
       responses:
         '200':
           description: No response body
@@ -527,32 +529,32 @@ paths:
     put:
       operationId: api_cart_items_update
       parameters:
-      - in: path
-        name: item_id
-        schema:
-          type: integer
-        required: true
+        - in: path
+          name: item_id
+          schema:
+            type: integer
+          required: true
       tags:
-      - api
+        - api
       security:
-      - jwtAuth: []
-      - {}
+        - jwtAuth: [ ]
+        - { }
       responses:
         '200':
           description: No response body
     delete:
       operationId: api_cart_items_destroy
       parameters:
-      - in: path
-        name: item_id
-        schema:
-          type: integer
-        required: true
+        - in: path
+          name: item_id
+          schema:
+            type: integer
+          required: true
       tags:
-      - api
+        - api
       security:
-      - jwtAuth: []
-      - {}
+        - jwtAuth: [ ]
+        - { }
       responses:
         '204':
           description: No response body
@@ -560,17 +562,17 @@ paths:
     get:
       operationId: api_categories_list
       parameters:
-      - name: page
-        required: false
-        in: query
-        description: A page number within the paginated result set.
-        schema:
-          type: integer
+        - name: page
+          required: false
+          in: query
+          description: A page number within the paginated result set.
+          schema:
+            type: integer
       tags:
-      - api
+        - api
       security:
-      - jwtAuth: []
-      - {}
+        - jwtAuth: [ ]
+        - { }
       responses:
         '200':
           content:
@@ -582,16 +584,16 @@ paths:
     get:
       operationId: api_categories_products_retrieve
       parameters:
-      - in: path
-        name: category_id
-        schema:
-          type: integer
-        required: true
+        - in: path
+          name: category_id
+          schema:
+            type: integer
+          required: true
       tags:
-      - api
+        - api
       security:
-      - jwtAuth: []
-      - {}
+        - jwtAuth: [ ]
+        - { }
       responses:
         '200':
           description: No response body
@@ -599,16 +601,16 @@ paths:
     get:
       operationId: api_categories_sub_categories_retrieve
       parameters:
-      - in: path
-        name: category_id
-        schema:
-          type: integer
-        required: true
+        - in: path
+          name: category_id
+          schema:
+            type: integer
+          required: true
       tags:
-      - api
+        - api
       security:
-      - jwtAuth: []
-      - {}
+        - jwtAuth: [ ]
+        - { }
       responses:
         '200':
           description: No response body
@@ -616,16 +618,16 @@ paths:
     post:
       operationId: api_categories_sub_categories_create_create
       parameters:
-      - in: path
-        name: category_id
-        schema:
-          type: integer
-        required: true
+        - in: path
+          name: category_id
+          schema:
+            type: integer
+          required: true
       tags:
-      - api
+        - api
       security:
-      - jwtAuth: []
-      - {}
+        - jwtAuth: [ ]
+        - { }
       responses:
         '200':
           description: No response body
@@ -633,16 +635,16 @@ paths:
     get:
       operationId: api_categories_retrieve
       parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
       tags:
-      - api
+        - api
       security:
-      - jwtAuth: []
-      - {}
+        - jwtAuth: [ ]
+        - { }
       responses:
         '200':
           description: No response body
@@ -650,16 +652,16 @@ paths:
     put:
       operationId: api_categories_update_update
       parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
       tags:
-      - api
+        - api
       security:
-      - jwtAuth: []
-      - {}
+        - jwtAuth: [ ]
+        - { }
       responses:
         '200':
           description: No response body
@@ -667,10 +669,10 @@ paths:
     get:
       operationId: api_categories_check_name_retrieve
       tags:
-      - api
+        - api
       security:
-      - jwtAuth: []
-      - {}
+        - jwtAuth: [ ]
+        - { }
       responses:
         '200':
           description: No response body
@@ -678,7 +680,7 @@ paths:
     post:
       operationId: api_categories_create_create
       tags:
-      - api
+        - api
       requestBody:
         content:
           application/json:
@@ -692,8 +694,8 @@ paths:
               $ref: '#/components/schemas/Category'
         required: true
       security:
-      - jwtAuth: []
-      - {}
+        - jwtAuth: [ ]
+        - { }
       responses:
         '201':
           content:
@@ -705,10 +707,10 @@ paths:
     post:
       operationId: api_categories_delete_create
       tags:
-      - api
+        - api
       security:
-      - jwtAuth: []
-      - {}
+        - jwtAuth: [ ]
+        - { }
       responses:
         '200':
           description: No response body
@@ -716,10 +718,10 @@ paths:
     post:
       operationId: api_categories_export_selected_create
       tags:
-      - api
+        - api
       security:
-      - jwtAuth: []
-      - {}
+        - jwtAuth: [ ]
+        - { }
       responses:
         '200':
           description: No response body
@@ -727,10 +729,10 @@ paths:
     post:
       operationId: api_categories_import_create
       tags:
-      - api
+        - api
       security:
-      - jwtAuth: []
-      - {}
+        - jwtAuth: [ ]
+        - { }
       responses:
         '200':
           description: No response body
@@ -738,10 +740,10 @@ paths:
     post:
       operationId: api_categories_update_active_create
       tags:
-      - api
+        - api
       security:
-      - jwtAuth: []
-      - {}
+        - jwtAuth: [ ]
+        - { }
       responses:
         '200':
           description: No response body
@@ -749,7 +751,7 @@ paths:
     post:
       operationId: api_create_user_create
       tags:
-      - api
+        - api
       requestBody:
         content:
           application/json:
@@ -763,7 +765,7 @@ paths:
               $ref: '#/components/schemas/UserCreate'
         required: true
       security:
-      - jwtAuth: []
+        - jwtAuth: [ ]
       responses:
         '201':
           content:
@@ -775,54 +777,54 @@ paths:
     get:
       operationId: api_customer_create_list
       parameters:
-      - in: query
-        name: email
-        schema:
-          type: string
-      - in: query
-        name: first_name
-        schema:
-          type: string
-      - in: query
-        name: is_active
-        schema:
-          type: boolean
-      - in: query
-        name: last_name
-        schema:
-          type: string
-      - name: ordering
-        required: false
-        in: query
-        description: Which field to use when ordering the results.
-        schema:
-          type: string
-      - name: page
-        required: false
-        in: query
-        description: A page number within the paginated result set.
-        schema:
-          type: integer
-      - name: page_size
-        required: false
-        in: query
-        description: Number of results to return per page.
-        schema:
-          type: integer
-      - in: query
-        name: phone_number
-        schema:
-          type: string
-      - name: search
-        required: false
-        in: query
-        description: A search term.
-        schema:
-          type: string
+        - in: query
+          name: email
+          schema:
+            type: string
+        - in: query
+          name: first_name
+          schema:
+            type: string
+        - in: query
+          name: is_active
+          schema:
+            type: boolean
+        - in: query
+          name: last_name
+          schema:
+            type: string
+        - name: ordering
+          required: false
+          in: query
+          description: Which field to use when ordering the results.
+          schema:
+            type: string
+        - name: page
+          required: false
+          in: query
+          description: A page number within the paginated result set.
+          schema:
+            type: integer
+        - name: page_size
+          required: false
+          in: query
+          description: Number of results to return per page.
+          schema:
+            type: integer
+        - in: query
+          name: phone_number
+          schema:
+            type: string
+        - name: search
+          required: false
+          in: query
+          description: A search term.
+          schema:
+            type: string
       tags:
-      - api
+        - api
       security:
-      - jwtAuth: []
+        - jwtAuth: [ ]
       responses:
         '200':
           content:
@@ -833,7 +835,7 @@ paths:
     post:
       operationId: api_customer_create_create
       tags:
-      - api
+        - api
       requestBody:
         content:
           application/json:
@@ -847,7 +849,7 @@ paths:
               $ref: '#/components/schemas/Customer'
         required: true
       security:
-      - jwtAuth: []
+        - jwtAuth: [ ]
       responses:
         '201':
           content:
@@ -859,15 +861,15 @@ paths:
     get:
       operationId: api_customer_detail_retrieve
       parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
       tags:
-      - api
+        - api
       security:
-      - jwtAuth: []
+        - jwtAuth: [ ]
       responses:
         '200':
           content:
@@ -878,13 +880,13 @@ paths:
     put:
       operationId: api_customer_detail_update
       parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
       tags:
-      - api
+        - api
       requestBody:
         content:
           application/json:
@@ -898,7 +900,7 @@ paths:
               $ref: '#/components/schemas/Customer'
         required: true
       security:
-      - jwtAuth: []
+        - jwtAuth: [ ]
       responses:
         '200':
           content:
@@ -909,13 +911,13 @@ paths:
     patch:
       operationId: api_customer_detail_partial_update
       parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
       tags:
-      - api
+        - api
       requestBody:
         content:
           application/json:
@@ -928,7 +930,7 @@ paths:
             schema:
               $ref: '#/components/schemas/PatchedCustomer'
       security:
-      - jwtAuth: []
+        - jwtAuth: [ ]
       responses:
         '200':
           content:
@@ -939,15 +941,15 @@ paths:
     delete:
       operationId: api_customer_detail_destroy
       parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
       tags:
-      - api
+        - api
       security:
-      - jwtAuth: []
+        - jwtAuth: [ ]
       responses:
         '204':
           description: No response body
@@ -955,54 +957,54 @@ paths:
     get:
       operationId: api_customer_list_list
       parameters:
-      - in: query
-        name: email
-        schema:
-          type: string
-      - in: query
-        name: first_name
-        schema:
-          type: string
-      - in: query
-        name: is_active
-        schema:
-          type: boolean
-      - in: query
-        name: last_name
-        schema:
-          type: string
-      - name: ordering
-        required: false
-        in: query
-        description: Which field to use when ordering the results.
-        schema:
-          type: string
-      - name: page
-        required: false
-        in: query
-        description: A page number within the paginated result set.
-        schema:
-          type: integer
-      - name: page_size
-        required: false
-        in: query
-        description: Number of results to return per page.
-        schema:
-          type: integer
-      - in: query
-        name: phone_number
-        schema:
-          type: string
-      - name: search
-        required: false
-        in: query
-        description: A search term.
-        schema:
-          type: string
+        - in: query
+          name: email
+          schema:
+            type: string
+        - in: query
+          name: first_name
+          schema:
+            type: string
+        - in: query
+          name: is_active
+          schema:
+            type: boolean
+        - in: query
+          name: last_name
+          schema:
+            type: string
+        - name: ordering
+          required: false
+          in: query
+          description: Which field to use when ordering the results.
+          schema:
+            type: string
+        - name: page
+          required: false
+          in: query
+          description: A page number within the paginated result set.
+          schema:
+            type: integer
+        - name: page_size
+          required: false
+          in: query
+          description: Number of results to return per page.
+          schema:
+            type: integer
+        - in: query
+          name: phone_number
+          schema:
+            type: string
+        - name: search
+          required: false
+          in: query
+          description: A search term.
+          schema:
+            type: string
       tags:
-      - api
+        - api
       security:
-      - jwtAuth: []
+        - jwtAuth: [ ]
       responses:
         '200':
           content:
@@ -1013,7 +1015,7 @@ paths:
     post:
       operationId: api_customer_list_create
       tags:
-      - api
+        - api
       requestBody:
         content:
           application/json:
@@ -1027,7 +1029,7 @@ paths:
               $ref: '#/components/schemas/Customer'
         required: true
       security:
-      - jwtAuth: []
+        - jwtAuth: [ ]
       responses:
         '201':
           content:
@@ -1042,7 +1044,7 @@ paths:
         Takes a set of user credentials and returns an access and refresh JSON web
         token pair to prove the authentication of those credentials.
       tags:
-      - api
+        - api
       requestBody:
         content:
           application/json:
@@ -1056,21 +1058,21 @@ paths:
               $ref: '#/components/schemas/CustomTokenObtainPair'
         required: true
       security:
-      - {}
+        - { }
       responses:
         '200':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CustomTokenObtainPair'
+                $ref: '#/components/schemas/LoginAuthResponse'
           description: ''
   /api/me/:
     get:
       operationId: api_me_retrieve
       tags:
-      - api
+        - api
       security:
-      - jwtAuth: []
+        - jwtAuth: [ ]
       responses:
         '200':
           content:
@@ -1081,7 +1083,7 @@ paths:
     put:
       operationId: api_me_update
       tags:
-      - api
+        - api
       requestBody:
         content:
           application/json:
@@ -1095,7 +1097,7 @@ paths:
               $ref: '#/components/schemas/User'
         required: true
       security:
-      - jwtAuth: []
+        - jwtAuth: [ ]
       responses:
         '200':
           content:
@@ -1106,7 +1108,7 @@ paths:
     patch:
       operationId: api_me_partial_update
       tags:
-      - api
+        - api
       requestBody:
         content:
           application/json:
@@ -1119,7 +1121,7 @@ paths:
             schema:
               $ref: '#/components/schemas/PatchedUser'
       security:
-      - jwtAuth: []
+        - jwtAuth: [ ]
       responses:
         '200':
           content:
@@ -1131,9 +1133,9 @@ paths:
     get:
       operationId: api_me_store_retrieve
       tags:
-      - api
+        - api
       security:
-      - jwtAuth: []
+        - jwtAuth: [ ]
       responses:
         '200':
           description: No response body
@@ -1141,57 +1143,57 @@ paths:
     get:
       operationId: api_orders_list
       parameters:
-      - name: ordering
-        required: false
-        in: query
-        description: Which field to use when ordering the results.
-        schema:
-          type: string
-      - name: page
-        required: false
-        in: query
-        description: A page number within the paginated result set.
-        schema:
-          type: integer
-      - name: page_size
-        required: false
-        in: query
-        description: Number of results to return per page.
-        schema:
-          type: integer
-      - name: search
-        required: false
-        in: query
-        description: A search term.
-        schema:
-          type: string
-      - in: query
-        name: status
-        schema:
-          type: string
-          enum:
-          - CANCELED
-          - DELIVERED
-          - PENDING
-          - PROCESSING
-          - RETURNED
-          - SHIPPED
-        description: |-
-          * `PENDING` - Pending
-          * `PROCESSING` - Processing
-          * `SHIPPED` - Shipped
-          * `DELIVERED` - Delivered
-          * `CANCELED` - Canceled
-          * `RETURNED` - Returned
-      - in: query
-        name: total_price
-        schema:
-          type: number
+        - name: ordering
+          required: false
+          in: query
+          description: Which field to use when ordering the results.
+          schema:
+            type: string
+        - name: page
+          required: false
+          in: query
+          description: A page number within the paginated result set.
+          schema:
+            type: integer
+        - name: page_size
+          required: false
+          in: query
+          description: Number of results to return per page.
+          schema:
+            type: integer
+        - name: search
+          required: false
+          in: query
+          description: A search term.
+          schema:
+            type: string
+        - in: query
+          name: status
+          schema:
+            type: string
+            enum:
+              - CANCELED
+              - DELIVERED
+              - PENDING
+              - PROCESSING
+              - RETURNED
+              - SHIPPED
+          description: |-
+            * `PENDING` - Pending
+            * `PROCESSING` - Processing
+            * `SHIPPED` - Shipped
+            * `DELIVERED` - Delivered
+            * `CANCELED` - Canceled
+            * `RETURNED` - Returned
+        - in: query
+          name: total_price
+          schema:
+            type: number
       tags:
-      - api
+        - api
       security:
-      - jwtAuth: []
-      - {}
+        - jwtAuth: [ ]
+        - { }
       responses:
         '200':
           content:
@@ -1203,15 +1205,15 @@ paths:
     get:
       operationId: api_orders_retrieve
       parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
       tags:
-      - api
+        - api
       security:
-      - jwtAuth: []
+        - jwtAuth: [ ]
       responses:
         '200':
           content:
@@ -1222,13 +1224,13 @@ paths:
     put:
       operationId: api_orders_update
       parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
       tags:
-      - api
+        - api
       requestBody:
         content:
           application/json:
@@ -1242,7 +1244,7 @@ paths:
               $ref: '#/components/schemas/Order'
         required: true
       security:
-      - jwtAuth: []
+        - jwtAuth: [ ]
       responses:
         '200':
           content:
@@ -1253,13 +1255,13 @@ paths:
     patch:
       operationId: api_orders_partial_update
       parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
       tags:
-      - api
+        - api
       requestBody:
         content:
           application/json:
@@ -1272,7 +1274,7 @@ paths:
             schema:
               $ref: '#/components/schemas/PatchedOrder'
       security:
-      - jwtAuth: []
+        - jwtAuth: [ ]
       responses:
         '200':
           content:
@@ -1283,15 +1285,15 @@ paths:
     delete:
       operationId: api_orders_destroy
       parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
       tags:
-      - api
+        - api
       security:
-      - jwtAuth: []
+        - jwtAuth: [ ]
       responses:
         '204':
           description: No response body
@@ -1299,16 +1301,16 @@ paths:
     get:
       operationId: api_orders_by_user_list
       parameters:
-      - name: page
-        required: false
-        in: query
-        description: A page number within the paginated result set.
-        schema:
-          type: integer
+        - name: page
+          required: false
+          in: query
+          description: A page number within the paginated result set.
+          schema:
+            type: integer
       tags:
-      - api
+        - api
       security:
-      - jwtAuth: []
+        - jwtAuth: [ ]
       responses:
         '200':
           content:
@@ -1320,7 +1322,7 @@ paths:
     post:
       operationId: api_orders_create_create
       tags:
-      - api
+        - api
       requestBody:
         content:
           application/json:
@@ -1334,8 +1336,8 @@ paths:
               $ref: '#/components/schemas/Order'
         required: true
       security:
-      - jwtAuth: []
-      - {}
+        - jwtAuth: [ ]
+        - { }
       responses:
         '201':
           content:
@@ -1347,21 +1349,21 @@ paths:
     get:
       operationId: api_orders_customer_list
       parameters:
-      - in: path
-        name: customer_id
-        schema:
-          type: integer
-        required: true
-      - name: page
-        required: false
-        in: query
-        description: A page number within the paginated result set.
-        schema:
-          type: integer
+        - in: path
+          name: customer_id
+          schema:
+            type: integer
+          required: true
+        - name: page
+          required: false
+          in: query
+          description: A page number within the paginated result set.
+          schema:
+            type: integer
       tags:
-      - api
+        - api
       security:
-      - jwtAuth: []
+        - jwtAuth: [ ]
       responses:
         '200':
           content:
@@ -1373,15 +1375,15 @@ paths:
     get:
       operationId: api_orders_detail_retrieve
       parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
       tags:
-      - api
+        - api
       security:
-      - jwtAuth: []
+        - jwtAuth: [ ]
       responses:
         '200':
           content:
@@ -1392,13 +1394,13 @@ paths:
     put:
       operationId: api_orders_detail_update
       parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
       tags:
-      - api
+        - api
       requestBody:
         content:
           application/json:
@@ -1412,7 +1414,7 @@ paths:
               $ref: '#/components/schemas/Order'
         required: true
       security:
-      - jwtAuth: []
+        - jwtAuth: [ ]
       responses:
         '200':
           content:
@@ -1423,13 +1425,13 @@ paths:
     patch:
       operationId: api_orders_detail_partial_update
       parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
       tags:
-      - api
+        - api
       requestBody:
         content:
           application/json:
@@ -1442,7 +1444,7 @@ paths:
             schema:
               $ref: '#/components/schemas/PatchedOrder'
       security:
-      - jwtAuth: []
+        - jwtAuth: [ ]
       responses:
         '200':
           content:
@@ -1453,15 +1455,15 @@ paths:
     delete:
       operationId: api_orders_detail_destroy
       parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
       tags:
-      - api
+        - api
       security:
-      - jwtAuth: []
+        - jwtAuth: [ ]
       responses:
         '204':
           description: No response body
@@ -1469,57 +1471,57 @@ paths:
     get:
       operationId: api_orders_list_list
       parameters:
-      - name: ordering
-        required: false
-        in: query
-        description: Which field to use when ordering the results.
-        schema:
-          type: string
-      - name: page
-        required: false
-        in: query
-        description: A page number within the paginated result set.
-        schema:
-          type: integer
-      - name: page_size
-        required: false
-        in: query
-        description: Number of results to return per page.
-        schema:
-          type: integer
-      - name: search
-        required: false
-        in: query
-        description: A search term.
-        schema:
-          type: string
-      - in: query
-        name: status
-        schema:
-          type: string
-          enum:
-          - CANCELED
-          - DELIVERED
-          - PENDING
-          - PROCESSING
-          - RETURNED
-          - SHIPPED
-        description: |-
-          * `PENDING` - Pending
-          * `PROCESSING` - Processing
-          * `SHIPPED` - Shipped
-          * `DELIVERED` - Delivered
-          * `CANCELED` - Canceled
-          * `RETURNED` - Returned
-      - in: query
-        name: total_price
-        schema:
-          type: number
+        - name: ordering
+          required: false
+          in: query
+          description: Which field to use when ordering the results.
+          schema:
+            type: string
+        - name: page
+          required: false
+          in: query
+          description: A page number within the paginated result set.
+          schema:
+            type: integer
+        - name: page_size
+          required: false
+          in: query
+          description: Number of results to return per page.
+          schema:
+            type: integer
+        - name: search
+          required: false
+          in: query
+          description: A search term.
+          schema:
+            type: string
+        - in: query
+          name: status
+          schema:
+            type: string
+            enum:
+              - CANCELED
+              - DELIVERED
+              - PENDING
+              - PROCESSING
+              - RETURNED
+              - SHIPPED
+          description: |-
+            * `PENDING` - Pending
+            * `PROCESSING` - Processing
+            * `SHIPPED` - Shipped
+            * `DELIVERED` - Delivered
+            * `CANCELED` - Canceled
+            * `RETURNED` - Returned
+        - in: query
+          name: total_price
+          schema:
+            type: number
       tags:
-      - api
+        - api
       security:
-      - jwtAuth: []
-      - {}
+        - jwtAuth: [ ]
+        - { }
       responses:
         '200':
           content:
@@ -1531,16 +1533,16 @@ paths:
     get:
       operationId: api_orders_user_list
       parameters:
-      - name: page
-        required: false
-        in: query
-        description: A page number within the paginated result set.
-        schema:
-          type: integer
+        - name: page
+          required: false
+          in: query
+          description: A page number within the paginated result set.
+          schema:
+            type: integer
       tags:
-      - api
+        - api
       security:
-      - jwtAuth: []
+        - jwtAuth: [ ]
       responses:
         '200':
           content:
@@ -1552,16 +1554,16 @@ paths:
     get:
       operationId: api_permissions_list
       parameters:
-      - name: page
-        required: false
-        in: query
-        description: A page number within the paginated result set.
-        schema:
-          type: integer
+        - name: page
+          required: false
+          in: query
+          description: A page number within the paginated result set.
+          schema:
+            type: integer
       tags:
-      - api
+        - api
       security:
-      - jwtAuth: []
+        - jwtAuth: [ ]
       responses:
         '200':
           content:
@@ -1573,9 +1575,9 @@ paths:
     post:
       operationId: api_permissions_create_create
       tags:
-      - api
+        - api
       security:
-      - jwtAuth: []
+        - jwtAuth: [ ]
       responses:
         '200':
           description: No response body
@@ -1583,15 +1585,15 @@ paths:
     get:
       operationId: api_permissions_user_retrieve
       parameters:
-      - in: path
-        name: user_id
-        schema:
-          type: integer
-        required: true
+        - in: path
+          name: user_id
+          schema:
+            type: integer
+          required: true
       tags:
-      - api
+        - api
       security:
-      - jwtAuth: []
+        - jwtAuth: [ ]
       responses:
         '200':
           description: No response body
@@ -1599,15 +1601,15 @@ paths:
     post:
       operationId: api_permissions_user_update_create
       parameters:
-      - in: path
-        name: user_id
-        schema:
-          type: integer
-        required: true
+        - in: path
+          name: user_id
+          schema:
+            type: integer
+          required: true
       tags:
-      - api
+        - api
       security:
-      - jwtAuth: []
+        - jwtAuth: [ ]
       responses:
         '200':
           description: No response body
@@ -1615,7 +1617,7 @@ paths:
     post:
       operationId: api_product_create_create
       tags:
-      - api
+        - api
       requestBody:
         content:
           application/json:
@@ -1629,8 +1631,8 @@ paths:
               $ref: '#/components/schemas/ProductStock'
         required: true
       security:
-      - jwtAuth: []
-      - {}
+        - jwtAuth: [ ]
+        - { }
       responses:
         '201':
           content:
@@ -1642,16 +1644,16 @@ paths:
     get:
       operationId: api_product_detail_retrieve
       parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
       tags:
-      - api
+        - api
       security:
-      - jwtAuth: []
-      - {}
+        - jwtAuth: [ ]
+        - { }
       responses:
         '200':
           content:
@@ -1662,13 +1664,13 @@ paths:
     put:
       operationId: api_product_detail_update
       parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
       tags:
-      - api
+        - api
       requestBody:
         content:
           application/json:
@@ -1682,8 +1684,8 @@ paths:
               $ref: '#/components/schemas/ProductStock'
         required: true
       security:
-      - jwtAuth: []
-      - {}
+        - jwtAuth: [ ]
+        - { }
       responses:
         '200':
           content:
@@ -1694,13 +1696,13 @@ paths:
     patch:
       operationId: api_product_detail_partial_update
       parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
       tags:
-      - api
+        - api
       requestBody:
         content:
           application/json:
@@ -1713,8 +1715,8 @@ paths:
             schema:
               $ref: '#/components/schemas/PatchedProductStock'
       security:
-      - jwtAuth: []
-      - {}
+        - jwtAuth: [ ]
+        - { }
       responses:
         '200':
           content:
@@ -1725,16 +1727,16 @@ paths:
     delete:
       operationId: api_product_detail_destroy
       parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
       tags:
-      - api
+        - api
       security:
-      - jwtAuth: []
-      - {}
+        - jwtAuth: [ ]
+        - { }
       responses:
         '204':
           description: No response body
@@ -1742,55 +1744,55 @@ paths:
     get:
       operationId: api_product_list_list
       parameters:
-      - in: query
-        name: category__name
-        schema:
-          type: string
-      - name: ordering
-        required: false
-        in: query
-        description: Which field to use when ordering the results.
-        schema:
-          type: string
-      - name: page
-        required: false
-        in: query
-        description: A page number within the paginated result set.
-        schema:
-          type: integer
-      - name: page_size
-        required: false
-        in: query
-        description: Number of results to return per page.
-        schema:
-          type: integer
-      - in: query
-        name: price
-        schema:
-          type: number
-      - in: query
-        name: price__gte
-        schema:
-          type: number
-      - in: query
-        name: price__lte
-        schema:
-          type: number
-      - name: search
-        required: false
-        in: query
-        description: A search term.
-        schema:
-          type: string
-      - in: query
-        name: status
-        schema:
-          type: string
+        - in: query
+          name: category__name
+          schema:
+            type: string
+        - name: ordering
+          required: false
+          in: query
+          description: Which field to use when ordering the results.
+          schema:
+            type: string
+        - name: page
+          required: false
+          in: query
+          description: A page number within the paginated result set.
+          schema:
+            type: integer
+        - name: page_size
+          required: false
+          in: query
+          description: Number of results to return per page.
+          schema:
+            type: integer
+        - in: query
+          name: price
+          schema:
+            type: number
+        - in: query
+          name: price__gte
+          schema:
+            type: number
+        - in: query
+          name: price__lte
+          schema:
+            type: number
+        - name: search
+          required: false
+          in: query
+          description: A search term.
+          schema:
+            type: string
+        - in: query
+          name: status
+          schema:
+            type: string
       tags:
-      - api
+        - api
       security:
-      - jwtAuth: []
-      - {}
+        - jwtAuth: [ ]
+        - { }
       responses:
         '200':
           content:
@@ -1802,13 +1804,13 @@ paths:
     put:
       operationId: api_product_stock_variants_update
       parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
       tags:
-      - api
+        - api
       requestBody:
         content:
           application/json:
@@ -1822,7 +1824,7 @@ paths:
               $ref: '#/components/schemas/StockVariant'
         required: true
       security:
-      - jwtAuth: []
+        - jwtAuth: [ ]
       responses:
         '200':
           content:
@@ -1833,13 +1835,13 @@ paths:
     patch:
       operationId: api_product_stock_variants_partial_update
       parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
       tags:
-      - api
+        - api
       requestBody:
         content:
           application/json:
@@ -1852,7 +1854,7 @@ paths:
             schema:
               $ref: '#/components/schemas/PatchedStockVariant'
       security:
-      - jwtAuth: []
+        - jwtAuth: [ ]
       responses:
         '200':
           content:
@@ -1864,15 +1866,15 @@ paths:
     delete:
       operationId: api_product_stock_variants_delete_destroy
       parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
       tags:
-      - api
+        - api
       security:
-      - jwtAuth: []
+        - jwtAuth: [ ]
       responses:
         '204':
           description: No response body
@@ -1880,9 +1882,9 @@ paths:
     put:
       operationId: api_product_update_stock_variants_update
       tags:
-      - api
+        - api
       security:
-      - jwtAuth: []
+        - jwtAuth: [ ]
       responses:
         '200':
           description: No response body
@@ -1890,7 +1892,7 @@ paths:
     post:
       operationId: api_register_create
       tags:
-      - api
+        - api
       requestBody:
         content:
           application/json:
@@ -1904,8 +1906,8 @@ paths:
               $ref: '#/components/schemas/UserRegistration'
         required: true
       security:
-      - jwtAuth: []
-      - {}
+        - jwtAuth: [ ]
+        - { }
       responses:
         '201':
           content:
@@ -1917,38 +1919,38 @@ paths:
     get:
       operationId: api_roles_list
       parameters:
-      - in: query
-        name: name
-        schema:
-          type: string
-      - name: ordering
-        required: false
-        in: query
-        description: Which field to use when ordering the results.
-        schema:
-          type: string
-      - name: page
-        required: false
-        in: query
-        description: A page number within the paginated result set.
-        schema:
-          type: integer
-      - name: page_size
-        required: false
-        in: query
-        description: Number of results to return per page.
-        schema:
-          type: integer
-      - name: search
-        required: false
-        in: query
-        description: A search term.
-        schema:
-          type: string
+        - in: query
+          name: name
+          schema:
+            type: string
+        - name: ordering
+          required: false
+          in: query
+          description: Which field to use when ordering the results.
+          schema:
+            type: string
+        - name: page
+          required: false
+          in: query
+          description: A page number within the paginated result set.
+          schema:
+            type: integer
+        - name: page_size
+          required: false
+          in: query
+          description: Number of results to return per page.
+          schema:
+            type: integer
+        - name: search
+          required: false
+          in: query
+          description: A search term.
+          schema:
+            type: string
       tags:
-      - api
+        - api
       security:
-      - jwtAuth: []
+        - jwtAuth: [ ]
       responses:
         '200':
           content:
@@ -1959,7 +1961,7 @@ paths:
     post:
       operationId: api_roles_create
       tags:
-      - api
+        - api
       requestBody:
         content:
           application/json:
@@ -1973,7 +1975,7 @@ paths:
               $ref: '#/components/schemas/Role'
         required: true
       security:
-      - jwtAuth: []
+        - jwtAuth: [ ]
       responses:
         '201':
           content:
@@ -1985,15 +1987,15 @@ paths:
     get:
       operationId: api_roles_retrieve
       parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
       tags:
-      - api
+        - api
       security:
-      - jwtAuth: []
+        - jwtAuth: [ ]
       responses:
         '200':
           content:
@@ -2004,13 +2006,13 @@ paths:
     put:
       operationId: api_roles_update
       parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
       tags:
-      - api
+        - api
       requestBody:
         content:
           application/json:
@@ -2024,7 +2026,7 @@ paths:
               $ref: '#/components/schemas/Role'
         required: true
       security:
-      - jwtAuth: []
+        - jwtAuth: [ ]
       responses:
         '200':
           content:
@@ -2035,13 +2037,13 @@ paths:
     patch:
       operationId: api_roles_partial_update
       parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
       tags:
-      - api
+        - api
       requestBody:
         content:
           application/json:
@@ -2054,7 +2056,7 @@ paths:
             schema:
               $ref: '#/components/schemas/PatchedRole'
       security:
-      - jwtAuth: []
+        - jwtAuth: [ ]
       responses:
         '200':
           content:
@@ -2065,15 +2067,15 @@ paths:
     delete:
       operationId: api_roles_destroy
       parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
       tags:
-      - api
+        - api
       security:
-      - jwtAuth: []
+        - jwtAuth: [ ]
       responses:
         '204':
           description: No response body
@@ -2081,43 +2083,43 @@ paths:
     get:
       operationId: api_stock_products_list
       parameters:
-      - name: ordering
-        required: false
-        in: query
-        description: Which field to use when ordering the results.
-        schema:
-          type: string
-      - name: page
-        required: false
-        in: query
-        description: A page number within the paginated result set.
-        schema:
-          type: integer
-      - name: page_size
-        required: false
-        in: query
-        description: Number of results to return per page.
-        schema:
-          type: integer
-      - in: query
-        name: product__name
-        schema:
-          type: string
-      - in: query
-        name: quantity
-        schema:
-          type: integer
-      - name: search
-        required: false
-        in: query
-        description: A search term.
-        schema:
-          type: string
+        - name: ordering
+          required: false
+          in: query
+          description: Which field to use when ordering the results.
+          schema:
+            type: string
+        - name: page
+          required: false
+          in: query
+          description: A page number within the paginated result set.
+          schema:
+            type: integer
+        - name: page_size
+          required: false
+          in: query
+          description: Number of results to return per page.
+          schema:
+            type: integer
+        - in: query
+          name: product__name
+          schema:
+            type: string
+        - in: query
+          name: quantity
+          schema:
+            type: integer
+        - name: search
+          required: false
+          in: query
+          description: A search term.
+          schema:
+            type: string
       tags:
-      - api
+        - api
       security:
-      - jwtAuth: []
-      - {}
+        - jwtAuth: [ ]
+        - { }
       responses:
         '200':
           content:
@@ -2129,15 +2131,15 @@ paths:
     get:
       operationId: api_stock_products_retrieve
       parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
       tags:
-      - api
+        - api
       security:
-      - jwtAuth: []
+        - jwtAuth: [ ]
       responses:
         '200':
           content:
@@ -2148,13 +2150,13 @@ paths:
     put:
       operationId: api_stock_products_update
       parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
       tags:
-      - api
+        - api
       requestBody:
         content:
           application/json:
@@ -2168,7 +2170,7 @@ paths:
               $ref: '#/components/schemas/StockProduct'
         required: true
       security:
-      - jwtAuth: []
+        - jwtAuth: [ ]
       responses:
         '200':
           content:
@@ -2179,13 +2181,13 @@ paths:
     patch:
       operationId: api_stock_products_partial_update
       parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
       tags:
-      - api
+        - api
       requestBody:
         content:
           application/json:
@@ -2198,7 +2200,7 @@ paths:
             schema:
               $ref: '#/components/schemas/PatchedStockProduct'
       security:
-      - jwtAuth: []
+        - jwtAuth: [ ]
       responses:
         '200':
           content:
@@ -2209,15 +2211,15 @@ paths:
     delete:
       operationId: api_stock_products_destroy
       parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
       tags:
-      - api
+        - api
       security:
-      - jwtAuth: []
+        - jwtAuth: [ ]
       responses:
         '204':
           description: No response body
@@ -2225,7 +2227,7 @@ paths:
     post:
       operationId: api_stock_products_create_create
       tags:
-      - api
+        - api
       requestBody:
         content:
           application/json:
@@ -2239,7 +2241,7 @@ paths:
               $ref: '#/components/schemas/StockProduct'
         required: true
       security:
-      - jwtAuth: []
+        - jwtAuth: [ ]
       responses:
         '201':
           content:
@@ -2251,22 +2253,22 @@ paths:
     get:
       operationId: api_stock_products_list_2
       parameters:
-      - name: page
-        required: false
-        in: query
-        description: A page number within the paginated result set.
-        schema:
-          type: integer
-      - in: path
-        name: stock_id
-        schema:
-          type: integer
-        required: true
+        - name: page
+          required: false
+          in: query
+          description: A page number within the paginated result set.
+          schema:
+            type: integer
+        - in: path
+          name: stock_id
+          schema:
+            type: integer
+          required: true
       tags:
-      - api
+        - api
       security:
-      - jwtAuth: []
-      - {}
+        - jwtAuth: [ ]
+        - { }
       responses:
         '200':
           content:
@@ -2278,46 +2280,46 @@ paths:
     get:
       operationId: api_stocks_list
       parameters:
-      - in: query
-        name: is_active
-        schema:
-          type: boolean
-      - in: query
-        name: location
-        schema:
-          type: string
-      - in: query
-        name: name
-        schema:
-          type: string
-      - name: ordering
-        required: false
-        in: query
-        description: Which field to use when ordering the results.
-        schema:
-          type: string
-      - name: page
-        required: false
-        in: query
-        description: A page number within the paginated result set.
-        schema:
-          type: integer
-      - name: page_size
-        required: false
-        in: query
-        description: Number of results to return per page.
-        schema:
-          type: integer
-      - name: search
-        required: false
-        in: query
-        description: A search term.
-        schema:
-          type: string
+        - in: query
+          name: is_active
+          schema:
+            type: boolean
+        - in: query
+          name: location
+          schema:
+            type: string
+        - in: query
+          name: name
+          schema:
+            type: string
+        - name: ordering
+          required: false
+          in: query
+          description: Which field to use when ordering the results.
+          schema:
+            type: string
+        - name: page
+          required: false
+          in: query
+          description: A page number within the paginated result set.
+          schema:
+            type: integer
+        - name: page_size
+          required: false
+          in: query
+          description: Number of results to return per page.
+          schema:
+            type: integer
+        - name: search
+          required: false
+          in: query
+          description: A search term.
+          schema:
+            type: string
       tags:
-      - api
+        - api
       security:
-      - jwtAuth: []
+        - jwtAuth: [ ]
       responses:
         '200':
           content:
@@ -2329,15 +2331,15 @@ paths:
     get:
       operationId: api_stocks_retrieve
       parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
       tags:
-      - api
+        - api
       security:
-      - jwtAuth: []
+        - jwtAuth: [ ]
       responses:
         '200':
           content:
@@ -2348,13 +2350,13 @@ paths:
     put:
       operationId: api_stocks_update
       parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
       tags:
-      - api
+        - api
       requestBody:
         content:
           application/json:
@@ -2368,7 +2370,7 @@ paths:
               $ref: '#/components/schemas/Stock'
         required: true
       security:
-      - jwtAuth: []
+        - jwtAuth: [ ]
       responses:
         '200':
           content:
@@ -2379,13 +2381,13 @@ paths:
     patch:
       operationId: api_stocks_partial_update
       parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
       tags:
-      - api
+        - api
       requestBody:
         content:
           application/json:
@@ -2398,7 +2400,7 @@ paths:
             schema:
               $ref: '#/components/schemas/PatchedStock'
       security:
-      - jwtAuth: []
+        - jwtAuth: [ ]
       responses:
         '200':
           content:
@@ -2409,15 +2411,15 @@ paths:
     delete:
       operationId: api_stocks_destroy
       parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
       tags:
-      - api
+        - api
       security:
-      - jwtAuth: []
+        - jwtAuth: [ ]
       responses:
         '204':
           description: No response body
@@ -2425,7 +2427,7 @@ paths:
     post:
       operationId: api_stocks_create_create
       tags:
-      - api
+        - api
       requestBody:
         content:
           application/json:
@@ -2439,7 +2441,7 @@ paths:
               $ref: '#/components/schemas/Stock'
         required: true
       security:
-      - jwtAuth: []
+        - jwtAuth: [ ]
       responses:
         '201':
           content:
@@ -2451,43 +2453,43 @@ paths:
     get:
       operationId: api_stores_list
       parameters:
-      - in: query
-        name: is_verified
-        schema:
-          type: boolean
-      - name: ordering
-        required: false
-        in: query
-        description: Which field to use when ordering the results.
-        schema:
-          type: string
-      - name: page
-        required: false
-        in: query
-        description: A page number within the paginated result set.
-        schema:
-          type: integer
-      - name: page_size
-        required: false
-        in: query
-        description: Number of results to return per page.
-        schema:
-          type: integer
-      - name: search
-        required: false
-        in: query
-        description: A search term.
-        schema:
-          type: string
-      - in: query
-        name: store_name
-        schema:
-          type: string
+        - in: query
+          name: is_verified
+          schema:
+            type: boolean
+        - name: ordering
+          required: false
+          in: query
+          description: Which field to use when ordering the results.
+          schema:
+            type: string
+        - name: page
+          required: false
+          in: query
+          description: A page number within the paginated result set.
+          schema:
+            type: integer
+        - name: page_size
+          required: false
+          in: query
+          description: Number of results to return per page.
+          schema:
+            type: integer
+        - name: search
+          required: false
+          in: query
+          description: A search term.
+          schema:
+            type: string
+        - in: query
+          name: store_name
+          schema:
+            type: string
       tags:
-      - api
+        - api
       security:
-      - jwtAuth: []
-      - {}
+        - jwtAuth: [ ]
+        - { }
       responses:
         '200':
           content:
@@ -2499,15 +2501,15 @@ paths:
     get:
       operationId: api_stores_retrieve
       parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
       tags:
-      - api
+        - api
       security:
-      - jwtAuth: []
+        - jwtAuth: [ ]
       responses:
         '200':
           content:
@@ -2518,13 +2520,13 @@ paths:
     put:
       operationId: api_stores_update
       parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
       tags:
-      - api
+        - api
       requestBody:
         content:
           application/json:
@@ -2538,7 +2540,7 @@ paths:
               $ref: '#/components/schemas/Store'
         required: true
       security:
-      - jwtAuth: []
+        - jwtAuth: [ ]
       responses:
         '200':
           content:
@@ -2549,13 +2551,13 @@ paths:
     patch:
       operationId: api_stores_partial_update
       parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
       tags:
-      - api
+        - api
       requestBody:
         content:
           application/json:
@@ -2568,7 +2570,7 @@ paths:
             schema:
               $ref: '#/components/schemas/PatchedStore'
       security:
-      - jwtAuth: []
+        - jwtAuth: [ ]
       responses:
         '200':
           content:
@@ -2579,15 +2581,15 @@ paths:
     delete:
       operationId: api_stores_destroy
       parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
       tags:
-      - api
+        - api
       security:
-      - jwtAuth: []
+        - jwtAuth: [ ]
       responses:
         '204':
           description: No response body
@@ -2595,7 +2597,7 @@ paths:
     post:
       operationId: api_stores_create_create
       tags:
-      - api
+        - api
       requestBody:
         content:
           application/json:
@@ -2609,7 +2611,7 @@ paths:
               $ref: '#/components/schemas/Store'
         required: true
       security:
-      - jwtAuth: []
+        - jwtAuth: [ ]
       responses:
         '201':
           content:
@@ -2624,7 +2626,7 @@ paths:
         Takes a refresh type JSON web token and returns an access type JSON web
         token if the refresh token is valid.
       tags:
-      - api
+        - api
       requestBody:
         content:
           application/json:
@@ -2648,15 +2650,15 @@ paths:
     get:
       operationId: api_user_retrieve
       parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
       tags:
-      - api
+        - api
       security:
-      - jwtAuth: []
+        - jwtAuth: [ ]
       responses:
         '200':
           content:
@@ -2667,13 +2669,13 @@ paths:
     put:
       operationId: api_user_update
       parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
       tags:
-      - api
+        - api
       requestBody:
         content:
           application/json:
@@ -2687,7 +2689,7 @@ paths:
               $ref: '#/components/schemas/User'
         required: true
       security:
-      - jwtAuth: []
+        - jwtAuth: [ ]
       responses:
         '200':
           content:
@@ -2698,13 +2700,13 @@ paths:
     patch:
       operationId: api_user_partial_update
       parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
       tags:
-      - api
+        - api
       requestBody:
         content:
           application/json:
@@ -2717,7 +2719,7 @@ paths:
             schema:
               $ref: '#/components/schemas/PatchedUser'
       security:
-      - jwtAuth: []
+        - jwtAuth: [ ]
       responses:
         '200':
           content:
@@ -2728,15 +2730,15 @@ paths:
     delete:
       operationId: api_user_destroy
       parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
       tags:
-      - api
+        - api
       security:
-      - jwtAuth: []
+        - jwtAuth: [ ]
       responses:
         '204':
           description: No response body
@@ -2744,51 +2746,51 @@ paths:
     get:
       operationId: api_users_list
       parameters:
-      - in: query
-        name: gender
-        schema:
-          type: string
-          nullable: true
-          enum:
-          - FEMALE
-          - MALE
-          - OTHER
-        description: |-
-          * `MALE` - Male
-          * `FEMALE` - Female
-          * `OTHER` - Other
-      - name: ordering
-        required: false
-        in: query
-        description: Which field to use when ordering the results.
-        schema:
-          type: string
-      - name: page
-        required: false
-        in: query
-        description: A page number within the paginated result set.
-        schema:
-          type: integer
-      - name: page_size
-        required: false
-        in: query
-        description: Number of results to return per page.
-        schema:
-          type: integer
-      - in: query
-        name: role
-        schema:
-          type: integer
-      - name: search
-        required: false
-        in: query
-        description: A search term.
-        schema:
-          type: string
+        - in: query
+          name: gender
+          schema:
+            type: string
+            nullable: true
+            enum:
+              - FEMALE
+              - MALE
+              - OTHER
+          description: |-
+            * `MALE` - Male
+            * `FEMALE` - Female
+            * `OTHER` - Other
+        - name: ordering
+          required: false
+          in: query
+          description: Which field to use when ordering the results.
+          schema:
+            type: string
+        - name: page
+          required: false
+          in: query
+          description: A page number within the paginated result set.
+          schema:
+            type: integer
+        - name: page_size
+          required: false
+          in: query
+          description: Number of results to return per page.
+          schema:
+            type: integer
+        - in: query
+          name: role
+          schema:
+            type: integer
+        - name: search
+          required: false
+          in: query
+          description: A search term.
+          schema:
+            type: string
       tags:
-      - api
+        - api
       security:
-      - jwtAuth: []
+        - jwtAuth: [ ]
       responses:
         '200':
           content:
@@ -2800,15 +2802,15 @@ paths:
     get:
       operationId: api_users_role_retrieve
       parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
       tags:
-      - api
+        - api
       security:
-      - jwtAuth: []
+        - jwtAuth: [ ]
       responses:
         '200':
           content:
@@ -2819,13 +2821,13 @@ paths:
     put:
       operationId: api_users_role_update
       parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
       tags:
-      - api
+        - api
       requestBody:
         content:
           application/json:
@@ -2839,7 +2841,7 @@ paths:
               $ref: '#/components/schemas/User'
         required: true
       security:
-      - jwtAuth: []
+        - jwtAuth: [ ]
       responses:
         '200':
           content:
@@ -2850,13 +2852,13 @@ paths:
     patch:
       operationId: api_users_role_partial_update
       parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
       tags:
-      - api
+        - api
       requestBody:
         content:
           application/json:
@@ -2869,7 +2871,7 @@ paths:
             schema:
               $ref: '#/components/schemas/PatchedUser'
       security:
-      - jwtAuth: []
+        - jwtAuth: [ ]
       responses:
         '200':
           content:
@@ -2881,7 +2883,7 @@ paths:
     post:
       operationId: api_users_create_password_create
       tags:
-      - api
+        - api
       requestBody:
         content:
           application/json:
@@ -2895,7 +2897,7 @@ paths:
               $ref: '#/components/schemas/CreatePassword'
         required: true
       security:
-      - jwtAuth: []
+        - jwtAuth: [ ]
       responses:
         '201':
           content:
@@ -2912,150 +2914,150 @@ paths:
         - YAML: application/vnd.oai.openapi
         - JSON: application/vnd.oai.openapi+json
       parameters:
-      - in: query
-        name: format
-        schema:
-          type: string
-          enum:
-          - json
-          - yaml
-      - in: query
-        name: lang
-        schema:
-          type: string
-          enum:
-          - af
-          - ar
-          - ar-dz
-          - ast
-          - az
-          - be
-          - bg
-          - bn
-          - br
-          - bs
-          - ca
-          - ckb
-          - cs
-          - cy
-          - da
-          - de
-          - dsb
-          - el
-          - en
-          - en-au
-          - en-gb
-          - eo
-          - es
-          - es-ar
-          - es-co
-          - es-mx
-          - es-ni
-          - es-ve
-          - et
-          - eu
-          - fa
-          - fi
-          - fr
-          - fy
-          - ga
-          - gd
-          - gl
-          - he
-          - hi
-          - hr
-          - hsb
-          - hu
-          - hy
-          - ia
-          - id
-          - ig
-          - io
-          - is
-          - it
-          - ja
-          - ka
-          - kab
-          - kk
-          - km
-          - kn
-          - ko
-          - ky
-          - lb
-          - lt
-          - lv
-          - mk
-          - ml
-          - mn
-          - mr
-          - ms
-          - my
-          - nb
-          - ne
-          - nl
-          - nn
-          - os
-          - pa
-          - pl
-          - pt
-          - pt-br
-          - ro
-          - ru
-          - sk
-          - sl
-          - sq
-          - sr
-          - sr-latn
-          - sv
-          - sw
-          - ta
-          - te
-          - tg
-          - th
-          - tk
-          - tr
-          - tt
-          - udm
-          - ug
-          - uk
-          - ur
-          - uz
-          - vi
-          - zh-hans
-          - zh-hant
+        - in: query
+          name: format
+          schema:
+            type: string
+            enum:
+              - json
+              - yaml
+        - in: query
+          name: lang
+          schema:
+            type: string
+            enum:
+              - af
+              - ar
+              - ar-dz
+              - ast
+              - az
+              - be
+              - bg
+              - bn
+              - br
+              - bs
+              - ca
+              - ckb
+              - cs
+              - cy
+              - da
+              - de
+              - dsb
+              - el
+              - en
+              - en-au
+              - en-gb
+              - eo
+              - es
+              - es-ar
+              - es-co
+              - es-mx
+              - es-ni
+              - es-ve
+              - et
+              - eu
+              - fa
+              - fi
+              - fr
+              - fy
+              - ga
+              - gd
+              - gl
+              - he
+              - hi
+              - hr
+              - hsb
+              - hu
+              - hy
+              - ia
+              - id
+              - ig
+              - io
+              - is
+              - it
+              - ja
+              - ka
+              - kab
+              - kk
+              - km
+              - kn
+              - ko
+              - ky
+              - lb
+              - lt
+              - lv
+              - mk
+              - ml
+              - mn
+              - mr
+              - ms
+              - my
+              - nb
+              - ne
+              - nl
+              - nn
+              - os
+              - pa
+              - pl
+              - pt
+              - pt-br
+              - ro
+              - ru
+              - sk
+              - sl
+              - sq
+              - sr
+              - sr-latn
+              - sv
+              - sw
+              - ta
+              - te
+              - tg
+              - th
+              - tk
+              - tr
+              - tt
+              - udm
+              - ug
+              - uk
+              - ur
+              - uz
+              - vi
+              - zh-hans
+              - zh-hant
       tags:
-      - schema
+        - schema
       security:
-      - jwtAuth: []
-      - {}
+        - jwtAuth: [ ]
+        - { }
       responses:
         '200':
           content:
             application/vnd.oai.openapi:
               schema:
                 type: object
-                additionalProperties: {}
+                additionalProperties: { }
             application/yaml:
               schema:
                 type: object
-                additionalProperties: {}
+                additionalProperties: { }
             application/vnd.oai.openapi+json:
               schema:
                 type: object
-                additionalProperties: {}
+                additionalProperties: { }
             application/json:
               schema:
                 type: object
-                additionalProperties: {}
+                additionalProperties: { }
           description: ''
 components:
   schemas:
     ActionEnum:
       enum:
-      - view
-      - add
-      - change
-      - delete
+        - view
+        - add
+        - change
+        - delete
       type: string
       description: |-
         * `view` - View
@@ -3083,9 +3085,9 @@ components:
         ip_address:
           type: string
       required:
-      - action
-      - model
-      - user
+        - action
+        - model
+        - user
     ActivityLogListView:
       type: object
       properties:
@@ -3112,10 +3114,10 @@ components:
           format: date-time
           readOnly: true
       required:
-      - action
-      - created_at
-      - id
-      - model
+        - action
+        - created_at
+        - id
+        - model
     Address:
       type: object
       properties:
@@ -3140,12 +3142,12 @@ components:
           type: string
           maxLength: 20
       required:
-      - id
-      - postal_code
-      - street_address
+        - id
+        - postal_code
+        - street_address
     BlankEnum:
       enum:
-      - ''
+        - ''
     Brand:
       type: object
       properties:
@@ -3177,10 +3179,10 @@ components:
         is_verified:
           type: boolean
       required:
-      - brand_name
-      - created_at
-      - id
-      - updated_at
+        - brand_name
+        - created_at
+        - id
+        - updated_at
     Category:
       type: object
       properties:
@@ -3222,11 +3224,11 @@ components:
           type: string
           readOnly: true
       required:
-      - id
-      - name
-      - product_public
-      - slug
-      - subcategory_count
+        - id
+        - name
+        - product_public
+        - slug
+        - subcategory_count
     CreatePassword:
       type: object
       properties:
@@ -3240,9 +3242,9 @@ components:
           writeOnly: true
           title: Confirm Password
       required:
-      - password
-      - password2
-      - username
+        - password
+        - password2
+        - username
     CustomTokenObtainPair:
       type: object
       properties:
@@ -3252,8 +3254,8 @@ components:
           type: string
           writeOnly: true
       required:
-      - password
-      - username
+        - password
+        - username
     Customer:
       type: object
       properties:
@@ -3300,14 +3302,14 @@ components:
         is_active:
           type: boolean
       required:
-      - first_name
-      - id
-      - last_name
+        - first_name
+        - id
+        - last_name
     GenderEnum:
       enum:
-      - MALE
-      - FEMALE
-      - OTHER
+        - MALE
+        - FEMALE
+        - OTHER
       type: string
       description: |-
         * `MALE` - Male
@@ -3315,7 +3317,7 @@ components:
         * `OTHER` - Other
     NullEnum:
       enum:
-      - null
+        - null
     Order:
       type: object
       properties:
@@ -3405,15 +3407,15 @@ components:
           items:
             $ref: '#/components/schemas/OrderItem'
       required:
-      - created_at
-      - customer
-      - id
-      - items
-      - order_number
-      - payment_method
-      - total_price
-      - updated_at
-      - user
+        - created_at
+        - customer
+        - id
+        - items
+        - order_number
+        - payment_method
+        - total_price
+        - updated_at
+        - user
     OrderItem:
       type: object
       properties:
@@ -3446,10 +3448,10 @@ components:
           pattern: ^-?\d{0,4}(?:\.\d{0,2})?$
           nullable: true
       required:
-      - price
-      - product
-      - quantity
-      - total_price
+        - price
+        - product
+        - quantity
+        - total_price
     OrderItemSerializerForView:
       type: object
       properties:
@@ -3489,13 +3491,13 @@ components:
           type: string
           format: uri
       required:
-      - price
-      - product
-      - product_image
-      - product_name
-      - quantity
-      - seller
-      - total_price
+        - price
+        - product
+        - product_image
+        - product_name
+        - quantity
+        - seller
+        - total_price
     OrderSerializerForView:
       type: object
       properties:
@@ -3549,15 +3551,15 @@ components:
           nullable: true
         payment_method:
           allOf:
-          - $ref: '#/components/schemas/PaymentMethodEnum'
+            - $ref: '#/components/schemas/PaymentMethodEnum'
           readOnly: true
         payment_status:
           allOf:
-          - $ref: '#/components/schemas/PaymentStatusEnum'
+            - $ref: '#/components/schemas/PaymentStatusEnum'
           readOnly: true
         status:
           allOf:
-          - $ref: '#/components/schemas/Status50fEnum'
+            - $ref: '#/components/schemas/Status50fEnum'
           readOnly: true
         coupon:
           type: integer
@@ -3595,29 +3597,29 @@ components:
           items:
             $ref: '#/components/schemas/OrderItemSerializerForView'
       required:
-      - billing_address
-      - coupon
-      - created_at
-      - discount_amount
-      - estimated_delivery_date
-      - id
-      - items
-      - loyalty_points_used
-      - note
-      - order_number
-      - payment_method
-      - payment_status
-      - shipping_address
-      - shipping_cost
-      - shipping_method
-      - status
-      - subtotal_price
-      - tax_amount
-      - total_price
-      - total_weight
-      - tracking_number
-      - transaction_id
-      - updated_at
+        - billing_address
+        - coupon
+        - created_at
+        - discount_amount
+        - estimated_delivery_date
+        - id
+        - items
+        - loyalty_points_used
+        - note
+        - order_number
+        - payment_method
+        - payment_status
+        - shipping_address
+        - shipping_cost
+        - shipping_method
+        - status
+        - subtotal_price
+        - tax_amount
+        - total_price
+        - total_weight
+        - tracking_number
+        - transaction_id
+        - updated_at
     PaginatedActivityLogListViewList:
       type: object
       properties:
@@ -4280,7 +4282,7 @@ components:
           readOnly: true
         stock:
           allOf:
-          - $ref: '#/components/schemas/Stock'
+            - $ref: '#/components/schemas/Stock'
           readOnly: true
         variant_name:
           type: string
@@ -4405,17 +4407,17 @@ components:
         gender:
           nullable: true
           oneOf:
-          - $ref: '#/components/schemas/GenderEnum'
-          - $ref: '#/components/schemas/BlankEnum'
-          - $ref: '#/components/schemas/NullEnum'
+            - $ref: '#/components/schemas/GenderEnum'
+            - $ref: '#/components/schemas/BlankEnum'
+            - $ref: '#/components/schemas/NullEnum'
         profile_picture:
           type: string
           format: uri
         bio:
           type: string
           nullable: true
-        social_links: {}
-        preferences: {}
+        social_links: { }
+        preferences: { }
         role:
           type: integer
           nullable: true
@@ -4429,10 +4431,10 @@ components:
             assigning them.
     PaymentMethodEnum:
       enum:
-      - COD
-      - BANK_TRANSFER
-      - CREDIT_CARD
-      - PAYPAL
+        - COD
+        - BANK_TRANSFER
+        - CREDIT_CARD
+        - PAYPAL
       type: string
       description: |-
         * `COD` - Cash on Delivery
@@ -4441,9 +4443,9 @@ components:
         * `PAYPAL` - PayPal
     PaymentStatusEnum:
       enum:
-      - UNPAID
-      - PAID
-      - REFUNDED
+        - UNPAID
+        - PAID
+        - REFUNDED
       type: string
       description: |-
         * `UNPAID` - Unpaid
@@ -4463,9 +4465,9 @@ components:
         description:
           type: string
       required:
-      - action
-      - id
-      - model_name
+        - action
+        - id
+        - model_name
     ProductImage:
       type: object
       properties:
@@ -4489,8 +4491,8 @@ components:
           minimum: 0
           format: int64
       required:
-      - id
-      - image
+        - id
+        - image
     ProductStock:
       type: object
       properties:
@@ -4604,18 +4606,18 @@ components:
           items:
             type: integer
       required:
-      - id
-      - images
-      - name
-      - price
-      - slug
-      - stock_variants
-      - user
+        - id
+        - images
+        - name
+        - price
+        - slug
+        - stock_variants
+        - user
     ProductStockStatusEnum:
       enum:
-      - ACTIVE
-      - INACTIVE
-      - DRAFT
+        - ACTIVE
+        - INACTIVE
+        - DRAFT
       type: string
       description: |-
         * `ACTIVE` - Active
@@ -4644,19 +4646,19 @@ components:
           type: string
           readOnly: true
       required:
-      - id
-      - name
-      - permissions
-      - permissions_display
-      - permissions_objects
+        - id
+        - name
+        - permissions
+        - permissions_display
+        - permissions_objects
     Status50fEnum:
       enum:
-      - PENDING
-      - PROCESSING
-      - SHIPPED
-      - DELIVERED
-      - CANCELED
-      - RETURNED
+        - PENDING
+        - PROCESSING
+        - SHIPPED
+        - DELIVERED
+        - CANCELED
+        - RETURNED
       type: string
       description: |-
         * `PENDING` - Pending
@@ -4689,11 +4691,11 @@ components:
           format: date-time
           readOnly: true
       required:
-      - created_at
-      - id
-      - location
-      - name
-      - updated_at
+        - created_at
+        - id
+        - location
+        - name
+        - updated_at
     StockProduct:
       type: object
       properties:
@@ -4718,11 +4720,11 @@ components:
           format: date-time
           readOnly: true
       required:
-      - created_at
-      - id
-      - product
-      - stock
-      - updated_at
+        - created_at
+        - id
+        - product
+        - stock
+        - updated_at
     StockProductVariant:
       type: object
       properties:
@@ -4734,7 +4736,7 @@ components:
           title: Stock Location
         product:
           allOf:
-          - $ref: '#/components/schemas/ProductStock'
+            - $ref: '#/components/schemas/ProductStock'
           readOnly: true
         variant_name:
           type: string
@@ -4759,12 +4761,12 @@ components:
           format: date-time
           readOnly: true
       required:
-      - created_at
-      - id
-      - product
-      - stock
-      - updated_at
-      - variant_name
+        - created_at
+        - id
+        - product
+        - stock
+        - updated_at
+        - variant_name
     StockVariant:
       type: object
       properties:
@@ -4776,7 +4778,7 @@ components:
           readOnly: true
         stock:
           allOf:
-          - $ref: '#/components/schemas/Stock'
+            - $ref: '#/components/schemas/Stock'
           readOnly: true
         variant_name:
           type: string
@@ -4800,14 +4802,14 @@ components:
           format: uri
           nullable: true
       required:
-      - created_at
-      - id
-      - product
-      - quantity
-      - stock
-      - stock_id
-      - updated_at
-      - variant_name
+        - created_at
+        - id
+        - product
+        - quantity
+        - stock
+        - stock_id
+        - updated_at
+        - variant_name
     Store:
       type: object
       properties:
@@ -4877,14 +4879,14 @@ components:
           type: integer
           readOnly: true
       required:
-      - id
-      - joined_date
-      - rating
-      - seller_rating
-      - store_name
-      - total_reviews
-      - total_sales
-      - user
+        - id
+        - joined_date
+        - rating
+        - seller_rating
+        - store_name
+        - total_reviews
+        - total_sales
+        - user
     TokenRefresh:
       type: object
       properties:
@@ -4895,8 +4897,8 @@ components:
           type: string
           writeOnly: true
       required:
-      - access
-      - refresh
+        - access
+        - refresh
     User:
       type: object
       properties:
@@ -4931,17 +4933,17 @@ components:
         gender:
           nullable: true
           oneOf:
-          - $ref: '#/components/schemas/GenderEnum'
-          - $ref: '#/components/schemas/BlankEnum'
-          - $ref: '#/components/schemas/NullEnum'
+            - $ref: '#/components/schemas/GenderEnum'
+            - $ref: '#/components/schemas/BlankEnum'
+            - $ref: '#/components/schemas/NullEnum'
         profile_picture:
           type: string
           format: uri
         bio:
           type: string
           nullable: true
-        social_links: {}
-        preferences: {}
+        social_links: { }
+        preferences: { }
         role:
           type: integer
           nullable: true
@@ -4954,9 +4956,9 @@ components:
           description: Designates that this user has all permissions without explicitly
             assigning them.
       required:
-      - id
-      - role_display
-      - username
+        - id
+        - role_display
+        - username
     UserCreate:
       type: object
       properties:
@@ -4988,9 +4990,9 @@ components:
         gender:
           nullable: true
           oneOf:
-          - $ref: '#/components/schemas/GenderEnum'
-          - $ref: '#/components/schemas/BlankEnum'
-          - $ref: '#/components/schemas/NullEnum'
+            - $ref: '#/components/schemas/GenderEnum'
+            - $ref: '#/components/schemas/BlankEnum'
+            - $ref: '#/components/schemas/NullEnum'
         profile_picture:
           type: string
           format: uri
@@ -5004,11 +5006,11 @@ components:
         bio:
           type: string
           nullable: true
-        social_links: {}
-        preferences: {}
+        social_links: { }
+        preferences: { }
       required:
-      - id
-      - username
+        - id
+        - username
     UserRegistration:
       type: object
       properties:
@@ -5047,19 +5049,60 @@ components:
         gender:
           nullable: true
           oneOf:
-          - $ref: '#/components/schemas/GenderEnum'
-          - $ref: '#/components/schemas/BlankEnum'
-          - $ref: '#/components/schemas/NullEnum'
+            - $ref: '#/components/schemas/GenderEnum'
+            - $ref: '#/components/schemas/BlankEnum'
+            - $ref: '#/components/schemas/NullEnum'
         profile_picture:
           type: string
           format: uri
           nullable: true
       required:
-      - email
-      - id
-      - password
-      - password2
-      - username
+        - email
+        - id
+        - password
+        - password2
+        - username
+    LoginAuthResponse:
+      type: object
+      properties:
+        access:
+          type: string
+          readOnly: true
+          description: JWT access token
+        refresh:
+          type: string
+          readOnly: true
+          description: JWT refresh token
+        id:
+          type: integer
+          readOnly: true
+          description: User ID
+        role:
+          type: string
+          readOnly: true
+          description: User role
+          enum:
+            - MANAGER
+        username:
+          type: string
+          readOnly: true
+        email:
+          type: string
+          format: email
+          readOnly: true
+        scope:
+          type: array
+          readOnly: true
+          items:
+            type: string
+      required:
+        - access
+        - refresh
+        - id
+        - role
+        - username
+        - email
+        - scope
   securitySchemes:
     jwtAuth:
       type: http

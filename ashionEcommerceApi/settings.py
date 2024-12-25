@@ -200,9 +200,11 @@ LOGGING = {
 }
 
 SPECTACULAR_SETTINGS = {
-    'TITLE': 'Ecommerce API',
-    'DESCRIPTION': 'API documentation for Ecommerce platform.',
+    'TITLE': 'API Documentation',
     'VERSION': '1.0.0',
+    'SERVERS': [
+        {'url': 'http://localhost:8000/api'}
+    ],
     'SERVE_INCLUDE_SCHEMA': True,
     'SERVE_PUBLIC': True,
     'COMPONENT_SPLIT_REQUEST': True,
@@ -213,7 +215,7 @@ SPECTACULAR_SETTINGS = {
     'DEFAULT_GENERATOR_CLASS': 'drf_spectacular.generators.SchemaGenerator',
     'SECURITY': [
         {
-            'bearerAuth': []
+            'BearerAuth': []
         }
     ],
 }

@@ -239,3 +239,13 @@ class RoleSerializer(serializers.ModelSerializer):
         RolePermission.objects.bulk_create(role_permissions)
 
         return role
+
+
+class ResponseLoginSerializer(serializers.Serializer):
+    access = serializers.CharField()
+    refresh = serializers.CharField()
+    id = serializers.IntegerField()
+    username = serializers.CharField()
+    role = serializers.CharField()
+    email = serializers.CharField()
+    scope = serializers.ListField(child=serializers.CharField())
