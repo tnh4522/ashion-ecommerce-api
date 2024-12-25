@@ -50,6 +50,7 @@ CORS_ALLOW_METHODS = [
 
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:80',
+    'http://localhost:8000',
     'http://localhost:5173',
     'http://localhost:5174',
     'http://127.0.0.1:5173',
@@ -61,6 +62,7 @@ CORS_ALLOW_ALL_ORIGINS = True
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -74,7 +76,7 @@ INSTALLED_APPS = [
     'django_extensions',
     'corsheaders',
     'django_filters',
-    'drf_spectacular',
+    'drf_spectacular'
 ]
 
 MIDDLEWARE = [
@@ -215,3 +217,7 @@ SPECTACULAR_SETTINGS = {
         }
     ],
 }
+
+ASGI_APPLICATION = "ashionEcommerceApi.asgi.application"
+
+
