@@ -31,6 +31,7 @@ urlpatterns = [
     path('permissions/user/<int:user_id>/update/', UpdateUserPermissionsView.as_view(), name='update_user_permissions'),
     path('roles/', RoleListCreateView.as_view(), name='role-list-create'),
     path('roles/<int:pk>/', RoleDetailView.as_view(), name='role-detail'),
+    path('roles/<int:role_id>/update-permissions/', UpdateRolePermissionsView.as_view(),name='update-role-permissions'),
     path('stocks/', StockListView.as_view(), name='stock-list'),
     path('stocks/create/', StockCreateView.as_view(), name='stock-create'),
     path('stocks/<int:pk>/', StockUpdateDeleteView.as_view(), name='stock-update-delete'),
