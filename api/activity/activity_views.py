@@ -60,7 +60,8 @@ def fetch_initial_logs():
         {
             'id': log.id,
             'user': log.user.username if log.user else 'Anonymous',
-            'action_type': log.action,
+            'model': log.model,
+            'action': log.action,
             'timestamp': log.created_at.strftime('%Y-%m-%d %H:%M:%S'),
             'details': log.data
         }
@@ -76,7 +77,8 @@ def fetch_new_logs(last_log_id):
         {
             'id': log.id,
             'user': log.user.username if log.user else 'Anonymous',
-            'action_type': log.action,
+            'model': log.model,
+            'action': log.action,
             'timestamp': log.created_at.strftime('%Y-%m-%d %H:%M:%S'),
             'details': log.data
         }
