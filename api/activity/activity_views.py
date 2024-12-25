@@ -20,7 +20,7 @@ class ActivityLogPagination(PageNumberPagination):
 class ActivityLogListView(generics.ListAPIView):
     serializer_class = ActivityLogListViewSerializer
     permission_classes = (permissions.IsAuthenticated,)
-    queryset = ActivityLog.objects.all()
+    queryset = ActivityLog.objects.all().order_by('-created_at')
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ['user', 'status', 'action', 'model', 'context', 'created_at']
     search_fields = ['user', 'status', 'action', 'model', 'context', 'created_at']
@@ -55,11 +55,13 @@ class ActivityLogDetailView(generics.RetrieveUpdateDestroyAPIView):
 
 @sync_to_async
 def fetch_initial_logs():
-    logs = ActivityLog.objects.select_related('user').all().order_by('-created_at')[:10]
+    logs = ActivityLog.objects.select_related('user').all().order_by('created_at')
     serialized_logs = [
         {
             'id': log.id,
             'user': log.user.username if log.user else 'Anonymous',
+            'status': log.status,
+            'context': log.context,
             'model': log.model,
             'action': log.action,
             'timestamp': log.created_at.strftime('%Y-%m-%d %H:%M:%S'),
@@ -72,11 +74,13 @@ def fetch_initial_logs():
 
 @sync_to_async
 def fetch_new_logs(last_log_id):
-    logs = ActivityLog.objects.select_related('user').filter(id__gt=last_log_id).order_by('-created_at')
+    logs = ActivityLog.objects.select_related('user').filter(id__gt=last_log_id).order_by('created_at')
     serialized_logs = [
         {
             'id': log.id,
             'user': log.user.username if log.user else 'Anonymous',
+            'status': log.status,
+            'context': log.context,
             'model': log.model,
             'action': log.action,
             'timestamp': log.created_at.strftime('%Y-%m-%d %H:%M:%S'),
