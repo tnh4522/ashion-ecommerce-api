@@ -49,6 +49,7 @@ urlpatterns = [
     path('orders/', include('api.order.order_urls')),
     path('address/', include('api.address.address_urls')),
     path('cart/', include('api.cart.cart_urls')),
-    path('orders/by-user/', OrderByUserView.as_view(), name='order-by-user')
+    path('orders/by-user/', OrderByUserView.as_view(), name='order-by-user'),
     # path('search/', include('api.search.search_urls')),
+    path('payment/', include('api.payment.payment_urls')),
 ]
