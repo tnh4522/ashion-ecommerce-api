@@ -656,21 +656,17 @@ class ShippingMethod(models.Model):
 
 # PaymentMethod model for storing user's payment methods
 class PaymentMethod(models.Model):
-    user = models.ForeignKey(User, related_name='payment_methods', on_delete=models.CASCADE)
+    method_name = models.CharField(max_length=255)
     METHOD_TYPE_CHOICES = (
+        ('CASH', 'Cash'),
         ('CREDIT_CARD', 'Credit Card'),
-        ('BANK_ACCOUNT', 'Bank Account'),
-        ('PAYPAL', 'PayPal'),
+        ('BANK_TRANSFER', 'Bank Transfer'),
     )
     method_type = models.CharField(max_length=50, choices=METHOD_TYPE_CHOICES)
-    provider = models.CharField(max_length=50)
-    account_number = models.CharField(max_length=100)
-    expiry_date = models.DateField(null=True, blank=True)
-    is_default = models.BooleanField(default=False)
+    module_payment = models.ForeignKey('ModulePayment', related_name='payment_methods', on_delete=models.CASCADE)
 
     def __str__(self):
-        masked_account = '*' * (len(self.account_number) - 4) + self.account_number[-4:]
-        return f"{self.method_type} ending with {masked_account} for {self.user.username}"
+        return self.method_name
 
 
 # SellerProfile model with additional fields
@@ -785,3 +781,31 @@ class Customer(models.Model):
 
     def __str__(self):
         return f"Customer with email {self.email}"
+
+
+class ModulePayment(models.Model):
+    module_name = models.CharField(max_length=255)
+    lib = models.CharField(max_length=255)
+    logo_url = models.URLField()
+    test_mode = models.CharField(max_length=10, choices=[('on', 'On'), ('off', 'Off')], default='on')
+    id_tpv = models.CharField(max_length=10)
+    client_id_test = models.CharField(max_length=255, blank=True, null=True)
+    client_secret_test = models.CharField(max_length=255, blank=True, null=True)
+    merchant_id_test = models.CharField(max_length=255, blank=True, null=True)
+    cle_api_test = models.CharField(max_length=255, blank=True, null=True)
+    client_id_prod = models.CharField(max_length=255, blank=True, null=True)
+    client_secret_prod = models.CharField(max_length=255, blank=True, null=True)
+    merchant_id_prod = models.CharField(max_length=255, blank=True, null=True)
+    cle_api_prod = models.CharField(max_length=255, blank=True, null=True)
+    site_code_viva = models.CharField(max_length=10, blank=True, null=True)
+    payment_form_color = models.CharField(max_length=7)  # For hex color codes
+    platform_url = models.URLField(blank=True, null=True)
+    connect_token_url_test = models.URLField(blank=True, null=True)
+    connect_token_url_prod = models.URLField(blank=True, null=True)
+    base_url_test = models.URLField(blank=True, null=True)
+    base_url_prod = models.URLField(blank=True, null=True)
+    base_url_test2 = models.URLField(blank=True, null=True)
+    base_url_prod2 = models.URLField(blank=True, null=True)
+
+    def __str__(self):
+        return self.module_name

@@ -5,6 +5,7 @@ from rest_framework.generics import ListAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from api.models import Order
+from api.order.order_helper import handlePayment
 from api.order.order_serializers import OrderSerializer, OrderSerializerForView
 from api.utils import raise_event
 from api.views import StandardResultsSetPagination
@@ -32,9 +33,13 @@ class OrderCreateView(generics.CreateAPIView):
             serializer = self.get_serializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             self.perform_create(serializer)
+            payment = handlePayment(request, serializer.data)
+            response_data = serializer.data.copy()
+            if payment:
+                response_data['payment'] = payment
             headers = self.get_success_headers(serializer.data)
 
-            response = Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+            response = Response(response_data, status=status.HTTP_201_CREATED, headers=headers)
 
             user = request.user
             status_event = 'success'
