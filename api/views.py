@@ -1,5 +1,6 @@
+from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from drf_spectacular.utils import extend_schema_view, extend_schema
+from drf_spectacular.utils import extend_schema_view, extend_schema, OpenApiResponse
 from rest_framework import filters, permissions
 from rest_framework.views import APIView
 from rest_framework.pagination import PageNumberPagination
@@ -168,7 +169,6 @@ class UserPermissionsView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-
 class UpdateUserPermissionsView(APIView):
     # permission_classes = [HasRolePermission]
     # model_name = 'UserPermission'
@@ -238,6 +238,41 @@ class RoleDetailView(generics.RetrieveUpdateDestroyAPIView):
 
     # permission_classes = [permissions.IsAuthenticated, HasRolePermission]
     # model_name = 'Role'
+
+
+class UpdateRolePermissionsView(APIView):
+    """
+    API view to update permissions of a specific role.
+    """
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        request=RolePermissionUpdateSerializer,
+        responses={
+            200: OpenApiResponse(description="Permissions updated successfully."),
+            400: OpenApiResponse(description="Invalid data."),
+            401: OpenApiResponse(description="Unauthorized."),
+            404: OpenApiResponse(description="Role not found."),
+        },
+        summary="Update Permissions of a Role",
+        description="Endpoint to update the permissions associated with a specific role."
+    )
+    def post(self, request, role_id):
+        """
+        Update the permissions of the role identified by role_id.
+        Expects a JSON payload with a 'permissions' field containing a list of permission strings.
+        """
+        role = get_object_or_404(Role, id=role_id)
+
+        self.check_object_permissions(request, role)
+
+        serializer = RolePermissionUpdateSerializer(data=request.data)
+        if serializer.is_valid():
+            valid_permissions = serializer.validated_data['permissions']
+            serializer.update_permissions(role, valid_permissions)
+            return Response({'detail': 'Permissions updated successfully.'}, status=status.HTTP_200_OK)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class GetStoreByUser(APIView):
