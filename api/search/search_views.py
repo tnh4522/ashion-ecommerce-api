@@ -35,7 +35,7 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 print(f"Thiết bị sử dụng: {device}")
 
 # Google Generative AI configuration
-GOOGLE_API_KEY = "AIzaSyA7LPKaF_eXwtkqmnEoStfharjwTKspf_4"
+GOOGLE_API_KEY = "..."
 if not GOOGLE_API_KEY:
     raise ValueError("Google API Key not found.")
 
