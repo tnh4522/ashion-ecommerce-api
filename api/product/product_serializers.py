@@ -19,6 +19,12 @@ class ProductSerializer(serializers.ModelSerializer):
     images = ProductImageSerializer(source='product_images', many=True, read_only=True)
     stock_variants = StockVariantSerializer(many=True, read_only=True)
     tags = serializers.PrimaryKeyRelatedField(queryset=Tag.objects.all(), many=True, required=False)
+    sale_price = serializers.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        allow_null=True,
+        required=False
+    )
 
     class Meta:
         model = Product
@@ -28,7 +34,7 @@ class ProductSerializer(serializers.ModelSerializer):
             'sale_price', 'start_sale_date', 'end_sale_date', 'stock', 'weight',
             'dimensions', 'sizes', 'colors', 'status', 'is_featured',
             'is_new_arrival', 'is_on_sale', 'main_image', 'video_url',
-            'meta_title', 'meta_description', 'slug', 'images', 'stock_variants', 'tags'
+            'meta_title', 'meta_description', 'images', 'stock_variants', 'tags'
         ]
         read_only_fields = ('user', 'slug', 'stock_variants')
         ref_name = 'ProductStockSerializer'

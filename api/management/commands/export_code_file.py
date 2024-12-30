@@ -16,19 +16,17 @@ class Command(BaseCommand):
         base_dir = "api"
         product_dir = "api/product"
         file_list = [
-            "__init__.py", "apps.py", "models.py", "serializers.py",
-            "signals.py", "urls.py", "views.py"
+            # "__init__.py", "apps.py", "models.py", "serializers.py",
+            # "signals.py", "urls.py", "views.py"
         ]
 
         files_to_read = [os.path.join(base_dir, f) for f in file_list]
 
-        # Thêm tất cả các file trong product/
         for root, _, files in os.walk(product_dir):
             for file in files:
                 if file.endswith(".py"):
                     files_to_read.append(os.path.join(root, file))
 
-        # Tạo nội dung
         content = []
         for file_path in files_to_read:
             if os.path.exists(file_path):

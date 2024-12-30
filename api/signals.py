@@ -37,7 +37,6 @@ def sync_stock_variants(sender, instance, created, **kwargs):
                     )
                 logger.info(f"Created StockVariant: {variant_name} for Product: {instance.name} at Stock: {stock.name}")
 
-    # Xóa StockVariants không hợp lệ
     existing_variants = StockVariant.objects.filter(product=instance)
     invalid_variants = existing_variants.exclude(variant_name__in=valid_variant_names)
     count_deleted = invalid_variants.count()
