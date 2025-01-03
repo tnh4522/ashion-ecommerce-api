@@ -115,3 +115,42 @@ def process_payment(request_data, order_data):
     except Exception as e:
         print(f"Failed to process payment: {e}")
         raise
+
+
+def check_payment(request_data):
+    try:
+        MODULE_NAME = 'vivapayments'
+        config = ModulePayment.objects.get(module_name=MODULE_NAME)
+
+        is_test_mode = config.test_mode.lower() == 'on'
+        base_url = config.base_url_test if is_test_mode else config.base_url_prod
+        merchant_id = config.merchant_id_test if is_test_mode else config.merchant_id_prod
+
+        if not base_url or not merchant_id:
+            raise ValueError("Missing necessary configuration for processing payment.")
+
+        transaction_id = request_data.get('transactionID')
+        if not transaction_id:
+            raise ValueError("Transaction ID is required.")
+        endpoint = f"{base_url}/checkout/v2/transactions/{transaction_id}?merchantId={merchant_id}"
+
+        access_token = get_access_token()
+
+        response = requests.get(
+            endpoint,
+            headers={
+                'Content-Type': 'application/json',
+                'Authorization': f'Bearer {access_token}'
+            }
+        )
+
+        response.raise_for_status()
+
+        return response.json()
+
+    except requests.exceptions.HTTPError as http_err:
+        print(f"HTTP error occurred: {http_err}")
+        raise ValueError(f"HTTP error occurred: {http_err}")
+    except Exception as e:
+        print(f"Failed to check payment: {e}")
+        raise ValueError(f"Error during payment check: {e}")
