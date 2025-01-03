@@ -33,7 +33,9 @@ class OrderCreateView(generics.CreateAPIView):
             serializer = self.get_serializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             self.perform_create(serializer)
-            payment = handlePayment(request, serializer.data)
+            payment = None
+            if request.data.get('payment_method') != 'COD':
+                payment = handlePayment(request, serializer.data)
             response_data = serializer.data.copy()
             if payment:
                 response_data['payment'] = payment

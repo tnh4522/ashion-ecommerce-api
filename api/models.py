@@ -377,6 +377,7 @@ class Order(models.Model):
     transaction_id = models.CharField(max_length=100, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    shipping_address_text = models.TextField(blank=True)
 
     # For multi-vendor scenarios, remove 'seller' from Order
 
@@ -777,7 +778,7 @@ class Customer(models.Model):
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    order = models.ForeignKey(Order, related_name='customers', on_delete=models.SET_NULL, null=True)
+    user = models.ForeignKey(User, related_name='customers', on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
         return f"Customer with email {self.email}"

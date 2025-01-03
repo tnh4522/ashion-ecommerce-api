@@ -11,8 +11,13 @@ class OrderItemSerializer(serializers.ModelSerializer):
 
 
 class OrderSerializer(serializers.ModelSerializer):
-    user = serializers.StringRelatedField()
+    user = serializers.StringRelatedField(read_only=True)
     items = OrderItemSerializer(many=True)
+    customer = serializers.PrimaryKeyRelatedField(
+        queryset=Customer.objects.all(),
+        required=False,
+        allow_null=True
+    )
 
     class Meta:
         model = Order
@@ -22,14 +27,28 @@ class OrderSerializer(serializers.ModelSerializer):
             'shipping_address', 'billing_address', 'shipping_method',
             'payment_method', 'payment_status', 'status', 'coupon',
             'loyalty_points_used', 'tracking_number', 'estimated_delivery_date',
-            'note', 'transaction_id', 'created_at', 'updated_at', 'items'
+            'note', 'transaction_id', 'created_at', 'updated_at', 'items', 'shipping_address_text'
         ]
         read_only_fields = ('user', 'order_number')
 
     def create(self, validated_data):
         items_data = validated_data.pop('items')
+        customer = validated_data.pop('customer', None)
         user = self.context['request'].user
-        order = Order.objects.create(user=user, **validated_data)
+
+        if not customer:
+            try:
+                customer = user.customers.get(is_active=True)
+            except Customer.DoesNotExist:
+                customer = Customer.objects.create(
+                    user=user,
+                    first_name=user.first_name,
+                    last_name=user.last_name,
+                    email=user.email,
+                    phone_number=user.phone_number,
+                )
+
+        order = Order.objects.create(user=user, customer=customer, **validated_data)
 
         for item_data in items_data:
             product = Product.objects.get(id=item_data['product'].id)
@@ -37,12 +56,12 @@ class OrderSerializer(serializers.ModelSerializer):
             OrderItem.objects.create(order=order, seller=seller, **item_data)
 
         return order
-    
+
     def update(self, instance, validated_data):
         if 'items' in validated_data:
             items_data = validated_data.pop('items')
             existing_items = {item.id: item for item in instance.items.all()}
-            
+
             for item_data in items_data:
                 product = Product.objects.get(id=item_data['product'].id)
                 seller = item_data.get('seller', product.user)
@@ -60,6 +79,10 @@ class OrderSerializer(serializers.ModelSerializer):
             for item_id, item in existing_items.items():
                 if item_id not in provided_ids:
                     item.delete()
+
+        customer = validated_data.get('customer', None)
+        if customer:
+            instance.customer = customer
 
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
