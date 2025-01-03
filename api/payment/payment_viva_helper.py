@@ -49,9 +49,9 @@ def get_access_token():
 
 def handle_data_before_payment(request_data, order_data):
     try:
-        total_amount = int(float(request_data['total_price']) * 100)
+        total_amount = int(float(order_data['total_price']) * 100)
 
-        customer_id = request_data['customer']
+        customer_id = order_data['customer']
         customer_obj = Customer.objects.get(id=customer_id)
 
         customer = {
