@@ -1,5 +1,7 @@
 from django.db import IntegrityError, transaction
 from rest_framework import serializers
+
+from .address.address_serializers import AddressSerializer
 from .models import *
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from .product.product_serializers import ProductSerializer
@@ -60,7 +62,6 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
             f"{model_name}:{action}" for model_name, action, allowed in permissions if allowed
         ]
 
-        token['user'] = UserSerializer(user).data
         return token
 
     def validate(self, attrs):
@@ -78,7 +79,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         data['scope'] = [
             f"{model_name}:{action}" for model_name, action, allowed in permissions if allowed
         ]
-        data['user'] = UserSerializer(self.user).data
+        data['user'] = UserViewSerializer(self.user).data
         return data
 
 
@@ -99,6 +100,27 @@ class UserSerializer(serializers.ModelSerializer):
 
     def get_role_display(self, obj):
         return obj.role.name if obj.role else None
+
+
+class UserViewSerializer(serializers.ModelSerializer):
+    address = serializers.SerializerMethodField()
+    profile_picture = serializers.ImageField(required=False)
+    social_links = serializers.JSONField(required=False)
+    preferences = serializers.JSONField(required=False)
+
+    class Meta:
+        model = User
+        fields = (
+            'id', 'username', 'email', 'phone_number', 'first_name', 'last_name',
+            'date_of_birth', 'gender', 'profile_picture', 'bio',
+            'social_links', 'preferences', 'address'
+        )
+        read_only_fields = ('id',)
+
+    def get_address(self, obj):
+        # Correctly fetch related addresses
+        return AddressSerializer(obj.addresses.all(), many=True).data
+
 
 
 class UserCreateSerializer(serializers.ModelSerializer):

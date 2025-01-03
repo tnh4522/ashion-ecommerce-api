@@ -54,7 +54,7 @@ class UserLoginView(TokenObtainPairView):
 
 # User Detail (Self)
 class UserDetailView(generics.RetrieveUpdateAPIView):
-    serializer_class = UserSerializer
+    serializer_class = UserViewSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_object(self):
