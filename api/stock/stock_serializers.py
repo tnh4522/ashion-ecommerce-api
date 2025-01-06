@@ -26,3 +26,4 @@ class StockProductVariantSerializer(serializers.ModelSerializer):
     class Meta:
         model = StockVariant
         fields = ['id', 'stock', 'product', 'variant_name', 'image', 'quantity', 'created_at', 'updated_at']
+

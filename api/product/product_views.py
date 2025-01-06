@@ -53,7 +53,6 @@ class ProductCreateView(generics.CreateAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     permission_classes = [permissions.AllowAny]
-
     def perform_create(self, serializer):
         serializer.save()
 
@@ -94,7 +93,6 @@ class ProductDetailView(generics.RetrieveUpdateDestroyAPIView):
         instance.status = 'INACTIVE'
         instance.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
-
 
 
 class GenerateProductImageView(APIView):
