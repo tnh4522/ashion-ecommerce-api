@@ -269,7 +269,6 @@ class StockVariant(models.Model):
         verbose_name="Quantity in Stock"
     )
     image = models.ImageField(upload_to='variant_images/', blank=True, null=True)  # Thêm trường này
-
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Created At")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Updated At")
 

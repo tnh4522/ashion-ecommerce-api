@@ -16,5 +16,7 @@ urlpatterns = [
     path('import/', ImportCategoriesView.as_view(), name='import-categories'),
     path('export-selected/', ExportSelectedCategoriesView.as_view(), name='export-selected-categories'),
     path('check-name/', CheckCategoryNameView.as_view(), name='check-category-name'),
+    path('<slug:slug>/id/', GetCategoryIdBySlugView.as_view(), name='category-id-by-slug'),
+    path('leaf-with-parent/', LeafCategoriesWithParentView.as_view(), name='leaf-categories-with-parent'),
 ]
 

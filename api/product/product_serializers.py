@@ -34,7 +34,7 @@ class ProductSerializer(serializers.ModelSerializer):
             'sale_price', 'start_sale_date', 'end_sale_date', 'stock', 'weight',
             'dimensions', 'sizes', 'colors', 'status', 'is_featured',
             'is_new_arrival', 'is_on_sale', 'main_image', 'video_url',
-            'meta_title', 'meta_description', 'images', 'stock_variants', 'tags'
+            'meta_title', 'meta_description', 'images', 'stock_variants', 'tags', "created_at"
         ]
         read_only_fields = ('user', 'slug', 'stock_variants')
         ref_name = 'ProductStockSerializer'

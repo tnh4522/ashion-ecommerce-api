@@ -46,8 +46,6 @@ class CategoryListView(generics.ListAPIView):
 
         return queryset
 
-
-
 class CategoryActiveUpdateView(APIView):
     permission_classes = [permissions.AllowAny]
 
@@ -60,7 +58,6 @@ class CategoryActiveUpdateView(APIView):
             categories.update(is_active=is_active)
             return Response({'status': 'success'}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 class CategoryDetailView(APIView):
     # permission_classes = [HasRolePermission]
@@ -103,6 +100,7 @@ class CategoryUpdateView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 class ProductByCategoryView(APIView):
+    # permission_classes = [HasRolePermission]
     permission_classes = [permissions.AllowAny]
 
     def get(self, request, category_id, *args, **kwargs):
@@ -110,11 +108,22 @@ class ProductByCategoryView(APIView):
             category = Category.objects.get(pk=category_id)
         except Category.DoesNotExist:
             return Response({"detail": "Category not found."}, status=status.HTTP_404_NOT_FOUND)
-        products = Product.objects.filter(category=category)
+        
+        subcategories = category.subcategories.all()
+
+        if subcategories:
+            products = Product.objects.filter(
+                category__in=[category] + list(subcategories),
+                status='ACTIVE'
+            ).distinct()
+        else:
+            products = Product.objects.filter(
+                category=category,
+                status='ACTIVE'
+            ).distinct()
+
         serializer = ProductSerializer(products, many=True)
-
         return Response(serializer.data, status=status.HTTP_200_OK)
-
 
 class SubCategoryListView(APIView):
     permission_classes = [permissions.AllowAny]
@@ -220,7 +229,6 @@ class ExportSelectedCategoriesView(APIView):
     
 class CheckCategoryNameView(APIView):
     # permission_classes = [permissions.IsAuthenticated]
-
     permission_classes = [permissions.AllowAny]
     def get(self, request):
         name = request.query_params.get('name', '').strip()
@@ -232,3 +240,29 @@ class CheckCategoryNameView(APIView):
 
         exists = Category.objects.filter(name__iexact=name).exists()
         return Response({'exists': exists, 'available': not exists}, status=status.HTTP_200_OK)
+    
+class GetCategoryIdBySlugView(APIView):
+    # permission_classes = [HasRolePermission]
+    permission_classes = [permissions.AllowAny] 
+
+    def get(self, request, slug, *args, **kwargs):
+        try:
+            category = Category.objects.only('id').get(slug=slug)
+            return Response({"id": category.id}, status=status.HTTP_200_OK)
+        except Category.DoesNotExist:
+            return Response({"error": "Category not found."}, status=status.HTTP_404_NOT_FOUND)
+        
+class LeafCategoriesWithParentView(APIView):
+    permission_classes = [permissions.AllowAny]
+    serializer_class = CategorySerializer
+
+    def get(self, request, *args, **kwargs):
+        is_active = request.query_params.get('is_active', None)
+
+        categories = Category.objects.filter(parent__isnull=False)
+
+        if is_active is not None:
+            is_active = bool(int(is_active))
+            categories = categories.filter(is_active=is_active)
+        serializer = CategorySerializer(categories, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)

@@ -24,6 +24,7 @@ class StockUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
 class StockListView(generics.ListAPIView):
     queryset = Stock.objects.all()
     serializer_class = StockSerializer
+    permission_classes = [permissions.AllowAny]
     # permission_classes = [permissions.IsAuthenticated]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ['name', 'is_active', 'location']
@@ -59,10 +60,41 @@ class StockProductListView(generics.ListAPIView):
 
 
 class StockProductVariantListView(generics.ListAPIView):
-    queryset = StockProduct.objects.all()
     serializer_class = StockProductVariantSerializer
     permission_classes = [permissions.AllowAny]
 
     def get_queryset(self):
         stock_id = self.kwargs['stock_id']
-        return StockVariant.objects.filter(stock_id=stock_id)
+        
+        stock_variants = StockVariant.objects.filter(stock_id=stock_id)
+        
+        seen_products = {}
+        unique_stock_variants = []
+        
+        for variant in stock_variants:
+            if variant.product.id not in seen_products:
+                unique_stock_variants.append(variant)
+                seen_products[variant.product.id] = variant.stock.id
+            elif seen_products[variant.product.id] == stock_id:
+                unique_stock_variants.append(variant)
+
+        return unique_stock_variants
+    
+class StockProductVariantListView(generics.ListAPIView):
+    serializer_class = StockProductVariantSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def get_queryset(self):
+        stock_id = self.kwargs['stock_id']
+        
+        stock_variants = StockVariant.objects.filter(stock_id=stock_id)
+        
+        seen_slugs = set()
+        unique_stock_variants = []
+        
+        for variant in stock_variants:
+            if variant.product.slug not in seen_slugs:
+                unique_stock_variants.append(variant)
+                seen_slugs.add(variant.product.slug)
+
+        return unique_stock_variants
