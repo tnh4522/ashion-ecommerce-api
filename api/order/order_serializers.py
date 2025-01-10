@@ -94,10 +94,12 @@ class OrderSerializer(serializers.ModelSerializer):
 class OrderItemSerializerForView(serializers.ModelSerializer):
     product_name = serializers.CharField(source='product.name')
     product_image = serializers.ImageField(source='product.main_image')
+
     class Meta:
         model = OrderItem
         fields = [
-            'product', 'seller', 'quantity', 'price', 'total_price', 'size', 'color', 'weight', 'product_name', 'product_image'
+            'product', 'seller', 'quantity', 'price', 'total_price', 'size', 'color', 'weight', 'product_name',
+            'product_image'
         ]
 
 

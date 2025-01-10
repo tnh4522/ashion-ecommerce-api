@@ -1,7 +1,9 @@
-from django_filters.rest_framework import DjangoFilterBackend
+from django_filters import CharFilter, DateFilter
+from django_filters.rest_framework import DjangoFilterBackend, FilterSet
 from rest_framework import filters, permissions, status
 from rest_framework import generics
 from rest_framework.generics import ListAPIView
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from api.models import Order
@@ -9,6 +11,21 @@ from api.order.order_helper import handlePayment
 from api.order.order_serializers import OrderSerializer, OrderSerializerForView
 from api.utils import raise_event
 from api.views import StandardResultsSetPagination
+
+
+class CustomPageNumberPagination(PageNumberPagination):
+    page_size = 5  # số đơn hàng mỗi trang mặc định
+    page_size_query_param = 'page_size'
+    max_page_size = 50
+
+
+class OrderFilter(FilterSet):
+    status = CharFilter(field_name='status', lookup_expr='iexact')
+    date = DateFilter(field_name='created_at', lookup_expr='date')
+
+    class Meta:
+        model = Order
+        fields = ['status', 'date']
 
 
 # List all orders
@@ -67,6 +84,12 @@ class OrderCreateView(generics.CreateAPIView):
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+class OrderDetailForView(generics.RetrieveAPIView):
+    queryset = Order.objects.all()
+    serializer_class = OrderSerializerForView
+    permission_classes = [permissions.IsAuthenticated]
+
+
 # Order Detail, Update, Delete
 class OrderDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Order.objects.all()
@@ -84,9 +107,15 @@ class OrderDetailView(generics.RetrieveUpdateDestroyAPIView):
             return None
 
 
-class OrderByUserView(ListAPIView):
+class OrderByUserView(generics.ListAPIView):
     serializer_class = OrderSerializerForView
     permission_classes = [IsAuthenticated]
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter, filters.SearchFilter]
+    filterset_class = OrderFilter
+    search_fields = ['order_number']
+    ordering_fields = ['created_at', 'status']
+    ordering = ['-created_at']
+    pagination_class = CustomPageNumberPagination
 
     def get_queryset(self):
         return Order.objects.filter(user=self.request.user).order_by('-created_at')
